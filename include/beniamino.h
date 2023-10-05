@@ -5,6 +5,9 @@
 // #include "simprop/energyLosses/ContinuousLosses.h"
 // #include "simprop/utils/lookupContainers.h"
 
+#include <memory>
+
+#include "losses.h"
 #include "units.h"
 
 namespace beniamino {
@@ -21,13 +24,13 @@ class Beniamino {
   Beniamino(const SourceParams &params);
   virtual ~Beniamino() = default;
 
-  double beta(double E) const;
-  double dbdE(double E) const;
   double generationEnergy(double E, double zInit, double zFinal, double relError = 1e-3) const;
   double dilationFactor(double E, double zInit, double zFinal, double relError = 1e-3) const;
   double computeFlux(double E, double zObs, double relError = 1e-2) const;
 
  protected:
+  std::shared_ptr<beniamino::LossesTable<double>> m_losses;
+
   const double m_sourceEmissivity{1e45 * SI::erg / SI::Mpc3 / SI::year};
   const double m_maxEnergy{1e24 * SI::eV};
   const double m_minEnergy{1e17 * SI::eV};

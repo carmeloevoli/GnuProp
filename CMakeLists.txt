@@ -62,6 +62,7 @@ include_directories(include ${SIMPROP_EXTRA_INCLUDES})
 
 add_library(beniamino SHARED
     src/beniamino.cpp
+    src/numeric.cpp
     )
     target_link_libraries(beniamino ${SIMPROP_EXTRA_LIBRARIES})
 
@@ -73,8 +74,8 @@ add_library(beniamino SHARED
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/output)
 
 # copy data files in build
-#file(GLOB SIMPROP_DATA "data/*.txt")
-#file(COPY ${SIMPROP_DATA} DESTINATION ${PROJECT_BINARY_DIR}/data)
+file(GLOB SIMPROP_DATA "data/*.txt")
+file(COPY ${SIMPROP_DATA} DESTINATION ${PROJECT_BINARY_DIR}/data)
 
 # make apps
 add_executable(run src/main.cpp)

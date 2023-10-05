@@ -13,9 +13,21 @@
 #include <cmath>
 #include <functional>
 #include <iostream>
+#include <sstream>
 #include <vector>
 
 namespace utils {
+
+template <typename T>
+T convertFromString(const std::string &str) {
+  std::istringstream iss(str);
+  T value;
+  iss >> value;
+  if (!iss.eof() || iss.fail()) {
+    throw std::invalid_argument("Failed to convert string to the specified type");
+  }
+  return value;
+}
 
 // Axis
 template <typename T>
@@ -51,8 +63,6 @@ inline bool isInside(double x, const std::vector<double> &X) {
 };
 
 double interpolate(double x, const std::vector<double> &X, const std::vector<double> &Y);
-
-double cspline(double x, const std::vector<double> &X, const std::vector<double> &Y);
 
 double interpolateEquidistant(double x, double lo, double hi, const std::vector<double> &Y);
 

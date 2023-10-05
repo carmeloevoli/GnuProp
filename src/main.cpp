@@ -4,6 +4,13 @@
 #include "beniamino.h"
 #include "numeric.h"
 
+void testLosses() {
+  auto losses = beniamino::LossesTable<double>("data/SimProp_proton_losses.txt");
+  assert(losses.loadTable());
+  std::cout << losses.beta(1e19 * SI::eV) * SI::year << "\n";
+  std::cout << losses.dbdE(1e19 * SI::eV) * SI::year << "\n";
+}
+
 void testCharacteristics(const beniamino::Beniamino &b) {
   {
     std::ofstream out("SimProp_characteristics_vs_redshift.txt");
@@ -74,7 +81,8 @@ void testJacobian(const beniamino::Beniamino &b) {
 
 int main() {
   std::cout << "Hello world!\n";
-  beniamino::Beniamino b({0, 0, 0, 0});
-  testCharacteristics(b);
-  testJacobian(b);
+  testLosses();
+  // beniamino::Beniamino b({0, 0, 0, 0});
+  // testCharacteristics(b);
+  // testJacobian(b);
 }

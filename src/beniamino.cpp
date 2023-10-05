@@ -19,40 +19,9 @@ Beniamino::Beniamino(const SourceParams &params) {
   m_evolutionIndex = params.evolutionIndex;
   m_expCutoff = params.expCutoff;
   m_zMax = params.zMax;
-}
 
-// Beniamino &Beniamino::doCaching() {
-//   LOGD << "Start Beniamino chaching...";
-//   m_lossesLookup.cacheTable(
-//       [this](double lnE) {
-//         const auto Gamma = std::exp(lnE) / SI::protonMassC2;
-//         return std::accumulate(
-//             m_losses.begin(), m_losses.end(), 0.,
-//             [Gamma](double sum,
-//                     const std::shared_ptr<losses::ContinuousLosses> &l) {
-//               return sum + l->beta(proton, Gamma);
-//             });
-//       },
-//       {std::log(VERYSMALLENERGY), std::log(VERYLARGEENERGY)});
-//   m_doCaching = true;
-//   return *this;
-// }
-
-double Beniamino::beta(double E) const {
-  if (E < VERYSMALLENERGY || E > VERYLARGEENERGY) return 0;
-  return 0;  // TODO implement this
-}
-
-double Beniamino::dbdE(double E) const {
-  if (E < VERYSMALLENERGY || E > VERYLARGEENERGY) return 0;
-  // auto dbetadlnE = utils::deriv<double>(
-  //     [this](double lnx) {
-  //       auto x = std::exp(lnx);
-  //       return beta(x);
-  //     },
-  //     std::log(E), 1e-2);
-  // return beta(E) + dbetadlnE;
-  return 0;
+  m_losses = std::make_shared<beniamino::LossesTable<double>>("data/SimProp_proton_losses.txt");
+  assert(m_losses->loadTable());
 }
 
 double Beniamino::generationEnergy(double E, double zInit, double zFinal, double relError) const {
@@ -60,7 +29,7 @@ double Beniamino::generationEnergy(double E, double zInit, double zFinal, double
   assert(E > 0);
   auto dEdz = [this](double z, double E_g) {
     auto E = std::min(E_g * (1. + z), VERYLARGEENERGY);
-    return E_g * (1. / (1. + z) + dtdz(z) * pow3(1. + z) * beta(E));
+    return E_g * (1. / (1. + z) + dtdz(z) * pow3(1. + z) * m_losses->beta(E));
   };
   auto value = utils::odeiv<double>(dEdz, E, zInit, zFinal, relError);
   assert(value > 0.);
@@ -75,7 +44,7 @@ double Beniamino::dilationFactor(double E, double zInit, double zFinal, double r
   auto dydz = [this, E, zInit](double z, double y) {
     auto E_g = generationEnergy(E, zInit, z, 1e-5);
     auto E_prime = std::min(E_g * (1. + z), VERYLARGEENERGY);
-    auto dbdE = std::max(this->dbdE(E_prime), 0.);
+    auto dbdE = std::max(m_losses->dbdE(E_prime), 0.);
     return y * (1. / (1. + z) + dtdz(z) * pow3(1. + z) * dbdE);
   };
   auto value = utils::odeiv<double>(dydz, 1., zInit, zFinal, relError);
