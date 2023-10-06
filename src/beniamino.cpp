@@ -11,8 +11,8 @@ namespace beniamino {
 
 #define INTSTEPS 1000
 #define VERYSMALLENERGY (1e15 * SI::eV)
-#define VERYLARGEENERGY (1e25 * SI::eV)
-#define VERYLARGEJACOBIAN (1e8)
+#define VERYLARGEENERGY (1e30 * SI::eV)
+#define VERYLARGEJACOBIAN (1e5)
 
 Beniamino::Beniamino(const SourceParams &params) {
   m_injSlope = params.injSlope;
@@ -28,8 +28,11 @@ double Beniamino::generationEnergy(double E, double zInit, double zFinal, double
   assert(zFinal >= zInit);
   assert(E > 0);
   auto dEdz = [this](double z, double E_g) {
-    auto E = std::min(E_g * (1. + z), VERYLARGEENERGY);
-    return E_g * (1. / (1. + z) + dtdz(z) * pow3(1. + z) * m_losses->beta(E));
+    if (E_g < VERYLARGEENERGY) {
+      auto E = E_g * (1. + z);
+      return E_g * (1. / (1. + z) + dtdz(z) * pow3(1. + z) * m_losses->beta(E));
+    } else
+      return 0.;
   };
   auto value = utils::odeiv<double>(dEdz, E, zInit, zFinal, relError);
   assert(value > 0.);
@@ -40,12 +43,15 @@ double Beniamino::generationEnergy(double E, double zInit, double zFinal, double
 double Beniamino::dilationFactor(double E, double zInit, double zFinal, double relError) const {
   assert(zFinal >= zInit);
   assert(E > 0);
-  if (generationEnergy(E, zInit, zFinal, 1e-2) > 0.2 * VERYLARGEENERGY) return VERYLARGEJACOBIAN;
+  // if (generationEnergy(E, zInit, zFinal, 1e-3) > 0.3 * VERYLARGEENERGY) return VERYLARGEJACOBIAN;
   auto dydz = [this, E, zInit](double z, double y) {
-    auto E_g = generationEnergy(E, zInit, z, 1e-5);
-    auto E_prime = std::min(E_g * (1. + z), VERYLARGEENERGY);
-    auto dbdE = std::max(m_losses->dbdE(E_prime), 0.);
-    return y * (1. / (1. + z) + dtdz(z) * pow3(1. + z) * dbdE);
+    if (y < VERYLARGEJACOBIAN) {
+      auto E_g = generationEnergy(E, zInit, z, 1e-5);
+      auto E_prime = std::min(E_g * (1. + z), VERYLARGEENERGY);
+      auto dbdE = std::max(m_losses->dbdE(E_prime), 0.);
+      return y * (1. / (1. + z) + dtdz(z) * pow3(1. + z) * dbdE);
+    } else
+      return 0.;
   };
   auto value = utils::odeiv<double>(dydz, 1., zInit, zFinal, relError);
   assert(value > 0.);

@@ -19,8 +19,6 @@ class LossesTable {
   LossesTable(const std::string &filename) : filename_(filename) {}
 
   bool loadTable() {
-    table_.resize(3);
-
     std::ifstream file(filename_);
     if (!file.is_open()) {
       std::cerr << "Error: Failed to open file " << filename_ << std::endl;
@@ -50,9 +48,8 @@ class LossesTable {
         return false;
       }
 
-      table_[0].push_back(row[0]);
-      table_[1].push_back(row[1]);
-      table_[2].push_back(row[2]);
+      logE_.push_back(row[0]);
+      logbeta_.push_back(row[1]);
     }
 
     file.close();
@@ -61,19 +58,28 @@ class LossesTable {
 
   T beta(T E) {
     auto logE = std::log10(E / SI::eV);
-    auto logb = utils::interpolate(logE, table_[0], table_[1]);
-    return std::pow(10., logb) / SI::year;
+    double logbeta = 0;
+    if (logE < logE_.front())
+      logbeta = logbeta_.front();
+    else if (logE > logE_.back())
+      logbeta = logbeta_.back();
+    else
+      logbeta = utils::interpolate(logE, logE_, logbeta_);
+    return std::pow(10., logbeta) / SI::year;
   }
 
   T dbdE(T E) {
     auto logE = std::log10(E / SI::eV);
-    auto logb = utils::interpolate(logE, table_[0], table_[2]);
-    return std::pow(10., logb) / SI::year;
+    if (logE <= logE_.front() || logE >= logE_.back()) return beta(E);
+    size_t i = std::lower_bound(logE_.begin(), logE_.end(), logE) - logE_.begin();
+    assert(logE <= logE_.at(i) && logE >= logE_.at(i - 1));
+    return beta(E) * (1. + (logbeta_[i] - logbeta_[i - 1]) / (logE_[i] - logE_[i - 1]));
   }
 
  private:
   std::string filename_;
-  std::vector<std::vector<T>> table_;
+  std::vector<T> logE_;
+  std::vector<T> logbeta_;
 };
 
 }  // namespace beniamino

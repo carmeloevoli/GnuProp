@@ -21,6 +21,7 @@ struct SourceParams {
 
 class Beniamino {
  public:
+  Beniamino() : Beniamino({0., 0., 0., 0.}) {}
   Beniamino(const SourceParams &params);
   virtual ~Beniamino() = default;
 
