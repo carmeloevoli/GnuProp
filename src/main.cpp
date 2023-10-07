@@ -5,6 +5,7 @@ void printSpectrum(const beniamino::Beniamino &b, std::string filename) {
   filename = "output/" + filename;
   std::ofstream out(filename);
   const double units = 1. / SI::eV / SI::m2 / SI::sr / SI::sec;
+  out << "# E [eV] - z=0 - z=1 - z=2 - z=3 - z=4 - z=5\n";
   for (const auto &E_i : E) {
     std::cout << E_i / SI::eV << "\n";
     out << std::scientific << E_i / SI::eV << "\t";

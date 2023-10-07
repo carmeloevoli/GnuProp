@@ -41,7 +41,7 @@ void testJacobian(const beniamino::Beniamino &b) {
   {
     std::ofstream out("output/Beniamino_jacobian_vs_redshift.txt");
     auto z = utils::LogAxis(1e-4, 1e1, 1000);
-    out << "# z\n";
+    out << "# z - 10^17 eV - 10^18 eV - 10^19 eV - 10^20 eV - 10^21 eV\n";
     for (const auto &z_i : z) {
       std::cout << z_i << "\n";
       out << std::scientific << z_i << "\t";
