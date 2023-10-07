@@ -42,7 +42,7 @@ class LossesTable {
         }
       }
 
-      if (row.size() != 4) {
+      if (row.size() != 3) {
         std::cerr << "Error: Each row in the table must have 4 columns in file " << filename_
                   << std::endl;
         return false;
@@ -50,6 +50,7 @@ class LossesTable {
 
       logE_.push_back(row[0]);
       logbeta_.push_back(row[1]);
+      logdbdE_.push_back(row[2]);
     }
 
     file.close();
@@ -70,16 +71,21 @@ class LossesTable {
 
   T dbdE(T E) {
     auto logE = std::log10(E / SI::eV);
-    if (logE <= logE_.front() || logE >= logE_.back()) return beta(E);
-    size_t i = std::lower_bound(logE_.begin(), logE_.end(), logE) - logE_.begin();
-    assert(logE <= logE_.at(i) && logE >= logE_.at(i - 1));
-    return beta(E) * (1. + (logbeta_[i] - logbeta_[i - 1]) / (logE_[i] - logE_[i - 1]));
+    double logdbde = 0;
+    if (logE < logE_.front())
+      logdbde = logdbdE_.front();
+    else if (logE > logE_.back())
+      logdbde = logdbdE_.back();
+    else
+      logdbde = utils::interpolate(logE, logE_, logdbdE_);
+    return std::pow(10., logdbde) / SI::year;
   }
 
  private:
   std::string filename_;
   std::vector<T> logE_;
   std::vector<T> logbeta_;
+  std::vector<T> logdbdE_;
 };
 
 }  // namespace beniamino

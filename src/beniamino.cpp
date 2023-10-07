@@ -9,19 +9,19 @@
 
 namespace beniamino {
 
-#define INTSTEPS 1000
-#define VERYSMALLENERGY (1e15 * SI::eV)
 #define VERYLARGEENERGY (1e30 * SI::eV)
-#define VERYLARGEJACOBIAN (1e5)
+#define VERYLARGEJACOBIAN (1e6)
 
-Beniamino::Beniamino(const SourceParams &params) {
+Beniamino::Beniamino() {
+  m_losses = std::make_shared<beniamino::LossesTable<double>>("data/SimProp_proton_losses.txt");
+  assert(m_losses->loadTable());
+}
+
+Beniamino::Beniamino(const SourceParams &params) : Beniamino() {
   m_injSlope = params.injSlope;
   m_evolutionIndex = params.evolutionIndex;
   m_expCutoff = params.expCutoff;
   m_zMax = params.zMax;
-
-  m_losses = std::make_shared<beniamino::LossesTable<double>>("data/SimProp_proton_losses.txt");
-  assert(m_losses->loadTable());
 }
 
 double Beniamino::generationEnergy(double E, double zInit, double zFinal, double relError) const {
@@ -43,9 +43,9 @@ double Beniamino::generationEnergy(double E, double zInit, double zFinal, double
 double Beniamino::dilationFactor(double E, double zInit, double zFinal, double relError) const {
   assert(zFinal >= zInit);
   assert(E > 0);
-  auto dydz = [this, E, zInit](double z, double y) {
+  auto dydz = [this, E, zInit, relError](double z, double y) {
     if (y < VERYLARGEJACOBIAN) {
-      auto E_g = generationEnergy(E, zInit, z, 1e-5);
+      auto E_g = generationEnergy(E, zInit, z, 0.1 * relError);
       auto E_prime = std::min(E_g * (1. + z), VERYLARGEENERGY);
       auto dbdE = std::max(m_losses->dbdE(E_prime), 0.);
       return y * (1. / (1. + z) + dtdz(z) * pow3(1. + z) * dbdE);
@@ -64,16 +64,16 @@ double Beniamino::computeFlux(double E, double zObs, double relError) const {
   const auto L_0 = m_sourceEmissivity;
   const auto factor = SI::cLight / 4. / M_PI * K * L_0;
   auto integrand = [this, E, zObs](double z) {
-    const auto E_g = generationEnergy(E, zObs, z, 1e-4);
+    const auto E_g = generationEnergy(E, zObs, z, 1e-5);
     if (E_g > m_maxEnergy) return 0.;
-    auto dEgdE = dilationFactor(E, zObs, z, 1e-4);
+    auto dEgdE = dilationFactor(E, zObs, z, 1e-5);
     auto inj = std::pow(E_g / m_minEnergy, -m_injSlope);
     if (m_expCutoff > 0.) inj *= std::exp(-E_g / m_expCutoff);
     auto sourceEvolution = std::pow(1. + z, m_evolutionIndex);
     return dtdz(z) * sourceEvolution * inj * dEgdE;
   };
-  auto I = utils::RombergIntegration<double>(integrand, zObs, m_zMax, 8,
-                                             0.001);  // TODO check this
+  auto I = utils::RombergIntegration<double>(integrand, zObs, m_zMax, 15,
+                                             1e-4);  // TODO check this
   return factor * I;
 }
 

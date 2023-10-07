@@ -21,7 +21,7 @@ struct SourceParams {
 
 class Beniamino {
  public:
-  Beniamino() : Beniamino({0., 0., 0., 0.}) {}
+  Beniamino();
   Beniamino(const SourceParams &params);
   virtual ~Beniamino() = default;
 
@@ -32,7 +32,7 @@ class Beniamino {
  protected:
   std::shared_ptr<beniamino::LossesTable<double>> m_losses;
 
-  const double m_sourceEmissivity{1e45 * SI::erg / SI::Mpc3 / SI::year};
+  const double m_sourceEmissivity{3e45 * SI::erg / SI::Mpc3 / SI::year};
   const double m_maxEnergy{1e24 * SI::eV};
   const double m_minEnergy{1e17 * SI::eV};
 
@@ -41,40 +41,6 @@ class Beniamino {
   double m_evolutionIndex{0.};
   double m_expCutoff{-1.};
 };
-
-// class Beniamino {
-// public:
-//   Beniamino(
-//       const SourceParams &params,
-//       const std::shared_ptr<cosmo::Cosmology> &cosmology,
-//       const std::vector<std::shared_ptr<losses::ContinuousLosses>> &losses);
-//   Beniamino &doCaching();
-
-//   virtual ~Beniamino() = default;
-
-//   double dilationFactor(double E, double zInit, double zFinal,
-//                         double relError = 1e-3) const;
-//
-//   // double computeFluxUnm(double E, double zMax, double relError = 1e-3)
-//   const;
-
-// public:
-//   double getMaxRedshift() const { return m_zMax; }
-//   const std::shared_ptr<cosmo::Cosmology> &getCosmology() const {
-//     return m_cosmology;
-//   }
-
-// protected:
-//   std::shared_ptr<cosmo::Cosmology> m_cosmology;
-//   std::vector<std::shared_ptr<losses::ContinuousLosses>> m_losses;
-//   utils::LookupArray<10000> m_lossesLookup;
-
-//   double m_zMax{3.};
-//   double m_injSlope{2.6};
-//   double m_evolutionIndex{0.};
-//   double m_expCutoff{-1.};
-//   bool m_doCaching{false};
-// };
 
 }  // namespace beniamino
 
