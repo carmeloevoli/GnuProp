@@ -82,8 +82,8 @@ void testNeutrinoSpectrum() {
   const auto units = SI::cm3 / SI::sec;
   const auto epsCmb = 6.3e-4 * SI::eV;
   const auto epsIr = 1e-2 * SI::eV;
-  auto EpAxis = utils::LogAxis<double>(1e18 * SI::eV, 1e22 * SI::eV, 201);
-  auto EnuAxis = utils::LogAxis<double>(1e15 * SI::eV, 1e22 * SI::eV, 201);
+  auto EpAxis = utils::LogAxis<double>(1e16 * SI::eV, 1e22 * SI::eV, 251);
+  auto EnuAxis = utils::LogAxis<double>(1e15 * SI::eV, 1e22 * SI::eV, 251);
   for (auto Enu : EnuAxis) {
     for (auto Ep : EpAxis) {
       auto x = Enu / Ep;
@@ -102,8 +102,13 @@ void testNeutrinoSpectrum() {
 }
 
 int main() {
-  std::cout << "Hello Beniamino!\n";
-  beniamino::Beniamino b;
-  testCharacteristics(b);
-  testJacobian(b);
+  try {
+    std::cout << "Hello Beniamino!\n";
+    beniamino::Beniamino b;
+    testCharacteristics(b);
+    testJacobian(b);
+    testNeutrinoSpectrum();
+  } catch (const std::exception &e) {
+    std::cerr << "exception caught with message: " << e.what();
+  }
 }
