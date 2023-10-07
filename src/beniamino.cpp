@@ -43,7 +43,6 @@ double Beniamino::generationEnergy(double E, double zInit, double zFinal, double
 double Beniamino::dilationFactor(double E, double zInit, double zFinal, double relError) const {
   assert(zFinal >= zInit);
   assert(E > 0);
-  // if (generationEnergy(E, zInit, zFinal, 1e-3) > 0.3 * VERYLARGEENERGY) return VERYLARGEJACOBIAN;
   auto dydz = [this, E, zInit](double z, double y) {
     if (y < VERYLARGEJACOBIAN) {
       auto E_g = generationEnergy(E, zInit, z, 1e-5);
@@ -60,6 +59,7 @@ double Beniamino::dilationFactor(double E, double zInit, double zFinal, double r
 }
 
 double Beniamino::computeFlux(double E, double zObs, double relError) const {
+  if (zObs >= m_zMax) return 0;
   const auto K = (m_injSlope - 2.) / pow2(m_minEnergy);
   const auto L_0 = m_sourceEmissivity;
   const auto factor = SI::cLight / 4. / M_PI * K * L_0;
@@ -73,7 +73,7 @@ double Beniamino::computeFlux(double E, double zObs, double relError) const {
     return dtdz(z) * sourceEvolution * inj * dEgdE;
   };
   auto I = utils::RombergIntegration<double>(integrand, zObs, m_zMax, 8,
-                                             0.01);  // TODO check this
+                                             0.001);  // TODO check this
   return factor * I;
 }
 
