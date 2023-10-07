@@ -30,7 +30,7 @@ class Beniamino {
   double computeFlux(double E, double zObs, double relError = 1e-2) const;
 
  protected:
-  std::shared_ptr<beniamino::LossesTable<double>> m_losses;
+  std::shared_ptr<beniamino::LossesTable> m_losses;
 
   const double m_sourceEmissivity{3e45 * SI::erg / SI::Mpc3 / SI::year};
   const double m_maxEnergy{1e24 * SI::eV};

@@ -13,8 +13,8 @@ namespace beniamino {
 #define VERYLARGEJACOBIAN (1e6)
 
 Beniamino::Beniamino() {
-  m_losses = std::make_shared<beniamino::LossesTable<double>>("data/SimProp_proton_losses.txt");
-  assert(m_losses->loadTable());
+  m_losses = std::make_shared<beniamino::LossesTable>();
+  assert(m_losses->loadTable("data/SimProp_proton_losses.txt"));
 }
 
 Beniamino::Beniamino(const SourceParams &params) : Beniamino() {

@@ -62,6 +62,8 @@ include_directories(include ${SIMPROP_EXTRA_INCLUDES})
 
 add_library(beniamino SHARED
     src/beniamino.cpp
+    src/KelnerAharonian2008.cpp
+    src/losses.cpp
     src/numeric.cpp
     )
     target_link_libraries(beniamino ${SIMPROP_EXTRA_LIBRARIES})
