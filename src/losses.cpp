@@ -1,5 +1,13 @@
 #include "losses.h"
 
+#include <cmath>
+#include <fstream>
+#include <iostream>
+
+#include "simprop/core/units.h"
+#include "simprop/utils/numeric.h"
+#include "utils.h"
+
 namespace beniamino {
 
 bool LossesTable::loadTable(const std::string& filename) {
@@ -49,7 +57,7 @@ double LossesTable::beta(double E) const {
   else if (logE > logE_.back())
     logbeta = logbeta_.back();
   else
-    logbeta = utils::interpolate(logE, logE_, logbeta_);
+    logbeta = simprop::utils::interpolate(logE, logE_, logbeta_);
   return std::pow(10., logbeta) / SI::year;
 }
 
@@ -61,7 +69,7 @@ double LossesTable::dbdE(double E) const {
   else if (logE > logE_.back())
     logdbde = logdbdE_.back();
   else
-    logdbde = utils::interpolate(logE, logE_, logdbdE_);
+    logdbde = simprop::utils::interpolate(logE, logE_, logdbdE_);
   return std::pow(10., logdbde) / SI::year;
 }
 

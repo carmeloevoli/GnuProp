@@ -1,15 +1,8 @@
 #ifndef BENIAMINO_LOSSES_H
 #define BENIAMINO_LOSSES_H
 
-#include <cmath>
-#include <fstream>
-#include <iostream>
-#include <sstream>
 #include <string>
 #include <vector>
-
-#include "numeric.h"
-#include "units.h"
 
 namespace beniamino {
 

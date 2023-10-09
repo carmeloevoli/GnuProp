@@ -1,10 +1,10 @@
-#ifndef SIMPROP_XSECS_KELNERAHARONIAN2008_H
-#define SIMPROP_XSECS_KELNERAHARONIAN2008_H
+#ifndef BENIAMINO_KELNERAHARONIAN2008_H
+#define BENIAMINO_KELNERAHARONIAN2008_H
 
 #include <string>
 #include <vector>
 
-#include "units.h"
+#include "simprop/core/units.h"
 
 namespace KelnerAharonian2008 {
 

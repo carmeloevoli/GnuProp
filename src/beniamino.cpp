@@ -1,11 +1,8 @@
 #include "beniamino.h"
 
-#include <algorithm>
 #include <cassert>
-#include <cmath>
 
-#include "cosmology.h"
-#include "numeric.h"
+#include "simprop/utils/numeric.h"
 
 namespace beniamino {
 
@@ -30,11 +27,11 @@ double Beniamino::generationEnergy(double E, double zInit, double zFinal, double
   auto dEdz = [this](double z, double E_g) {
     if (E_g < VERYLARGEENERGY) {
       auto E = E_g * (1. + z);
-      return E_g * (1. / (1. + z) + dtdz(z) * pow3(1. + z) * m_losses->beta(E));
+      return E_g * (1. / (1. + z) + m_cosmology.dtdz(z) * pow3(1. + z) * m_losses->beta(E));
     } else
       return 0.;
   };
-  auto value = utils::odeiv<double>(dEdz, E, zInit, zFinal, relError);
+  auto value = simprop::utils::odeiv<double>(dEdz, E, zInit, zFinal, relError);
   assert(value > 0.);
 
   return std::min(value, VERYLARGEENERGY);
@@ -48,11 +45,11 @@ double Beniamino::dilationFactor(double E, double zInit, double zFinal, double r
       auto E_g = generationEnergy(E, zInit, z, 0.1 * relError);
       auto E_prime = std::min(E_g * (1. + z), VERYLARGEENERGY);
       auto dbdE = std::max(m_losses->dbdE(E_prime), 0.);
-      return y * (1. / (1. + z) + dtdz(z) * pow3(1. + z) * dbdE);
+      return y * (1. / (1. + z) + m_cosmology.dtdz(z) * pow3(1. + z) * dbdE);
     } else
       return 0.;
   };
-  auto value = utils::odeiv<double>(dydz, 1., zInit, zFinal, relError);
+  auto value = simprop::utils::odeiv<double>(dydz, 1., zInit, zFinal, relError);
   assert(value > 0.);
 
   return std::min(value, VERYLARGEJACOBIAN);
@@ -70,10 +67,10 @@ double Beniamino::computeFlux(double E, double zObs, double relError) const {
     auto inj = std::pow(E_g / m_minEnergy, -m_injSlope);
     if (m_expCutoff > 0.) inj *= std::exp(-E_g / m_expCutoff);
     auto sourceEvolution = std::pow(1. + z, m_evolutionIndex);
-    return dtdz(z) * sourceEvolution * inj * dEgdE;
+    return m_cosmology.dtdz(z) * sourceEvolution * inj * dEgdE;
   };
-  auto I = utils::RombergIntegration<double>(integrand, zObs, m_zMax, 15,
-                                             1e-4);  // TODO check this
+  auto I = simprop::utils::RombergIntegration<double>(integrand, zObs, m_zMax, 15,
+                                                      1e-4);  // TODO check this
   return factor * I;
 }
 

@@ -1,7 +1,10 @@
+#include <fstream>
+
 #include "beniamino.h"
+#include "simprop/utils/numeric.h"
 
 void printSpectrum(const beniamino::Beniamino &b, std::string filename) {
-  auto E = utils::LogAxis(1e17 * SI::eV, 1e21 * SI::eV, 16 * 4);
+  auto E = simprop::utils::LogAxis(1e17 * SI::eV, 1e21 * SI::eV, 16 * 4);
   filename = "output/" + filename;
   std::ofstream out(filename);
   const double units = 1. / SI::eV / SI::m2 / SI::sr / SI::sec;

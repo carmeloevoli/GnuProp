@@ -1,14 +1,10 @@
 #ifndef BENIAMINO_BENIAMINO_H
 #define BENIAMINO_BENIAMINO_H
 
-// #include "simprop/core/cosmology.h"
-// #include "simprop/energyLosses/ContinuousLosses.h"
-// #include "simprop/utils/lookupContainers.h"
-
 #include <memory>
 
 #include "losses.h"
-#include "units.h"
+#include "simprop/core/cosmology.h"
 
 namespace beniamino {
 
@@ -31,6 +27,7 @@ class Beniamino {
 
  protected:
   std::shared_ptr<beniamino::LossesTable> m_losses;
+  simprop::cosmo::Cosmology m_cosmology;
 
   const double m_sourceEmissivity{3e45 * SI::erg / SI::Mpc3 / SI::year};
   const double m_maxEnergy{1e24 * SI::eV};

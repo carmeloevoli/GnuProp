@@ -1,9 +1,10 @@
 #include "KelnerAharonian2008.h"
 
-#include <cmath>
 #include <fstream>
+#include <iostream>
 
-#include "numeric.h"
+#include "simprop/utils/numeric.h"
+#include "utils.h"
 
 namespace KelnerAharonian2008 {
 
@@ -50,7 +51,7 @@ bool SecondarySpectrum::loadTable(const std::string& filename) {
 double SecondarySpectrum::B(double rho) const {
   double value = 0;
   if (rho > m_rho_table.front() && rho < m_rho_table.back()) {
-    return utils::interpolate(rho, m_rho_table, m_B_table);
+    return simprop::utils::interpolate(rho, m_rho_table, m_B_table);
   }
   return value;
 }
@@ -58,7 +59,7 @@ double SecondarySpectrum::B(double rho) const {
 double SecondarySpectrum::s(double rho) const {
   double value = 0;
   if (rho > m_rho_table.front() && rho < m_rho_table.back()) {
-    return utils::interpolate(rho, m_rho_table, m_s_table);
+    return simprop::utils::interpolate(rho, m_rho_table, m_s_table);
   }
   return value;
 }
@@ -66,7 +67,7 @@ double SecondarySpectrum::s(double rho) const {
 double SecondarySpectrum::delta(double rho) const {
   double value = 0;
   if (rho > m_rho_table.front() && rho < m_rho_table.back()) {
-    return utils::interpolate(rho, m_rho_table, m_delta_table);
+    return simprop::utils::interpolate(rho, m_rho_table, m_delta_table);
   }
   return value;
 }
