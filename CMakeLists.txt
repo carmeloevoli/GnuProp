@@ -36,7 +36,10 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -ffast-math")
 # ----------------------------------------------------------------------------
 
 # PLOG (provided)
-# include_directories(external/plog/include)
+include_directories(external/plog/include)
+
+# NamedType (provided)
+include_directories(external/NamedType/include)
 
 # GSL (required)
 find_package(GSL REQUIRED)

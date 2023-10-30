@@ -85,7 +85,7 @@ struct NeutrinoProductionSpectrum {
   NuElectronSpectrum nue;
   AntiNuElectronSpectrum antiNue;
 
-  double Phi(double eta, double x) {
+  double Phi(double eta, double x) const {
     return numu.Phi(eta, x) + antiNumu.Phi(eta, x) + nue.Phi(eta, x) + antiNue.Phi(eta, x);
   }
 };
