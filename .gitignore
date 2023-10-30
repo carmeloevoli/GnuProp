@@ -2,3 +2,5 @@ build*/
 *.code-workspace
 scratch
 *.DS_Store
+external/NamedType
+external/plog
