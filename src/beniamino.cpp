@@ -74,7 +74,7 @@ double Beniamino::computeFlux(double E, double zObs, double relError) const {
     return m_cosmology->dtdz(z) * sourceEvolution * inj * dEgdE;
   };
   auto I = simprop::utils::RombergIntegration<double>(integrand, zObs, m_zMax, 15,
-                                                      1e-4);  // TODO check this
+                                                      relError);  // TODO check this
   return factor * I;
 }
 

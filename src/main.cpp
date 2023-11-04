@@ -1,4 +1,5 @@
 #include "beniamino.h"
+#include "cosmoneutrinos.h"
 #include "simprop.h"
 
 void testCharacteristics(const beniamino::Beniamino &b) {
@@ -89,19 +90,22 @@ void printSpectrum(const beniamino::Beniamino &b, std::string filename) {
   }
 }
 
-void printNuSpectrum(const beniamino::Beniamino &b, std::string filename) {
-  auto E = simprop::utils::LogAxis(1e17 * SI::eV, 1e18 * SI::eV, 3);
-  // beniamino::CosmoNeutrinos nus(b);
-  // filename = "output/" + filename;
-  // std::ofstream out(filename);
-  // const double units = 1. / SI::eV / SI::m2 / SI::sr / SI::sec;
-  // out << "# E [eV] - z=0\n";
-  // for (const auto &E_i : E) {
-  //   std::cout << E_i / SI::eV << "\n";
-  //   out << std::scientific << E_i / SI::eV << "\t";
-  //   out << nus.computeNeutrinoFlux(E_i, 1.) / units << "\t";
-  //   out << "\n";
-  // }
+void printNuEmissivity(const beniamino::Beniamino &b, std::string filename) {
+  auto E = simprop::utils::LogAxis(1e17 * SI::eV, 1e21 * SI::eV, 4 * 16);
+  beniamino::CosmoNeutrinos cosmonus(b);
+  filename = "output/" + filename;
+  std::ofstream out(filename);
+  const double units = 1. / SI::eV / SI::m3 / SI::sec;
+  out << "# E [eV] - z=0\n";
+  for (const auto &E_i : E) {
+    std::cout << std::scientific << E_i / SI::eV << "\n";
+    out << std::scientific << E_i / SI::eV << "\t";
+    out << cosmonus.nuEmissivity(E_i, 0.1) / units << "\t";
+    out << cosmonus.nuEmissivity(E_i, 0.5) / units << "\t";
+    out << cosmonus.nuEmissivity(E_i, 1.0) / units << "\t";
+    out << cosmonus.nuEmissivity(E_i, 2.0) / units << "\t";
+    out << "\n";
+  }
 }
 
 int main() {
@@ -109,9 +113,10 @@ int main() {
     simprop::utils::startup_information();
     simprop::utils::Timer timer("main timer");
     beniamino::Beniamino b(std::make_unique<simprop::cosmo::Cosmology>());
-    testCharacteristics(b);
-    testJacobian(b);
-    printSpectrum(b, "Beniamino_spectrum_noCutoff_2.6_0_3.txt");
+    // testCharacteristics(b);
+    // testJacobian(b);
+    // printSpectrum(b, "Beniamino_spectrum_noCutoff_2.6_0_3.txt");
+    printNuEmissivity(b, "Beniamino_nuemissivity_noCutoff_2.6_0_3.txt");
 
     // printSpectrum(beniamino::Beniamino({2.6, 0., -1., 3.}), "Beniamino_spectrum_2.6_0.txt");
     // printSpectrum(beniamino::Beniamino({2.6, 3., -1., 3.}), "Beniamino_spectrum_2.6_3.txt");
