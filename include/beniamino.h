@@ -31,7 +31,7 @@ class Beniamino {
   std::unique_ptr<beniamino::LossesTable> m_losses;
   std::unique_ptr<simprop::cosmo::Cosmology> m_cosmology;
 
-  const double m_sourceEmissivity{3e45 * SI::erg / SI::Mpc3 / SI::year};
+  const double m_sourceEmissivity{1e45 * SI::erg / SI::Mpc3 / SI::year};
   const double m_maxEnergy{1e24 * SI::eV};
   const double m_minEnergy{1e17 * SI::eV};
 
