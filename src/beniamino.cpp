@@ -73,8 +73,7 @@ double Beniamino::computeFlux(double E, double zObs, double relError) const {
     auto sourceEvolution = std::pow(1. + z, m_evolutionIndex);
     return m_cosmology->dtdz(z) * sourceEvolution * inj * dEgdE;
   };
-  auto I = simprop::utils::RombergIntegration<double>(integrand, zObs, m_zMax, 15,
-                                                      relError);  // TODO check this
+  auto I = simprop::utils::RombergIntegration<double>(integrand, zObs, m_zMax, 20, relError);
   return factor * I;
 }
 
