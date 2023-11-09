@@ -91,9 +91,6 @@ file(COPY ${BENIAMINO_DATA} DESTINATION ${PROJECT_BINARY_DIR}/data)
 add_executable(run src/main.cpp)
 target_link_libraries (run beniamino ${BENIAMINO_EXTRA_LIBRARIES})
 
-add_executable(test src/test.cpp)
-target_link_libraries (test beniamino ${BENIAMINO_EXTRA_LIBRARIES})
-
 # # testing
 # if(ENABLE_TESTING)
 #     enable_testing()

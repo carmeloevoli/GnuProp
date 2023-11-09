@@ -38,7 +38,7 @@ void testCharacteristics(const beniamino::Beniamino &b) {
 
 void testJacobian(const beniamino::Beniamino &b) {
   {
-    std::ofstream out("output/Beniamino_jacobian_vs_redshift.txt");
+    std::ofstream out("output/Beniamino_characteristics_vs_energy.txt");
     auto z = simprop::utils::LogAxis(1e-4, 1e1, 1000);
     out << "# z - 10^17 eV - 10^18 eV - 10^19 eV - 10^20 eV - 10^21 eV\n";
     for (const auto &z_i : z) {
@@ -71,8 +71,36 @@ void testJacobian(const beniamino::Beniamino &b) {
   }
 }
 
-void printSpectrum(const beniamino::Beniamino &b, std::string filename) {
-  auto E = simprop::utils::LogAxis(1e17 * SI::eV, 1e21 * SI::eV, 16 * 4);
+void testPhotonField() {
+  simprop::photonfields::CMB cmb;
+  auto epsAxis = simprop::utils::LogAxis(1e-6 * SI::eV, SI::eV, 1000);
+  std::ofstream out("output/Beniamino_cmb.txt");
+  const double units = 1. / SI::eV / SI::cm3;
+  out << "# eps [eV] - density\n";
+  for (const auto &eps : epsAxis) {
+    out << std::scientific << eps / SI::eV << "\t";
+    out << cmb.density(eps, 1.) / units << "\t";
+    out << "\n";
+  }
+}
+
+void testCrossSections() {
+  KelnerAharonian2008::NeutrinoProductionSpectrum nuSpec;
+  std::ofstream out("output/Beniamino_neutrino_xsecs.txt");
+  out << "# x - spectrum\n";
+  out << std::scientific;
+  const auto units = SI::cm3 / SI::sec;
+  auto xAxis = simprop::utils::LogAxis<double>(1e-4, 1, 1000);
+  for (auto x : xAxis) {
+    out << std::scientific << x << "\t";
+    out << nuSpec.Phi(2., x) / units << "\t";
+    out << nuSpec.Phi(20., x) / units << "\t";
+    out << "\n";
+  }
+}
+
+void testSpectrum(const beniamino::Beniamino &b, std::string filename) {
+  auto E = simprop::utils::LogAxis(1e16 * SI::eV, 1e21 * SI::eV, 100);
   filename = "output/" + filename;
   std::ofstream out(filename);
   const double units = 1. / SI::eV / SI::m2 / SI::sr / SI::sec;
@@ -80,12 +108,12 @@ void printSpectrum(const beniamino::Beniamino &b, std::string filename) {
   for (const auto &E_i : E) {
     std::cout << E_i / SI::eV << "\n";
     out << std::scientific << E_i / SI::eV << "\t";
-    out << b.computeFlux(E_i, 0.) / units << "\t";
-    out << b.computeFlux(E_i, 1.) / units << "\t";
-    out << b.computeFlux(E_i, 2.) / units << "\t";
-    out << b.computeFlux(E_i, 3.) / units << "\t";
-    out << b.computeFlux(E_i, 4.) / units << "\t";
-    out << b.computeFlux(E_i, 5.) / units << "\t";
+    out << b.computeFlux(E_i, 0., 1e-4) / units << "\t";
+    out << b.computeFlux(E_i, 1., 1e-4) / units << "\t";
+    out << b.computeFlux(E_i, 2., 1e-4) / units << "\t";
+    out << b.computeFlux(E_i, 3., 1e-4) / units << "\t";
+    out << b.computeFlux(E_i, 4., 1e-4) / units << "\t";
+    out << b.computeFlux(E_i, 5., 1e-4) / units << "\t";
     out << "\n";
   }
 }
@@ -115,14 +143,10 @@ int main() {
     beniamino::Beniamino b(std::make_unique<simprop::cosmo::Cosmology>());
     // testCharacteristics(b);
     // testJacobian(b);
-    // printSpectrum(b, "Beniamino_spectrum_noCutoff_2.6_0_3.txt");
-    printNuEmissivity(b, "Beniamino_nuemissivity_noCutoff_2.6_0_3.txt");
-
-    // printSpectrum(beniamino::Beniamino({2.6, 0., -1., 3.}), "Beniamino_spectrum_2.6_0.txt");
-    // printSpectrum(beniamino::Beniamino({2.6, 3., -1., 3.}), "Beniamino_spectrum_2.6_3.txt");
-    // printSpectrum(beniamino::Beniamino({2.6, -3., -1., 3.}), "Beniamino_spectrum_2.6_-3.txt");
-    // printNuSpectrum(beniamino::Beniamino({2.6, 0., -1., 3.}), "Beniamino_nuspectrum_2.6_0.txt");
-
+    testPhotonField();
+    testCrossSections();
+    testSpectrum(b, "Beniamino_spectrum_noCutoff_2.6_0_3.txt");
+    // printNuEmissivity(b, "Beniamino_nuemissivity_noCutoff_2.6_0_3.txt");
   } catch (const std::exception &e) {
     std::cerr << "exception caught with message: " << e.what();
   }
