@@ -41,7 +41,7 @@ bool SecondarySpectrum::loadTable(const std::string& filename) {
     m_rho_table.push_back(row[0]);
     m_s_table.push_back(row[1]);
     m_delta_table.push_back(row[2]);
-    m_B_table.push_back(row[3] * SI::cm3 / SI::sec);
+    m_lnB_table.push_back(std::log(row[3] * SI::cm3 / SI::sec));
   }
 
   file.close();
@@ -51,7 +51,8 @@ bool SecondarySpectrum::loadTable(const std::string& filename) {
 double SecondarySpectrum::B(double rho) const {
   double value = 0;
   if (rho > m_rho_table.front() && rho < m_rho_table.back()) {
-    return simprop::utils::interpolate(rho, m_rho_table, m_B_table);
+    auto lnB = simprop::utils::cspline(rho, m_rho_table, m_lnB_table);
+    value = std::exp(lnB);
   }
   return value;
 }
@@ -59,7 +60,7 @@ double SecondarySpectrum::B(double rho) const {
 double SecondarySpectrum::s(double rho) const {
   double value = 0;
   if (rho > m_rho_table.front() && rho < m_rho_table.back()) {
-    return simprop::utils::interpolate(rho, m_rho_table, m_s_table);
+    return simprop::utils::cspline(rho, m_rho_table, m_s_table);
   }
   return value;
 }
@@ -67,7 +68,7 @@ double SecondarySpectrum::s(double rho) const {
 double SecondarySpectrum::delta(double rho) const {
   double value = 0;
   if (rho > m_rho_table.front() && rho < m_rho_table.back()) {
-    return simprop::utils::interpolate(rho, m_rho_table, m_delta_table);
+    return simprop::utils::cspline(rho, m_rho_table, m_delta_table);
   }
   return value;
 }

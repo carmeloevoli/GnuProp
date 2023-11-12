@@ -5,22 +5,6 @@
 #include "beniamino.h"
 #include "simprop.h"
 
-void testLosses() {
-  auto losses = std::make_unique<beniamino::LossesTable>();
-  assert(losses->loadTable("data/SimProp_proton_losses.txt"));
-  std::ofstream out("output/Beniamino_losses.txt");
-  out << "# E - losses\n";
-  out << std::scientific;
-  const auto units = 1. / SI::year;
-  auto energyAxis = simprop::utils::LogAxis<double>(1e15 * SI::eV, 1e24 * SI::eV, 1000);
-  for (auto E : energyAxis) {
-    out << E / SI::eV << " ";
-    out << losses->beta(E) / units << " ";
-    out << losses->dbdE(E) / units << " ";
-    out << "\n";
-  }
-}
-
 void testNeutrinoSpectrum() {
   KelnerAharonian2008::NeutrinoProductionSpectrum nuSpec;
   std::ofstream out("output/neutrino_production_spectrum.txt");

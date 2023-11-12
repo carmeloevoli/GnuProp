@@ -90,11 +90,36 @@ void testCrossSections() {
   out << "# x - spectrum\n";
   out << std::scientific;
   const auto units = SI::cm3 / SI::sec;
+  const auto eta0 = 0.313;
   auto xAxis = simprop::utils::LogAxis<double>(1e-4, 1, 1000);
   for (auto x : xAxis) {
     out << std::scientific << x << "\t";
     out << nuSpec.Phi(2., x) / units << "\t";
     out << nuSpec.Phi(20., x) / units << "\t";
+    out << nuSpec.nu_mu(2., x) / units << "\t";
+    out << nuSpec.nu_mu(20., x) / units << "\t";
+    out << nuSpec.barnu_mu(2., x) / units << "\t";
+    out << nuSpec.barnu_mu(20., x) / units << "\t";
+    out << nuSpec.nu_e(2., x) / units << "\t";
+    out << nuSpec.nu_e(20., x) / units << "\t";
+    out << nuSpec.barnu_e(2., x) / units << "\t";
+    out << nuSpec.barnu_e(20., x) / units << "\t";
+    out << "\n";
+  }
+}
+
+void testLosses() {
+  auto losses = std::make_unique<beniamino::LossesTable>();
+  assert(losses->loadTable("data/SimProp_proton_losses.txt"));
+  std::ofstream out("output/Beniamino_losses.txt");
+  out << "# E - losses\n";
+  out << std::scientific;
+  const auto units = 1. / SI::year;
+  auto energyAxis = simprop::utils::LogAxis<double>(1e15 * SI::eV, 1e24 * SI::eV, 1000);
+  for (auto E : energyAxis) {
+    out << E / SI::eV << " ";
+    out << losses->beta(E) / units << " ";
+    out << losses->dbdE(E) / units << " ";
     out << "\n";
   }
 }
@@ -143,9 +168,9 @@ int main() {
     beniamino::Beniamino b(std::make_unique<simprop::cosmo::Cosmology>());
     // testCharacteristics(b);
     // testJacobian(b);
-    testPhotonField();
+    // testPhotonField();
     testCrossSections();
-    testSpectrum(b, "Beniamino_spectrum_noCutoff_2.6_0_3.txt");
+    // testSpectrum(b, "Beniamino_spectrum_noCutoff_2.6_0_3.txt");
     // printNuEmissivity(b, "Beniamino_nuemissivity_noCutoff_2.6_0_3.txt");
   } catch (const std::exception &e) {
     std::cerr << "exception caught with message: " << e.what();

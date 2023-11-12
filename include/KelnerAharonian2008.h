@@ -36,7 +36,7 @@ class SecondarySpectrum {
   std::vector<double> m_rho_table;
   std::vector<double> m_s_table;
   std::vector<double> m_delta_table;
-  std::vector<double> m_B_table;
+  std::vector<double> m_lnB_table;
 };
 
 class AntiNuMuSpectrum final : public SecondarySpectrum {
@@ -84,6 +84,11 @@ struct NeutrinoProductionSpectrum {
   AntiNuMuSpectrum antiNumu;
   NuElectronSpectrum nue;
   AntiNuElectronSpectrum antiNue;
+
+  double nu_mu(double eta, double x) const { return numu.Phi(eta, x); }
+  double nu_e(double eta, double x) const { return nue.Phi(eta, x); }
+  double barnu_mu(double eta, double x) const { return antiNumu.Phi(eta, x); }
+  double barnu_e(double eta, double x) const { return antiNue.Phi(eta, x); }
 
   double Phi(double eta, double x) const {
     return numu.Phi(eta, x) + antiNumu.Phi(eta, x) + nue.Phi(eta, x) + antiNue.Phi(eta, x);
