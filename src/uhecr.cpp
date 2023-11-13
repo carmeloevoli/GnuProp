@@ -1,4 +1,4 @@
-#include "beniamino.h"
+#include "uhecr.h"
 
 #include <cassert>
 
@@ -9,7 +9,7 @@ namespace beniamino {
 #define VERYLARGEENERGY (1e30 * SI::eV)
 #define VERYLARGEJACOBIAN (1e6)
 
-Beniamino::Beniamino(std::unique_ptr<simprop::cosmo::Cosmology> cosmology)
+Uhecr::Uhecr(std::unique_ptr<simprop::cosmo::Cosmology> cosmology)
     : m_cosmology(std::move(cosmology)) {
   LOGI << "h : " << m_cosmology->h;
   LOGI << "Omega_M : " << m_cosmology->OmegaM;
@@ -18,14 +18,15 @@ Beniamino::Beniamino(std::unique_ptr<simprop::cosmo::Cosmology> cosmology)
   assert(m_losses->loadTable("data/SimProp_proton_losses.txt"));
 }
 
-// Beniamino::Beniamino(const SourceParams &params) : Beniamino() {
-//   m_injSlope = params.injSlope;
-//   m_evolutionIndex = params.evolutionIndex;
-//   m_expCutoff = params.expCutoff;
-//   m_zMax = params.zMax;
-// }
+Uhecr::Uhecr(std::unique_ptr<simprop::cosmo::Cosmology> cosmology, const SourceParams& params)
+    : Uhecr(std::move(cosmology)) {
+  m_injSlope = params.injSlope;
+  m_evolutionIndex = params.evolutionIndex;
+  m_expCutoff = params.expCutoff;
+  m_zMax = params.zMax;
+}
 
-double Beniamino::generationEnergy(double E, double zInit, double zFinal, double relError) const {
+double Uhecr::generationEnergy(double E, double zInit, double zFinal, double relError) const {
   assert(zFinal >= zInit);
   assert(E > 0);
   auto dEdz = [this](double z, double E_g) {
@@ -41,7 +42,7 @@ double Beniamino::generationEnergy(double E, double zInit, double zFinal, double
   return std::min(value, VERYLARGEENERGY);
 }
 
-double Beniamino::dilationFactor(double E, double zInit, double zFinal, double relError) const {
+double Uhecr::dilationFactor(double E, double zInit, double zFinal, double relError) const {
   assert(zFinal >= zInit);
   assert(E > 0);
   auto dydz = [this, E, zInit, relError](double z, double y) {
@@ -59,7 +60,7 @@ double Beniamino::dilationFactor(double E, double zInit, double zFinal, double r
   return std::min(value, VERYLARGEJACOBIAN);
 }
 
-double Beniamino::computeFlux(double E, double zObs, double relError) const {
+double Uhecr::computeFlux(double E, double zObs, double relError) const {
   if (zObs >= m_zMax) return 0;
   const auto K = (m_injSlope - 2.) / pow2(m_minEnergy);
   const auto L_0 = m_sourceEmissivity;
@@ -73,7 +74,7 @@ double Beniamino::computeFlux(double E, double zObs, double relError) const {
     auto sourceEvolution = std::pow(1. + z, m_evolutionIndex);
     return m_cosmology->dtdz(z) * sourceEvolution * inj * dEgdE;
   };
-  auto I = simprop::utils::RombergIntegration<double>(integrand, zObs, m_zMax, 20, relError);
+  auto I = simprop::utils::RombergIntegration<double>(integrand, zObs, m_zMax, 15, relError);
   return factor * I;
 }
 

@@ -4,7 +4,7 @@
 
 namespace beniamino {
 
-CosmoNeutrinos::CosmoNeutrinos(const Beniamino& b) {
+CosmoNeutrinos::CosmoNeutrinos(const Uhecr& b) {
   {
     auto f = [&b](double logEp, double z) -> double {
       auto value = b.computeFlux(std::exp(logEp), z, 1e-4);

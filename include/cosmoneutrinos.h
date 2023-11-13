@@ -4,16 +4,16 @@
 #include <memory>
 
 #include "KelnerAharonian2008.h"
-#include "beniamino.h"
 #include "simprop/core/cosmology.h"
 #include "simprop/photonFields/CmbPhotonField.h"
 #include "simprop/utils/lookupContainers.h"
+#include "uhecr.h"
 
 namespace beniamino {
 
 class CosmoNeutrinos {
  public:
-  CosmoNeutrinos(const Beniamino& b);
+  CosmoNeutrinos(const Uhecr& b);
   virtual ~CosmoNeutrinos() = default;
   double computeNeutrinoFlux(double Enu, double zMax, size_t N = 10) const;
   double nuEmissivity(double EnuObs, double z, size_t N = 9) const;

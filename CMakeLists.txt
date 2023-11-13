@@ -69,7 +69,7 @@ list(APPEND BENIAMINO_EXTRA_LIBRARIES ${SIMPROP_LIBRARIES})
 include_directories(include ${BENIAMINO_EXTRA_INCLUDES})
 
 add_library(beniamino SHARED
-    src/beniamino.cpp
+    src/uhecr.cpp
     src/cosmoneutrinos.cpp
     src/KelnerAharonian2008.cpp
     src/losses.cpp
@@ -88,7 +88,10 @@ file(GLOB BENIAMINO_DATA "data/*.txt")
 file(COPY ${BENIAMINO_DATA} DESTINATION ${PROJECT_BINARY_DIR}/data)
 
 # make apps
-add_executable(run src/main.cpp)
+add_executable(tests apps/tests.cpp)
+target_link_libraries (tests beniamino ${BENIAMINO_EXTRA_LIBRARIES})
+
+add_executable(run apps/beniamino.cpp)
 target_link_libraries (run beniamino ${BENIAMINO_EXTRA_LIBRARIES})
 
 # # testing

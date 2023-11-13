@@ -2,7 +2,6 @@
 #include <iostream>
 
 #include "KelnerAharonian2008.h"
-#include "beniamino.h"
 #include "simprop.h"
 
 void testNeutrinoSpectrum() {
@@ -36,8 +35,8 @@ int main() {
   try {
     simprop::utils::startup_information();
     simprop::utils::Timer timer("main timer");
-    testLosses();
-    // testNeutrinoSpectrum();
+    // testLosses();
+    //  testNeutrinoSpectrum();
   } catch (const std::exception &e) {
     std::cerr << "exception caught with message: " << e.what();
   }

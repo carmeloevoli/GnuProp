@@ -16,11 +16,11 @@ struct SourceParams {
   double zMax;
 };
 
-class Beniamino {
+class Uhecr {
  public:
-  Beniamino(std::unique_ptr<simprop::cosmo::Cosmology> cosmology);
-  // Beniamino(const SourceParams& params);
-  virtual ~Beniamino() = default;
+  Uhecr(std::unique_ptr<simprop::cosmo::Cosmology> cosmology);
+  Uhecr(std::unique_ptr<simprop::cosmo::Cosmology> cosmology, const SourceParams& params);
+  virtual ~Uhecr() = default;
 
   double generationEnergy(double E, double zInit, double zFinal, double relError = 1e-3) const;
   double dilationFactor(double E, double zInit, double zFinal, double relError = 1e-3) const;
