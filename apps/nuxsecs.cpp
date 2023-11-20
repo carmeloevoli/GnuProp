@@ -18,6 +18,31 @@ void testCrossSections() {
   }
 }
 
+void testPartialCrossSections() {
+  KelnerAharonian2008::NeutrinoProductionSpectrum nuSpec;
+  std::ofstream out("output/Beniamino_neutrino_xsecs_partial.txt");
+  out << "# x - spectrum\n";
+  out << std::scientific;
+  const auto units = SI::cm3 / SI::sec;
+  auto xAxis = simprop::utils::LogAxis<double>(1e-4, 1, 1000);
+  for (auto x : xAxis) {
+    out << std::scientific << x << "\t";
+    out << nuSpec.nu_e(0.5, x) / units << "\t";
+    out << nuSpec.nu_e(2., x) / units << "\t";
+    out << nuSpec.nu_e(20., x) / units << "\t";
+    out << nuSpec.nu_mu(0.5, x) / units << "\t";
+    out << nuSpec.nu_mu(2., x) / units << "\t";
+    out << nuSpec.nu_mu(20., x) / units << "\t";
+    out << nuSpec.barnu_e(0.5, x) / units << "\t";
+    out << nuSpec.barnu_e(2., x) / units << "\t";
+    out << nuSpec.barnu_e(20., x) / units << "\t";
+    out << nuSpec.barnu_mu(0.5, x) / units << "\t";
+    out << nuSpec.barnu_mu(2., x) / units << "\t";
+    out << nuSpec.barnu_mu(20., x) / units << "\t";
+    out << "\n";
+  }
+}
+
 void testCrossSectionMaps() {
   KelnerAharonian2008::NeutrinoProductionSpectrum nuSpec;
   std::ofstream out("output/Beniamino_neutrino_xsecs_map.txt");
@@ -50,7 +75,8 @@ int main() {
     simprop::utils::startup_information();
     simprop::utils::Timer timer("main timer");
     testCrossSections();
-    testCrossSectionMaps();
+    // testPartialCrossSections();
+    //  testCrossSectionMaps();
   } catch (const std::exception &e) {
     std::cerr << "exception caught with message: " << e.what();
   }

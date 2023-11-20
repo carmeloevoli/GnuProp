@@ -23,7 +23,6 @@ class CosmoNeutrinos {
   simprop::photonfields::CMB m_cmb;
   KelnerAharonian2008::NeutrinoProductionSpectrum m_nuSpec;
   simprop::utils::LookupTable<200, 101> m_Jp;
-  // simprop::utils::LookupTable<100, 41> m_Jp;
 
  protected:
   double I_deps(double EnuObs, double Ep, double z, size_t N = 4) const;

@@ -6,8 +6,8 @@ namespace beniamino {
 
 CosmoNeutrinos::CosmoNeutrinos(const Uhecr& b) {
   {
-    auto f = [&b](double logEp, double z) -> double {
-      auto value = b.computeFlux(std::exp(logEp), z, 1e-4);
+    auto f = [&b](double lnEp, double z) -> double {
+      auto value = b.computeFlux(std::exp(lnEp), z, 1e-4);
       assert(value >= 0.);
       return std::log(std::max(value, 1e-30));
     };
