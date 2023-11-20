@@ -88,11 +88,17 @@ file(GLOB BENIAMINO_DATA "data/*.txt")
 file(COPY ${BENIAMINO_DATA} DESTINATION ${PROJECT_BINARY_DIR}/data)
 
 # make apps
-add_executable(tests apps/tests.cpp)
-target_link_libraries (tests beniamino ${BENIAMINO_EXTRA_LIBRARIES})
+add_executable(generationeenergy apps/generationEnergy.cpp)
+target_link_libraries (generationeenergy beniamino ${BENIAMINO_EXTRA_LIBRARIES})
 
-add_executable(run apps/beniamino.cpp)
-target_link_libraries (run beniamino ${BENIAMINO_EXTRA_LIBRARIES})
+add_executable(nuxsecs apps/nuxsecs.cpp)
+target_link_libraries (nuxsecs beniamino ${BENIAMINO_EXTRA_LIBRARIES})
+
+add_executable(uhecr apps/uhecr.cpp)
+target_link_libraries (uhecr beniamino ${BENIAMINO_EXTRA_LIBRARIES})
+
+add_executable(nuflux apps/nuflux.cpp)
+target_link_libraries (nuflux beniamino ${BENIAMINO_EXTRA_LIBRARIES})
 
 # # testing
 # if(ENABLE_TESTING)

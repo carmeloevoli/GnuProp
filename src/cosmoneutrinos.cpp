@@ -18,12 +18,13 @@ CosmoNeutrinos::CosmoNeutrinos(const Uhecr& b) {
 
 double CosmoNeutrinos::I_deps(double Enu, double Ep, double z, size_t N) const {
   if (Enu >= Ep) return 0;
-  const auto epsMin = m_cmb.getMinPhotonEnergy();
+  const auto epsTh = (pow2(SI::pionMassC2) + 2. * SI::protonMassC2 * SI::pionMassC2) / 4. / Ep;
+  const auto epsMin = std::max(epsTh, m_cmb.getMinPhotonEnergy());
   const auto epsMax = m_cmb.getMaxPhotonEnergy();
   auto integrand = [this, Ep, Enu, z](double lnEpsilon) {
     const auto epsilon = std::exp(lnEpsilon);
     const auto eta = 4. * epsilon * Ep / pow2(SI::protonMassC2);
-    auto value = (eta < 1.) ? 0. : m_cmb.density(epsilon, z) * m_nuSpec.Phi(eta, Enu / Ep);
+    auto value = m_cmb.density(epsilon, z) * m_nuSpec.Phi(eta, Enu / Ep);
     return epsilon * value;
   };
   auto a = std::log(epsMin);
@@ -42,7 +43,7 @@ double CosmoNeutrinos::nuEmissivity(double Enu, double z, size_t N) const {
     return value;
   };
   auto a = std::log(Enu);
-  auto b = std::log(std::min(1e5 * Enu, 1e21 * SI::eV));
+  auto b = std::log(std::min(1e5 * Enu, 1e22 * SI::eV));
 
   auto result = simprop::utils::RombergIntegration<double>(integrand, a, b, N, 1e-3);
   return 4. * M_PI / SI::cLight * result;
