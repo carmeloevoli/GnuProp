@@ -33,7 +33,7 @@ class SecondarySpectrum {
   const double m_eta_0 = 2. * m_r + m_r2;
 
  protected:
-  std::vector<double> m_rho_table;
+  std::vector<double> m_lnrho_table;
   std::vector<double> m_s_table;
   std::vector<double> m_delta_table;
   std::vector<double> m_lnB_table;
