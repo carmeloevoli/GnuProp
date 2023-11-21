@@ -2,6 +2,22 @@
 #include "simprop.h"
 #include "uhecr.h"
 
+void printInteractionRate(const beniamino::Uhecr &b, std::string filename) {
+  auto energyAxis = simprop::utils::LogAxis(1e17 * SI::eV, 1e21 * SI::eV, 4 * 16);
+  beniamino::CosmoNeutrinos cosmonus(b);
+  filename = "output/" + filename;
+  std::ofstream out(filename);
+  const double units = 1. / SI::sec;
+  out << "# E [eV] - z=0\n";
+  for (const auto &E : energyAxis) {
+    out << std::scientific << E / SI::eV << "\t";
+    out << cosmonus.interactionRate(0.05 * E, E, 0., 10) / units << "\t";
+    out << cosmonus.interactionRate(0.1 * E, E, 0., 10) / units << "\t";
+    out << cosmonus.interactionRate(0.2 * E, E, 0., 10) / units << "\t";
+    out << "\n";
+  }
+}
+
 void printNuEmissivity(const beniamino::Uhecr &b, std::string filename) {
   auto E = simprop::utils::LogAxis(1e17 * SI::eV, 1e21 * SI::eV, 4 * 16);
   beniamino::CosmoNeutrinos cosmonus(b);
@@ -25,6 +41,7 @@ int main() {
     simprop::utils::startup_information();
     simprop::utils::Timer timer("main timer");
     beniamino::Uhecr b(std::make_unique<simprop::cosmo::Cosmology>());
+    printInteractionRate(b, "Beniamino_interactionrate_noCutoff_2.6_0_3_refined.txt");
     printNuEmissivity(b, "Beniamino_nuemissivity_noCutoff_2.6_0_3.txt");
   } catch (const std::exception &e) {
     std::cerr << "exception caught with message: " << e.what();

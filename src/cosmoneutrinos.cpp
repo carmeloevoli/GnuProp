@@ -16,7 +16,7 @@ CosmoNeutrinos::CosmoNeutrinos(const Uhecr& b) {
   }
 }
 
-double CosmoNeutrinos::I_deps(double Enu, double Ep, double z, size_t N) const {
+double CosmoNeutrinos::interactionRate(double Enu, double Ep, double z, size_t N) const {
   if (Enu >= Ep) return 0;
   const auto epsTh = (pow2(SI::pionMassC2) + 2. * SI::protonMassC2 * SI::pionMassC2) / 4. / Ep;
   const auto epsMin = std::max(epsTh, m_cmb.getMinPhotonEnergy());
@@ -27,10 +27,11 @@ double CosmoNeutrinos::I_deps(double Enu, double Ep, double z, size_t N) const {
     auto value = m_cmb.density(epsilon, z) * m_nuSpec.Phi(eta, Enu / Ep);
     return epsilon * value;
   };
+
   auto a = std::log(epsMin);
   auto b = std::log(epsMax);
-
-  return simprop::utils::RombergIntegration<double>(integrand, a, b, N, 1e-3);
+  auto value = simprop::utils::RombergIntegration<double>(integrand, a, b, N, 1e-3);
+  return value;
 }
 
 double CosmoNeutrinos::nuEmissivity(double Enu, double z, size_t N) const {
@@ -39,14 +40,14 @@ double CosmoNeutrinos::nuEmissivity(double Enu, double z, size_t N) const {
     auto lgJp = m_Jp.get(lnEp, z);
     if (lgJp < -80) return 0.;
     auto value = std::exp(m_Jp.get(lnEp, z));
-    value *= I_deps(Enu, Ep, z);
+    value *= interactionRate(Enu, Ep, z);
     return value;
   };
+
   auto a = std::log(Enu);
   auto b = std::log(std::min(1e5 * Enu, 1e22 * SI::eV));
-
-  auto result = simprop::utils::RombergIntegration<double>(integrand, a, b, N, 1e-3);
-  return 4. * M_PI / SI::cLight * result;
+  auto value = simprop::utils::RombergIntegration<double>(integrand, a, b, N, 1e-3);
+  return 4. * M_PI / SI::cLight * value;
 }
 
 double CosmoNeutrinos::computeNeutrinoFlux(double EnuObs, double zMax, size_t N) const {
