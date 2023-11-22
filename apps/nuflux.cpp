@@ -41,7 +41,7 @@ int main() {
     simprop::utils::startup_information();
     simprop::utils::Timer timer("main timer");
     beniamino::Uhecr b(std::make_unique<simprop::cosmo::Cosmology>());
-    printInteractionRate(b, "Beniamino_interactionrate_noCutoff_2.6_0_3_refined.txt");
+    printInteractionRate(b, "Beniamino_interactionrate_noCutoff_2.6_0_3.txt");
     printNuEmissivity(b, "Beniamino_nuemissivity_noCutoff_2.6_0_3.txt");
   } catch (const std::exception &e) {
     std::cerr << "exception caught with message: " << e.what();
