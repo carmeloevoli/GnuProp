@@ -52,7 +52,7 @@ double SecondarySpectrum::B(double rho) const {
   double value = 0;
   auto ln_rho = std::log(rho);
   if (ln_rho > m_lnrho_table.front() && ln_rho < m_lnrho_table.back()) {
-    auto lnB = simprop::utils::cspline(ln_rho, m_lnrho_table, m_lnB_table);
+    auto lnB = simprop::utils::interpolate(ln_rho, m_lnrho_table, m_lnB_table);
     value = std::exp(lnB);
   }
   return value;
@@ -62,7 +62,7 @@ double SecondarySpectrum::s(double rho) const {
   double value = 0;
   auto ln_rho = std::log(rho);
   if (ln_rho > m_lnrho_table.front() && ln_rho < m_lnrho_table.back()) {
-    return simprop::utils::cspline(ln_rho, m_lnrho_table, m_s_table);
+    return simprop::utils::interpolate(ln_rho, m_lnrho_table, m_s_table);
   }
   return value;
 }
@@ -71,7 +71,7 @@ double SecondarySpectrum::delta(double rho) const {
   double value = 0;
   auto ln_rho = std::log(rho);
   if (ln_rho > m_lnrho_table.front() && ln_rho < m_lnrho_table.back()) {
-    return simprop::utils::cspline(ln_rho, m_lnrho_table, m_delta_table);
+    return simprop::utils::interpolate(ln_rho, m_lnrho_table, m_delta_table);
   }
   return value;
 }
@@ -156,7 +156,7 @@ double AntiNuElectronSpectrum::psi(double rho) const {
 double AntiNuElectronSpectrum::xPrimeMinus(double eta) const {
   double value = 1. / 2. / (1. + eta);
   value *= eta - 2. * m_r - std::sqrt(eta * (eta - 4. * m_r * (1. + m_r)));
-  return value;
+  return value / 2.;
 }
 
 double AntiNuElectronSpectrum::xPrimePlus(double eta) const {

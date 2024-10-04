@@ -7,7 +7,6 @@
 #include "simprop/core/cosmology.h"
 #include "simprop/photonFields/CmbPhotonField.h"
 #include "simprop/utils/lookupContainers.h"
-#include "uhecr.h"
 
 namespace beniamino {
 

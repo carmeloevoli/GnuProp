@@ -4,19 +4,20 @@
 #include <string>
 #include <vector>
 
+#include "simprop/energyLosses/PairProductionLosses.h"
+#include "simprop/energyLosses/PhotoPionContinuousLosses.h"
+
 namespace beniamino {
 
-class LossesTable {
+class EnergyLosses {
  public:
-  LossesTable() {}
-  bool loadTable(const std::string &filename);
-  double beta(double E) const;
-  double dbdE(double E) const;
+  EnergyLosses();
+  double beta(double E, double z = 0) const;
+  // double dbdE(double E) const;
 
  private:
-  std::vector<double> logE_;
-  std::vector<double> logbeta_;
-  std::vector<double> logdbdE_;
+  std::shared_ptr<simprop::losses::PairProductionLosses> m_pair;
+  std::shared_ptr<simprop::losses::PhotoPionContinuousLosses> m_photopi;
 };
 
 }  // namespace beniamino
