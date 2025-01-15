@@ -1,25 +1,30 @@
-#ifndef BENIAMINO_LOSSES_H
-#define BENIAMINO_LOSSES_H
-
-#include <string>
-#include <vector>
+#ifndef GNUPROP_LOSSES_H
+#define GNUPROP_LOSSES_H
 
 #include "simprop/energyLosses/PairProductionLosses.h"
 #include "simprop/energyLosses/PhotoPionContinuousLosses.h"
 
-namespace beniamino {
+namespace gnuprop {
 
 class EnergyLosses {
  public:
   EnergyLosses();
+
+  // Compute beta
   double beta(double E, double z = 0) const;
-  // double dbdE(double E) const;
+
+  // PhotoPion control
+  void enablePhotoPion() { doPhotoPion = true; }
+  void disablePhotoPion() { doPhotoPion = false; }
+  bool isPhotoPionEnabled() const { return doPhotoPion; }
 
  private:
-  std::shared_ptr<simprop::losses::PairProductionLosses> m_pair;
-  std::shared_ptr<simprop::losses::PhotoPionContinuousLosses> m_photopi;
+  bool doPhotoPion = false;  // PhotoPion flag
+
+  simprop::losses::PairProductionLosses m_pair;
+  simprop::losses::PhotoPionContinuousLosses m_photopi;
 };
 
-}  // namespace beniamino
+}  // namespace gnuprop
 
-#endif
+#endif  // GNUPROP_LOSSES_H

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 project(gammaprop CXX)
 set(VERSION 3.0)
 
@@ -69,9 +69,9 @@ list(APPEND GAMMAPROP_EXTRA_LIBRARIES ${SIMPROP_LIBRARIES})
 include_directories(include ${GAMMAPROP_EXTRA_INCLUDES})
 
 add_library(gammaprop SHARED
-    src/gammaprop.cpp
+    #src/gammaprop.cpp
     #src/cosmoneutrinos.cpp
-    src/KelnerAharonian2008.cpp
+    #src/KelnerAharonian2008.cpp
     src/losses.cpp
     )
     target_link_libraries(gammaprop ${GAMMAPROP_EXTRA_LIBRARIES})
@@ -91,11 +91,11 @@ file(COPY ${GAMMAPROP_DATA} DESTINATION ${PROJECT_BINARY_DIR}/data)
 add_executable(protonlosses apps/printProtonlosses.cpp)
 target_link_libraries (protonlosses gammaprop ${GAMMAPROP_EXTRA_LIBRARIES})
 
-add_executable(nuxsecs apps/printNuxsecs.cpp)
-target_link_libraries (nuxsecs gammaprop ${GAMMAPROP_EXTRA_LIBRARIES})
+# add_executable(nuxsecs apps/printNuxsecs.cpp)
+# target_link_libraries (nuxsecs gammaprop ${GAMMAPROP_EXTRA_LIBRARIES})
 
-add_executable(run apps/run.cpp)
-target_link_libraries (run gammaprop ${GAMMAPROP_EXTRA_LIBRARIES})
+# add_executable(run apps/run.cpp)
+# target_link_libraries (run gammaprop ${GAMMAPROP_EXTRA_LIBRARIES})
 
 # add_executable(generationeenergy apps/generationEnergy.cpp)
 # target_link_libraries (generationeenergy beniamino ${GAMMAPROP_EXTRA_LIBRARIES})
