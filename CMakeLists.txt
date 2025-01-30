@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.10)
-project(gammaprop CXX)
+project(gnuprop CXX)
 set(VERSION 3.0)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
-set(GAMMAPROP_EXTRA_SOURCES)
-set(GAMMAPROP_EXTRA_INCLUDES)
-set(GAMMAPROP_EXTRA_LIBRARIES)
+set(GNUPROP_EXTRA_SOURCES)
+set(GNUPROP_EXTRA_INCLUDES)
+set(GNUPROP_EXTRA_LIBRARIES)
 
 set(CMAKE_CXX_STANDARD 14)
 cmake_policy(SET CMP0048 NEW)
@@ -14,8 +14,8 @@ cmake_policy(SET CMP0048 NEW)
 set(CMAKE_VERBOSE_MAKEFILE OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_FLAGS "-std=c++14 -Wall -pedantic -ftree-vectorize -O3")
-set(GAMMAPROP_INCLUDES)
-set(GAMMAPROP_LIBRARIES)
+set(GNUPROP_INCLUDES)
+set(GNUPROP_LIBRARIES)
 
 # Set default build-type to release to enable performance improvements
 if (NOT CMAKE_BUILD_TYPE)
@@ -43,13 +43,13 @@ include_directories(external/NamedType/include)
 
 # GSL (required)
 find_package(GSL REQUIRED)
-list(APPEND GAMMAPROP_EXTRA_INCLUDES ${GSL_INCLUDE_DIR})
-list(APPEND GAMMAPROP_EXTRA_LIBRARIES ${GSL_LIBRARIES})
+list(APPEND GNUPROP_EXTRA_INCLUDES ${GSL_INCLUDE_DIR})
+list(APPEND GNUPROP_EXTRA_LIBRARIES ${GSL_LIBRARIES})
 
 # BENIAMINO (required)
 find_package(SIMPROP REQUIRED)
-list(APPEND GAMMAPROP_EXTRA_INCLUDES ${SIMPROP_INCLUDE_DIR})
-list(APPEND GAMMAPROP_EXTRA_LIBRARIES ${SIMPROP_LIBRARIES})
+list(APPEND GNUPROP_EXTRA_INCLUDES ${SIMPROP_INCLUDE_DIR})
+list(APPEND GNUPROP_EXTRA_LIBRARIES ${SIMPROP_LIBRARIES})
 
 # googletest (provided, see https://code.google.com/p/googletest/wiki/FAQ
 #     Why is it not recommended use a pre-compiled copy of Google Test?)
@@ -66,7 +66,7 @@ list(APPEND GAMMAPROP_EXTRA_LIBRARIES ${SIMPROP_LIBRARIES})
 # ----------------------------------------------------------------------------
 # Install
 # ----------------------------------------------------------------------------
-include_directories(include ${GAMMAPROP_EXTRA_INCLUDES})
+include_directories(include ${GNUPROP_EXTRA_INCLUDES})
 
 add_library(gammaprop SHARED
     src/gnuprop.cpp
@@ -77,66 +77,66 @@ add_library(gammaprop SHARED
     #src/cosmoneutrinos.cpp
     src/tridiag.cpp
     )
-    target_link_libraries(gammaprop ${GAMMAPROP_EXTRA_LIBRARIES})
+    target_link_libraries(gammaprop ${GNUPROP_EXTRA_LIBRARIES})
 
 # make library
-#include_directories(include ${GAMMAPROP_INCLUDES})
-#add_library(GAMMAPROP_LIB ${GAMMAPROP_SRCS} ${GAMMAPROP_INCLUDES})
+#include_directories(include ${GNUPROP_INCLUDES})
+#add_library(GNUPROP_LIB ${GNUPROP_SRCS} ${GNUPROP_INCLUDES})
 
 # create the output dir
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/output)
 
 # copy data files in build
-file(GLOB GAMMAPROP_DATA "data/*.txt")
-file(COPY ${GAMMAPROP_DATA} DESTINATION ${PROJECT_BINARY_DIR}/data)
+file(GLOB GNUPROP_DATA "data/*.txt")
+file(COPY ${GNUPROP_DATA} DESTINATION ${PROJECT_BINARY_DIR}/data)
 
 # make examples
 add_executable(protonlosses examples/dumpProtonLosses.cpp)
-target_link_libraries (protonlosses gammaprop ${GAMMAPROP_EXTRA_LIBRARIES})
+target_link_libraries (protonlosses gammaprop ${GNUPROP_EXTRA_LIBRARIES})
 
 add_executable(kaxsecs examples/dumpKelnerAharonianPhi.cpp)
-target_link_libraries (kaxsecs gammaprop ${GAMMAPROP_EXTRA_LIBRARIES})
+target_link_libraries (kaxsecs gammaprop ${GNUPROP_EXTRA_LIBRARIES})
 
 add_executable(gammaabsorption examples/dumpGammaAbsorption.cpp)
-target_link_libraries (gammaabsorption gammaprop ${GAMMAPROP_EXTRA_LIBRARIES})
+target_link_libraries (gammaabsorption gammaprop ${GNUPROP_EXTRA_LIBRARIES})
 
 # make apps 
 add_executable(compute_tables apps/compute_tables.cpp)
-target_link_libraries (compute_tables gammaprop ${GAMMAPROP_EXTRA_LIBRARIES})
+target_link_libraries (compute_tables gammaprop ${GNUPROP_EXTRA_LIBRARIES})
 
 add_executable(run apps/run.cpp)
-target_link_libraries (run gammaprop ${GAMMAPROP_EXTRA_LIBRARIES})
+target_link_libraries (run gammaprop ${GNUPROP_EXTRA_LIBRARIES})
 
 # add_executable(generationeenergy apps/generationEnergy.cpp)
-# target_link_libraries (generationeenergy beniamino ${GAMMAPROP_EXTRA_LIBRARIES})
+# target_link_libraries (generationeenergy beniamino ${GNUPROP_EXTRA_LIBRARIES})
 
 # add_executable(uhecr apps/uhecr.cpp)
-# target_link_libraries (uhecr beniamino ${GAMMAPROP_EXTRA_LIBRARIES})
+# target_link_libraries (uhecr beniamino ${GNUPROP_EXTRA_LIBRARIES})
 
 # add_executable(nuflux apps/nuflux.cpp)
-# target_link_libraries (nuflux beniamino ${GAMMAPROP_EXTRA_LIBRARIES})
+# target_link_libraries (nuflux beniamino ${GNUPROP_EXTRA_LIBRARIES})
 
 # # testing
 # if(ENABLE_TESTING)
 #     enable_testing()
 #     add_executable(test_common test/testCommon.cpp)
-#     target_link_libraries(test_common BENIAMINO gtest gtest_main ${GAMMAPROP_EXTRA_LIBRARIES})
+#     target_link_libraries(test_common BENIAMINO gtest gtest_main ${GNUPROP_EXTRA_LIBRARIES})
 #     add_test(test_common test_common)
 
 #     add_executable(test_rng test/testRng.cpp)
-#     target_link_libraries(test_rng BENIAMINO gtest gtest_main ${GAMMAPROP_EXTRA_LIBRARIES})
+#     target_link_libraries(test_rng BENIAMINO gtest gtest_main ${GNUPROP_EXTRA_LIBRARIES})
 #     add_test(test_rng test_rng)
 
 #     add_executable(test_pid test/testPid.cpp)
-#     target_link_libraries(test_pid BENIAMINO gtest gtest_main ${GAMMAPROP_EXTRA_LIBRARIES})
+#     target_link_libraries(test_pid BENIAMINO gtest gtest_main ${GNUPROP_EXTRA_LIBRARIES})
 #     add_test(test_pid test_pid)
 
 #     add_executable(test_cosmology test/testCosmology.cpp)
-#     target_link_libraries(test_cosmology BENIAMINO gtest gtest_main ${GAMMAPROP_EXTRA_LIBRARIES})
+#     target_link_libraries(test_cosmology BENIAMINO gtest gtest_main ${GNUPROP_EXTRA_LIBRARIES})
 #     add_test(test_cosmology test_cosmology)
 
 #     add_executable(test_photonFields test/testPhotonFields.cpp)
-#     target_link_libraries(test_photonFields BENIAMINO gtest gtest_main ${GAMMAPROP_EXTRA_LIBRARIES})
+#     target_link_libraries(test_photonFields BENIAMINO gtest gtest_main ${GNUPROP_EXTRA_LIBRARIES})
 #     add_test(test_photonFields test_photonFields)
 # endif(ENABLE_TESTING)
 
@@ -146,5 +146,5 @@ message (STATUS "BUILD_SHARED_LIBS ..... = ${BUILD_SHARED_LIBS}")
 message (STATUS "CMAKE_CXX_COMPILER .... = ${CMAKE_CXX_COMPILER}")
 message (STATUS "CMAKE_CXX_FLAGS ....... = ${CMAKE_CXX_FLAGS}")
 message (STATUS "CMAKE_INCLUDE_PATH .... = ${CMAKE_INCLUDE_PATH}")
-message (STATUS "GAMMAPROP_INCLUDES ...... = ${GAMMAPROP_EXTRA_INCLUDES}")
-message (STATUS "GAMMAPROP_LIBRARIES ..... = ${GAMMAPROP_EXTRA_LIBRARIES}")
+message (STATUS "GNUPROP_INCLUDES ...... = ${GNUPROP_EXTRA_INCLUDES}")
+message (STATUS "GNUPROP_LIBRARIES ..... = ${GNUPROP_EXTRA_LIBRARIES}")
