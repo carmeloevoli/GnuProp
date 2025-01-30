@@ -69,10 +69,13 @@ list(APPEND GAMMAPROP_EXTRA_LIBRARIES ${SIMPROP_LIBRARIES})
 include_directories(include ${GAMMAPROP_EXTRA_INCLUDES})
 
 add_library(gammaprop SHARED
-    #src/gammaprop.cpp
-    #src/cosmoneutrinos.cpp
-    #src/KelnerAharonian2008.cpp
+    src/gnuprop.cpp
+    src/interactions/BreitWheeler.cpp
+    src/interactions/KelnerAharonian2008.cpp
     src/losses.cpp
+    src/rates.cpp
+    #src/cosmoneutrinos.cpp
+    src/tridiag.cpp
     )
     target_link_libraries(gammaprop ${GAMMAPROP_EXTRA_LIBRARIES})
 
@@ -87,15 +90,22 @@ file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/output)
 file(GLOB GAMMAPROP_DATA "data/*.txt")
 file(COPY ${GAMMAPROP_DATA} DESTINATION ${PROJECT_BINARY_DIR}/data)
 
-# make apps
-add_executable(protonlosses apps/printProtonlosses.cpp)
+# make examples
+add_executable(protonlosses examples/dumpProtonLosses.cpp)
 target_link_libraries (protonlosses gammaprop ${GAMMAPROP_EXTRA_LIBRARIES})
 
-# add_executable(nuxsecs apps/printNuxsecs.cpp)
-# target_link_libraries (nuxsecs gammaprop ${GAMMAPROP_EXTRA_LIBRARIES})
+add_executable(kaxsecs examples/dumpKelnerAharonianPhi.cpp)
+target_link_libraries (kaxsecs gammaprop ${GAMMAPROP_EXTRA_LIBRARIES})
 
-# add_executable(run apps/run.cpp)
-# target_link_libraries (run gammaprop ${GAMMAPROP_EXTRA_LIBRARIES})
+add_executable(gammaabsorption examples/dumpGammaAbsorption.cpp)
+target_link_libraries (gammaabsorption gammaprop ${GAMMAPROP_EXTRA_LIBRARIES})
+
+# make apps 
+add_executable(compute_tables apps/compute_tables.cpp)
+target_link_libraries (compute_tables gammaprop ${GAMMAPROP_EXTRA_LIBRARIES})
+
+add_executable(run apps/run.cpp)
+target_link_libraries (run gammaprop ${GAMMAPROP_EXTRA_LIBRARIES})
 
 # add_executable(generationeenergy apps/generationEnergy.cpp)
 # target_link_libraries (generationeenergy beniamino ${GAMMAPROP_EXTRA_LIBRARIES})
