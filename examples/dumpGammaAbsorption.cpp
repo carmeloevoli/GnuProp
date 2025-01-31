@@ -4,7 +4,7 @@
 
 void breitwheeler() {
   const auto chiAxis = simprop::utils::LogAxis<double>(1, 1e4, 1000);
-  BreitWheeler::OpticalDepth optDepth;
+  PhotonPairProduction::BreitWheeler bw;
   std::ofstream out("output/gnuprop_xsecs_breitwheeler.txt");
   out << "# chi - s [GeV^2] - sigma [mbarn]\n";
   out << std::scientific;
@@ -12,7 +12,7 @@ void breitwheeler() {
     auto s = chi * pow2(2. * SI::electronMassC2);
     out << chi << "\t";
     out << s / SI::GeV2 << "\t";
-    out << optDepth.sigmaInCoMFrame(s) / SI::mbarn << "\t";
+    out << bw.sigmaInCoMFrame(s) / SI::mbarn << "\t";
     out << "\n";
   }
 }
@@ -38,7 +38,7 @@ int main() {
     simprop::utils::Timer timer("main timer");
 
     breitwheeler();
-    interactionDepth();
+    absorptionLength();
   } catch (const std::exception& e) {
     std::cerr << "Exception caught: " << e.what() << std::endl;
     return EXIT_FAILURE;
