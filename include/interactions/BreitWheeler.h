@@ -1,15 +1,17 @@
 #ifndef GNUPROP_INTERACTIONS_BREITWHEELER_H
 #define GNUPROP_INTERACTIONS_BREITWHEELER_H
 
-namespace BreitWheeler {
+namespace PhotonPairProduction {
 
-struct OpticalDepth {
-  double sigmaInCoMFrame(const double &s) const;
-  double sigma(const double &eGamma, const double &eBkg, const double &mu) const;
+struct BreitWheeler {
+  double sigmaInCoMFrame(double s) const;
+  double sigma(double eGamma, double eBkg, double mu) const;
 
   double integrateXsec(double x) const;
+
+  double dsigmadE(double eGamma, double eLepton, double eBkg) const;
 };
 
-}  // namespace BreitWheeler
+}  // namespace PhotonPairProduction
 
 #endif  // GNUPROP_INTERACTIONS_BREITWHEELER_H

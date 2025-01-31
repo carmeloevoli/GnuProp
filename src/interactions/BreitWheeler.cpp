@@ -4,9 +4,9 @@
 
 #include "simprop.h"
 
-namespace BreitWheeler {
+namespace PhotonPairProduction {
 
-double OpticalDepth::sigmaInCoMFrame(const double &s) const {
+double BreitWheeler::sigmaInCoMFrame(double s) const {
   const auto chi = s / 4. / pow2(SI::electronMassC2);
 
   if (chi < 1. || chi > 1e5) return 0.;
@@ -16,12 +16,12 @@ double OpticalDepth::sigmaInCoMFrame(const double &s) const {
          (2. * beta * (pow2(beta) - 2.) + (3. - pow4(beta)) * log((1. + beta) / (1. - beta)));
 }
 
-double OpticalDepth::sigma(const double &eGamma, const double &eBkg, const double &mu) const {
+double BreitWheeler::sigma(double eGamma, double eBkg, double mu) const {
   const auto s = 2. * eGamma * eBkg * (1. - mu);
   return sigmaInCoMFrame(s);
 }
 
-double OpticalDepth::integrateXsec(double x) const {  // x = eps * E_gamma
+double BreitWheeler::integrateXsec(double x) const {  // x = eps * E_gamma
   const auto sMin = 4. * pow2(SI::electronMassC2);
   const auto sMax = 4. * x;
   auto integrand = [&](double s) { return s * sigmaInCoMFrame(s); };
@@ -29,4 +29,23 @@ double OpticalDepth::integrateXsec(double x) const {  // x = eps * E_gamma
   return value;
 }
 
-}  // namespace BreitWheeler
+double BreitWheeler::dsigmadE(double eGamma, double eLepton, double eBkg) const {
+  const auto A = eBkg + eGamma;
+  const auto me_c2 = SI::electronMassC2;
+  const auto me2_c4 = pow2(SI::electronMassC2);
+  const auto minLeptonEnergy = 0.5 * A * (1. - std::sqrt(1. - me2_c4 / eBkg / eGamma));
+  const auto maxLeptonEnergy = 0.5 * A * (1. + std::sqrt(1. - me2_c4 / eBkg / eGamma));
+  double value = 0.;
+  if (eLepton > minLeptonEnergy and eLepton < maxLeptonEnergy) {
+    auto c = 3. / 64. * SI::sigmaTh * me2_c4 / pow2(eBkg) / pow3(eGamma);
+    auto a1 = 4. * A * me_c2 / ((A - eLepton) * eLepton) *
+              std::log(4. * eBkg * (A - eLepton) * eLepton / me2_c4 / A);
+    auto a2 = -8. * eBkg * A / me2_c4;
+    auto a3 = 2. * (2. * eBkg * A / me2_c4 - 1.) * pow2(A) / ((A - eLepton) * eLepton);
+    auto a4 = -(1. - me2_c4 / eBkg / A) * (pow4(A) / pow2(A - eLepton) / pow2(eLepton));
+    value = c * (a1 + a2 + a3 + a4);
+  }
+  return value;
+}
+
+}  // namespace PhotonPairProduction
