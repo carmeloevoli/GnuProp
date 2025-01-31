@@ -82,7 +82,7 @@ void gammaAbsorptionRateTable() {
   const auto redshifts = simprop::utils::LinAxis<double>(0, 10, 101);
   const auto eAxis = simprop::utils::LogAxis<double>(1e13 * SI::eV, 1e22 * SI::eV, 3000);
   const auto phField = simprop::photonfields::CMB();
-  const auto optDepth = BreitWheeler::OpticalDepth();
+  const auto bw = PhotonPairProduction::BreitWheeler();
   const std::string filename = "gnuprop_gamma_absorption_rate.bin";
   const auto units = 1. / SI::Gyr;
 
@@ -97,7 +97,7 @@ void gammaAbsorptionRateTable() {
 
         auto integrand = [&](double lnEpsilon) {
           const auto epsilon = std::exp(lnEpsilon);
-          return phField.density(epsilon, z) / epsilon * optDepth.integrateXsec(E * epsilon);
+          return phField.density(epsilon, z) / epsilon * bw.integrateXsec(E * epsilon);
         };
 
         const auto a = std::log(epsMin);
@@ -115,6 +115,89 @@ void gammaAbsorptionRateTable() {
   tabGammaAbsorption.computeAndSave();
 }
 
+void pairProductionRateTable() {
+  const auto redshifts = simprop::utils::LinAxis<double>(0, 10, 51);
+  const auto xAxis = simprop::utils::LogAxis<double>(1e-4, 1, 200);
+  const auto eGammaAxis = simprop::utils::LogAxis<double>(1e19 * SI::eV, 1e22 * SI::eV, 400);
+  const auto phField = simprop::photonfields::CMB();
+  const auto bw = PhotonPairProduction::BreitWheeler();
+  const auto units = 1. / SI::Gyr;
+
+  const std::string filename = "gnuprop_pair_production_test.bin";
+
+  TabulatedFunction3D tabPairProduction(
+      filename,
+      [&](double z, double x, double E_gamma) {
+        if (x > 1.) return 0.;
+
+        const auto E_pair = x * E_gamma;
+        const auto epsTh = 0.;  // (pow2(m_pi) + 2. * m_p * m_pi) / 4. / E_p;
+        const auto epsMin = std::max(epsTh, phField.getMinPhotonEnergy());
+        const auto epsMax = phField.getMaxPhotonEnergy();
+
+        if (epsMin > epsMax) return 0.;
+
+        auto integrand = [&](double lnEpsilon) {
+          const auto epsilon = std::exp(lnEpsilon);
+          auto value = phField.density(epsilon, z) * bw.dsigmadE(E_gamma, E_pair, epsilon);
+          return epsilon * value;
+        };
+
+        const auto a = std::log(epsMin);
+        const auto b = std::log(epsMax);
+        const size_t N = 10000;
+        // double value = simprop::utils::RombergIntegration<double>(integrand, a, b, N, 1e-3);
+        auto value = simprop::utils::QAGIntegration<double>(integrand, a, b, N, 1e-3);
+        value /= std::pow(1. + z, 3.);
+
+        return std::max(value / units, 0.);
+      },
+      redshifts, xAxis, eGammaAxis);
+
+  tabPairProduction.computeAndSave();
+}
+
+void opticalDepthTable() {
+  const auto redshifts = std::vector<double>({0.1, 0.5, 1.0, 3.0, 5.0});
+  const auto eGamma = simprop::utils::LogAxis<double>(1e-2 * SI::TeV, 1e5 * SI::TeV, 100);
+  const auto cosmology = std::make_shared<simprop::cosmo::Planck2018>();
+  // const auto tau = core::OpticalDepth(cosmology, photonField);
+
+  const std::string filename = "gnuprop_optical_depth.bin";
+
+  TabulatedFunction2D tabOpticalDepth(
+      filename,
+      [&](double z, double E) {
+        // const auto eps_th = pow2(SI::electronMassC2) / E;
+        // const auto epsMin = std::max(eps_th, phField.getMinPhotonEnergy());
+        // const auto epsMax = phField.getMaxPhotonEnergy();
+
+        // if (epsMin > epsMax) return 0.;
+
+        // auto integrand = [&](double lnEpsilon) {
+        //   const auto epsilon = std::exp(lnEpsilon);
+        //   return phField.density(epsilon, z) / epsilon * bw.integrateXsec(E * epsilon);
+        // };
+
+        // const auto a = std::log(epsMin);
+        // const auto b = std::log(epsMax);
+        // const size_t N = 10000;
+        // auto value = simprop::utils::QAGIntegration<double>(integrand, a, b, N, 1e-3);
+        // value *= SI::cLight;
+        // value /= std::pow(1. + z, 3.);
+        // value /= 8. * pow2(E);
+
+        auto integrand = [&](double z) {
+          return cosmology.dtdz(z) * integrateOverAngle(eGamma, z);
+        };
+        auto value = utils::QAGIntegration<double>(integrand, 0., z, 10000, 1e-3);
+        return 0.5 * SI::cLight * value;
+      },
+      redshifts, eGamma);
+
+  tabOpticalDepth.computeAndSave();
+}
+
 int main() {
   try {
     // Display startup information
@@ -129,7 +212,15 @@ int main() {
     }
     {
       simprop::utils::Timer timer("gamma absorption");
-      gammaAbsorptionRateTable();
+      // gammaAbsorptionRateTable();
+    }
+    {
+      simprop::utils::Timer timer("photon pair production");
+      // pairProductionRateTable();
+    }
+    {
+      simprop::utils::Timer timer("photon pair production");
+      opticalDepthTable();
     }
   } catch (const std::exception& ex) {
     std::cerr << "Error: " << ex.what() << "\n";
