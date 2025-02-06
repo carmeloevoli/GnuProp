@@ -1,4 +1,4 @@
-#include "interactions/KelnerAharonian2008.h"
+#include "interactions/PhotoPion.h"
 
 #include <cmath>
 #include <fstream>
@@ -9,7 +9,7 @@
 #include "simprop/utils/numeric.h"
 #include "utils.h"
 
-namespace KelnerAharonian2008 {
+namespace Interactions {
 
 std::vector<std::vector<double>> loadTables(const std::string& filename) {
   std::ifstream file(filename);
@@ -57,7 +57,7 @@ std::vector<std::vector<double>> loadTables(const std::string& filename) {
   return {lnrho, s, delta, lnB};
 }
 
-SecondarySpectrum::SecondarySpectrum(const std::string& filename) {
+KelnerAharonian2008::KelnerAharonian2008(const std::string& filename) {
   auto v = loadTables(filename);
 
   m_lnrho_table = std::move(v[0]);
@@ -66,7 +66,7 @@ SecondarySpectrum::SecondarySpectrum(const std::string& filename) {
   m_lnB_table = std::move(v[3]);
 }
 
-double SecondarySpectrum::B(double rho) const {
+double KelnerAharonian2008::B(double rho) const {
   double value = 0;
   auto ln_rho = std::log(rho);
   if (ln_rho > m_lnrho_table.front() && ln_rho < m_lnrho_table.back()) {
@@ -76,7 +76,7 @@ double SecondarySpectrum::B(double rho) const {
   return value;
 }
 
-double SecondarySpectrum::s(double rho) const {
+double KelnerAharonian2008::s(double rho) const {
   double value = 0;
   auto ln_rho = std::log(rho);
   if (ln_rho > m_lnrho_table.front() && ln_rho < m_lnrho_table.back()) {
@@ -85,7 +85,7 @@ double SecondarySpectrum::s(double rho) const {
   return value;
 }
 
-double SecondarySpectrum::delta(double rho) const {
+double KelnerAharonian2008::delta(double rho) const {
   double value = 0;
   auto ln_rho = std::log(rho);
   if (ln_rho > m_lnrho_table.front() && ln_rho < m_lnrho_table.back()) {
@@ -94,13 +94,13 @@ double SecondarySpectrum::delta(double rho) const {
   return value;
 }
 
-double SecondarySpectrum::xMinus(double eta) const {  // Eq. 19
+double KelnerAharonian2008::xMinus(double eta) const {  // Eq. 19
   auto value = 1. / 2. / (1. + eta);
   value *= eta + m_r2 - std::sqrt((eta - m_r2 - 2. * m_r) * (eta - m_r2 + 2. * m_r));
   return value;
 }
 
-double SecondarySpectrum::xPlus(double eta) const {  // Eq. 19
+double KelnerAharonian2008::xPlus(double eta) const {  // Eq. 19
   auto value = 1. / 2. / (1. + eta);
   value *= eta + m_r2 + std::sqrt((eta - m_r2 - 2. * m_r) * (eta - m_r2 + 2. * m_r));
   return value;
@@ -117,7 +117,7 @@ double func(double x, double xMinus, double xPlus, double s, double delta, doubl
   return 0.;
 }
 
-AntiNuMuSpectrum::AntiNuMuSpectrum() : SecondarySpectrum("data/xsecs_KA2018_antiNuMu.txt") {}
+AntiNuMuSpectrum::AntiNuMuSpectrum() : KelnerAharonian2008("data/xsecs_KA2018_antiNuMu.txt") {}
 
 double AntiNuMuSpectrum::psi(double rho) const { return 2.5 + 1.4 * std::log(rho); }
 
@@ -139,7 +139,7 @@ double AntiNuMuSpectrum::Phi(double eta, double x) const {
   return func(x, _xPrimeMinus, _xPrimePlus, _s, _delta, _B, _psi);
 }
 
-NuMuSpectrum::NuMuSpectrum() : SecondarySpectrum("data/xsecs_KA2018_nuMu.txt") {}
+NuMuSpectrum::NuMuSpectrum() : KelnerAharonian2008("data/xsecs_KA2018_nuMu.txt") {}
 
 double NuMuSpectrum::psi(double rho) const { return 2.5 + 1.4 * std::log(rho); }
 
@@ -171,7 +171,7 @@ double NuMuSpectrum::Phi(double eta, double x) const {
 }
 
 AntiNuElectronSpectrum::AntiNuElectronSpectrum()
-    : SecondarySpectrum("data/xsecs_KA2018_antiNuElectron.txt") {}
+    : KelnerAharonian2008("data/xsecs_KA2018_antiNuElectron.txt") {}
 
 double AntiNuElectronSpectrum::psi(double rho) const {
   return (rho > 4.) ? 6. * (1. - std::exp(1.5 * (4. - rho))) : 0.;
@@ -203,7 +203,8 @@ double AntiNuElectronSpectrum::Phi(double eta, double x) const {
   return func(x, _xPrimeMinus, _xPrimePlus, _s, _delta, _B, _psi);
 }
 
-NuElectronSpectrum::NuElectronSpectrum() : SecondarySpectrum("data/xsecs_KA2018_nuElectron.txt") {}
+NuElectronSpectrum::NuElectronSpectrum()
+    : KelnerAharonian2008("data/xsecs_KA2018_nuElectron.txt") {}
 
 double NuElectronSpectrum::psi(double rho) const { return 2.5 + 1.4 * std::log(rho); }
 
@@ -225,7 +226,7 @@ double NuElectronSpectrum::Phi(double eta, double x) const {
   return func(x, _xPrimeMinus, _xPrimePlus, _s, _delta, _B, _psi);
 }
 
-GammaSpectrum::GammaSpectrum() : SecondarySpectrum("data/xsecs_KA2018_gamma.txt") {}
+GammaSpectrum::GammaSpectrum() : KelnerAharonian2008("data/xsecs_KA2018_gamma.txt") {}
 
 double GammaSpectrum::psi(double rho) const { return 2.5 + 0.4 * std::log(rho); }
 
@@ -247,7 +248,7 @@ double GammaSpectrum::Phi(double eta, double x) const {
   return func(x, _xMinus, _xPlus, _s, _delta, _B, _psi);
 };
 
-ElectronSpectrum::ElectronSpectrum() : SecondarySpectrum("data/xsecs_KA2018_electron.txt") {}
+ElectronSpectrum::ElectronSpectrum() : KelnerAharonian2008("data/xsecs_KA2018_electron.txt") {}
 
 double ElectronSpectrum::psi(double rho) const {
   return (rho > 4.) ? 6. * (1. - std::exp(1.5 * (4. - rho))) : 0.;
@@ -277,7 +278,7 @@ double ElectronSpectrum::Phi(double eta, double x) const {
   return func(x, _xPrimeMinus, _xPrimePlus, _s, _delta, _B, _psi);
 }
 
-PositronSpectrum::PositronSpectrum() : SecondarySpectrum("data/xsecs_KA2018_positron.txt") {}
+PositronSpectrum::PositronSpectrum() : KelnerAharonian2008("data/xsecs_KA2018_positron.txt") {}
 
 double PositronSpectrum::psi(double rho) const { return 2.5 + 1.4 * std::log(rho); }
 
@@ -299,4 +300,4 @@ double PositronSpectrum::Phi(double eta, double x) const {
   return func(x, _xMinus, _xPlus, _s, _delta, _B, _psi);
 }
 
-}  // namespace KelnerAharonian2008
+}  // namespace Interactions

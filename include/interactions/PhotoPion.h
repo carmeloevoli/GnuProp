@@ -6,12 +6,12 @@
 
 #include "simprop/core/units.h"
 
-namespace KelnerAharonian2008 {
+namespace Interactions {
 
-class SecondarySpectrum {
+class KelnerAharonian2008 {
  public:
-  SecondarySpectrum(const std::string& filename);
-  virtual ~SecondarySpectrum() = default;
+  KelnerAharonian2008(const std::string& filename);
+  virtual ~KelnerAharonian2008() = default;
 
  public:
   virtual double Phi(double eta, double x) const = 0;
@@ -38,7 +38,7 @@ class SecondarySpectrum {
   std::vector<double> m_lnB_table;
 };
 
-class AntiNuMuSpectrum final : public SecondarySpectrum {
+class AntiNuMuSpectrum final : public KelnerAharonian2008 {
  public:
   AntiNuMuSpectrum();
   double Phi(double eta, double x) const override;
@@ -49,7 +49,7 @@ class AntiNuMuSpectrum final : public SecondarySpectrum {
   double xPrimePlus(double eta) const override;
 };
 
-class NuMuSpectrum final : public SecondarySpectrum {
+class NuMuSpectrum final : public KelnerAharonian2008 {
  public:
   NuMuSpectrum();
   double Phi(double eta, double x) const override;
@@ -60,7 +60,7 @@ class NuMuSpectrum final : public SecondarySpectrum {
   double xPrimePlus(double eta) const override;
 };
 
-class AntiNuElectronSpectrum final : public SecondarySpectrum {
+class AntiNuElectronSpectrum final : public KelnerAharonian2008 {
  public:
   AntiNuElectronSpectrum();
   double Phi(double eta, double x) const override;
@@ -71,7 +71,7 @@ class AntiNuElectronSpectrum final : public SecondarySpectrum {
   double xPrimePlus(double eta) const override;
 };
 
-class NuElectronSpectrum final : public SecondarySpectrum {
+class NuElectronSpectrum final : public KelnerAharonian2008 {
  public:
   NuElectronSpectrum();
   double Phi(double eta, double x) const override;
@@ -82,7 +82,40 @@ class NuElectronSpectrum final : public SecondarySpectrum {
   double xPrimePlus(double eta) const override;
 };
 
-struct NeutrinoProductionSpectrum {
+class GammaSpectrum final : public KelnerAharonian2008 {
+ public:
+  GammaSpectrum();
+  double Phi(double eta, double x) const override;
+
+ protected:
+  double psi(double rho) const override;
+  double xPrimeMinus(double eta) const override;
+  double xPrimePlus(double eta) const override;
+};
+
+class ElectronSpectrum final : public KelnerAharonian2008 {
+ public:
+  ElectronSpectrum();
+  double Phi(double eta, double x) const override;
+
+ protected:
+  double psi(double rho) const override;
+  double xPrimeMinus(double eta) const override;
+  double xPrimePlus(double eta) const override;
+};
+
+class PositronSpectrum final : public KelnerAharonian2008 {
+ public:
+  PositronSpectrum();
+  double Phi(double eta, double x) const override;
+
+ protected:
+  double psi(double rho) const override;
+  double xPrimeMinus(double eta) const override;
+  double xPrimePlus(double eta) const override;
+};
+
+struct PhotoPionNeutrinos {
   NuMuSpectrum numu;
   AntiNuMuSpectrum antiNumu;
   NuElectronSpectrum nue;
@@ -98,40 +131,13 @@ struct NeutrinoProductionSpectrum {
   }
 };
 
-class GammaSpectrum final : public SecondarySpectrum {
- public:
-  GammaSpectrum();
-  double Phi(double eta, double x) const override;
+struct PhotoPionGammas {
+  GammaSpectrum gamma;
 
- protected:
-  double psi(double rho) const override;
-  double xPrimeMinus(double eta) const override;
-  double xPrimePlus(double eta) const override;
+  double Phi(double eta, double x) const { return gamma.Phi(eta, x); }
 };
 
-class ElectronSpectrum final : public SecondarySpectrum {
- public:
-  ElectronSpectrum();
-  double Phi(double eta, double x) const override;
-
- protected:
-  double psi(double rho) const override;
-  double xPrimeMinus(double eta) const override;
-  double xPrimePlus(double eta) const override;
-};
-
-class PositronSpectrum final : public SecondarySpectrum {
- public:
-  PositronSpectrum();
-  double Phi(double eta, double x) const override;
-
- protected:
-  double psi(double rho) const override;
-  double xPrimeMinus(double eta) const override;
-  double xPrimePlus(double eta) const override;
-};
-
-struct PairSpectrum {
+struct PhotoPionPairs {
   ElectronSpectrum eMinus;
   PositronSpectrum ePlus;
 
@@ -141,6 +147,6 @@ struct PairSpectrum {
   double Phi(double eta, double x) const { return eMinus.Phi(eta, x) + ePlus.Phi(eta, x); }
 };
 
-}  // namespace KelnerAharonian2008
+}  // namespace Interactions
 
 #endif  // GNUPROP_INTERACTIONS_KELNERAHARONIAN2008_H

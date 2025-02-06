@@ -1,12 +1,12 @@
-#include "interactions/BreitWheeler.h"
+#include "interactions/GammaPairProduction.h"
 
 #include <cmath>
 
 #include "simprop.h"
 
-namespace PhotonPairProduction {
+namespace Interactions {
 
-double BreitWheeler::sigmaInCoMFrame(double s) const {
+double GammaPairProduction::sigmaInCoMFrame(double s) const {
   const auto chi = s / 4. / pow2(SI::electronMassC2);
 
   if (chi < 1. || chi > 1e5) return 0.;
@@ -16,12 +16,12 @@ double BreitWheeler::sigmaInCoMFrame(double s) const {
          (2. * beta * (pow2(beta) - 2.) + (3. - pow4(beta)) * log((1. + beta) / (1. - beta)));
 }
 
-double BreitWheeler::sigma(double eGamma, double eBkg, double mu) const {
+double GammaPairProduction::sigma(double eGamma, double eBkg, double mu) const {
   const auto s = 2. * eGamma * eBkg * (1. - mu);
   return sigmaInCoMFrame(s);
 }
 
-double BreitWheeler::integrateXsec(double x) const {  // x = eps * E_gamma
+double GammaPairProduction::integrateXsec(double x) const {  // x = eps * E_gamma
   const auto sMin = 4. * pow2(SI::electronMassC2);
   const auto sMax = 4. * x;
   auto integrand = [&](double s) { return s * sigmaInCoMFrame(s); };
@@ -29,7 +29,7 @@ double BreitWheeler::integrateXsec(double x) const {  // x = eps * E_gamma
   return value;
 }
 
-double BreitWheeler::dsigmadE(double eGamma, double eLepton, double eBkg) const {
+double GammaPairProduction::dsigmadE(double eGamma, double eLepton, double eBkg) const {
   const auto A = eBkg + eGamma;
   const auto me_c2 = SI::electronMassC2;
   const auto me2_c4 = pow2(SI::electronMassC2);
@@ -48,4 +48,4 @@ double BreitWheeler::dsigmadE(double eGamma, double eLepton, double eBkg) const 
   return value;
 }
 
-}  // namespace PhotonPairProduction
+}  // namespace Interactions

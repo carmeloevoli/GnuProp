@@ -2,9 +2,9 @@
 
 #include "simprop.h"
 
-namespace InverseCompton {
+namespace Interactions {
 
-double sigma_of_s(double s) {
+double InverseCompton::sigmaInCoMFrame(double s) {
   const auto me_2 = pow2(SI::electronMassC2);
   if (s < me_2) return 0.;
   const auto b_e = (s - me_2) / (s + me_2);
@@ -17,13 +17,13 @@ double sigma_of_s(double s) {
   return value;
 }
 
-double sigma(double eElectron, double eBkg, double mu) {
+double InverseCompton::sigma(double eElectron, double eBkg, double mu) {
   const auto me_2 = pow2(SI::electronMassC2);
   const auto s = me_2 + 2. * eElectron * eBkg - 2. * std::sqrt(pow2(eElectron) - me_2) * eBkg * mu;
-  return sigma_of_s(s);
+  return sigmaInCoMFrame(s);
 }
 
-double dsigmadE(double eElectron, double eBkg, double eGammaPrime) {
+double InverseCompton::dsigmadE(double eElectron, double eBkg, double eGammaPrime) {
   const auto gamma_e = std::sqrt(1. + pow2(eElectron) / pow2(SI::electronMassC2));
   const auto Gamma_e = 4. * eBkg * gamma_e / SI::electronMassC2;
   const auto E_1 = eGammaPrime / gamma_e / SI::electronMassC2;
@@ -35,4 +35,4 @@ double dsigmadE(double eElectron, double eBkg, double eGammaPrime) {
   return value;
 }
 
-}  // namespace InverseCompton
+}  // namespace Interactions

@@ -1,13 +1,14 @@
 #ifndef GNUPROP_INTERACTIONS_ICS_H
 #define GNUPROP_INTERACTIONS_ICS_H
 
-namespace InverseCompton {
+namespace Interactions {
 
-double sigmaInCoMFrame(double s);
-double sigma(double eGamma, double eBkg, double mu);
+struct InverseCompton {
+  double sigmaInCoMFrame(double s);
+  double sigma(double eGamma, double eBkg, double mu);
+  double dsigmadE(double eGamma, double eLepton, double eBkg);
+};
 
-double dsigmadE(double eGamma, double eLepton, double eBkg);
-
-}  // namespace InverseCompton
+}  // namespace Interactions
 
 #endif  // GNUPROP_INTERACTIONS_ICS_H
