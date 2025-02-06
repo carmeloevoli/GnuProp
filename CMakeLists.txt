@@ -71,6 +71,7 @@ include_directories(include ${GNUPROP_EXTRA_INCLUDES})
 add_library(gammaprop SHARED
     src/gnuprop.cpp
     src/interactions/BreitWheeler.cpp
+    src/interactions/InverseCompton.cpp
     src/interactions/KelnerAharonian2008.cpp
     src/losses.cpp
     src/rates.cpp
@@ -99,6 +100,9 @@ target_link_libraries (kaxsecs gammaprop ${GNUPROP_EXTRA_LIBRARIES})
 
 add_executable(gammaabsorption examples/dumpGammaAbsorption.cpp)
 target_link_libraries (gammaabsorption gammaprop ${GNUPROP_EXTRA_LIBRARIES})
+
+add_executable(opticaldepth examples/computeOpticalDepth.cpp)
+target_link_libraries (opticaldepth gammaprop ${GNUPROP_EXTRA_LIBRARIES})
 
 # make apps 
 add_executable(compute_tables apps/compute_tables.cpp)

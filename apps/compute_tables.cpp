@@ -97,7 +97,7 @@ void gammaAbsorptionRateTable() {
 
         auto integrand = [&](double lnEpsilon) {
           const auto epsilon = std::exp(lnEpsilon);
-          return phField.density(epsilon, z) / epsilon * bw.integrateXsec(E * epsilon);
+          return phField.density(epsilon, z) / epsilon * bw.intSSigma(E * epsilon);
         };
 
         const auto a = std::log(epsMin);
@@ -157,47 +157,6 @@ void pairProductionRateTable() {
   tabPairProduction.computeAndSave();
 }
 
-void opticalDepthTable() {
-  const auto redshifts = std::vector<double>({0.1, 0.5, 1.0, 3.0, 5.0});
-  const auto eGamma = simprop::utils::LogAxis<double>(1e-2 * SI::TeV, 1e5 * SI::TeV, 100);
-  const auto cosmology = std::make_shared<simprop::cosmo::Planck2018>();
-  // const auto tau = core::OpticalDepth(cosmology, photonField);
-
-  const std::string filename = "gnuprop_optical_depth.bin";
-
-  TabulatedFunction2D tabOpticalDepth(
-      filename,
-      [&](double z, double E) {
-        // const auto eps_th = pow2(SI::electronMassC2) / E;
-        // const auto epsMin = std::max(eps_th, phField.getMinPhotonEnergy());
-        // const auto epsMax = phField.getMaxPhotonEnergy();
-
-        // if (epsMin > epsMax) return 0.;
-
-        // auto integrand = [&](double lnEpsilon) {
-        //   const auto epsilon = std::exp(lnEpsilon);
-        //   return phField.density(epsilon, z) / epsilon * bw.integrateXsec(E * epsilon);
-        // };
-
-        // const auto a = std::log(epsMin);
-        // const auto b = std::log(epsMax);
-        // const size_t N = 10000;
-        // auto value = simprop::utils::QAGIntegration<double>(integrand, a, b, N, 1e-3);
-        // value *= SI::cLight;
-        // value /= std::pow(1. + z, 3.);
-        // value /= 8. * pow2(E);
-
-        auto integrand = [&](double z) {
-          return cosmology.dtdz(z) * integrateOverAngle(eGamma, z);
-        };
-        auto value = utils::QAGIntegration<double>(integrand, 0., z, 10000, 1e-3);
-        return 0.5 * SI::cLight * value;
-      },
-      redshifts, eGamma);
-
-  tabOpticalDepth.computeAndSave();
-}
-
 int main() {
   try {
     // Display startup information
@@ -217,10 +176,6 @@ int main() {
     {
       simprop::utils::Timer timer("photon pair production");
       // pairProductionRateTable();
-    }
-    {
-      simprop::utils::Timer timer("photon pair production");
-      opticalDepthTable();
     }
   } catch (const std::exception& ex) {
     std::cerr << "Error: " << ex.what() << "\n";
