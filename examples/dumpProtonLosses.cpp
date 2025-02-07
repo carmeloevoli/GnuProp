@@ -1,4 +1,3 @@
-#include "losses.h"
 #include "rates.h"
 #include "simprop.h"
 
@@ -35,7 +34,7 @@ void protonLosses() {
 }
 
 void protonLossesInterpolated() {
-  gnuprop::EnergyLosses losses_gnu;
+  gnuprop::ProtonLossRate losses("data/gnuprop_proton_losses_pair.bin");
 
   // Open output file for writing
   const std::string outputFile = "output/gnuprop_proton_losses_interpolated.txt";
@@ -54,7 +53,7 @@ void protonLossesInterpolated() {
 
   // Compute and write results
   for (const auto& energy : energyAxis) {
-    auto beta = losses_gnu.beta(energy) / units;
+    auto beta = losses.beta(energy) / units;
     out << energy / SI::eV << "\t" << beta << "\n";
   }
 
