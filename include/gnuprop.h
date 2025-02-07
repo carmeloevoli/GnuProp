@@ -3,7 +3,6 @@
 
 #include <memory>
 
-#include "losses.h"
 #include "rates.h"
 #include "simprop/core/cosmology.h"
 #include "simprop/photonFields/CmbPhotonField.h"
@@ -21,6 +20,8 @@ class GnuProp {
   void setRedshiftMax(double zMax) { m_zMax = zMax; }
   void enablePhotoPion() { m_doPhotoPion = true; }
   void disablePhotoPion() { m_doPhotoPion = false; }
+  void setCutoffEnergy(double Ec) { m_expCutoff = Ec; }
+  void setInjectionSlope(double slope) { m_injSlope = slope; }
 
   // protons
   void evolve(double zObs);
@@ -32,19 +33,22 @@ class GnuProp {
 
  protected:
   std::unique_ptr<simprop::cosmo::Cosmology> m_cosmology;
-  std::unique_ptr<gnuprop::EnergyLosses> m_losses;
-  std::unique_ptr<gnuprop::NeutrinoProductionRate> m_nuProductionRate;
+  std::unique_ptr<gnuprop::ProtonLossRate> m_losses_pair;
+  std::unique_ptr<gnuprop::ProtonLossRate> m_losses_photopion;
+
+  // std::unique_ptr<gnuprop::EnergyLosses> m_losses;
+  // std::unique_ptr<gnuprop::NeutrinoProductionRate> m_nuProductionRate;
   // std::unique_ptr<simprop::photonfields::CMB> m_cmb;
   // std::unique_ptr<KelnerAharonian2008::NeutrinoProductionSpectrum> m_nuSpec;
 
-  double m_sourceComovingEmissivity{4.434e45 * SI::erg / SI::Mpc3 / SI::year};
-  double m_injSlope{2.6};
+  double m_sourceComovingEmissivity{1.86036e45 * SI::erg / SI::Mpc3 / SI::year};
+  double m_injSlope{2.5};
   double m_evolutionIndex{0.0};
-  double m_expCutoff{1e21 * SI::eV};
-  double m_zMax{2.0};
-  double m_energyMin{1e17 * SI::eV};
-  double m_energyMax{1e23 * SI::eV};
-  size_t m_energySize{192};  // TODO improve
+  double m_expCutoff{1e23 * SI::eV};
+  double m_zMax{6.0};
+  double m_energyMin{std::pow(10., 17.5) * SI::eV};
+  double m_energyMax{1e24 * SI::eV};
+  size_t m_energySize{500};  // TODO improve
   size_t m_zSize{10000};
 
   bool m_doPhotoPion = false;

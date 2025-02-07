@@ -6,7 +6,7 @@
 
 #include "simprop/core/units.h"
 
-namespace Interactions {
+namespace interactions {
 
 class KelnerAharonian2008 {
  public:
@@ -147,6 +147,6 @@ struct PhotoPionPairs {
   double Phi(double eta, double x) const { return eMinus.Phi(eta, x) + ePlus.Phi(eta, x); }
 };
 
-}  // namespace Interactions
+}  // namespace interactions
 
 #endif  // GNUPROP_INTERACTIONS_KELNERAHARONIAN2008_H

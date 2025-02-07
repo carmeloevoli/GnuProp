@@ -9,7 +9,7 @@
 #include "simprop/utils/numeric.h"
 #include "utils.h"
 
-namespace Interactions {
+namespace interactions {
 
 std::vector<std::vector<double>> loadTables(const std::string& filename) {
   std::ifstream file(filename);
@@ -300,4 +300,4 @@ double PositronSpectrum::Phi(double eta, double x) const {
   return func(x, _xMinus, _xPlus, _s, _delta, _B, _psi);
 }
 
-}  // namespace Interactions
+}  // namespace interactions

@@ -17,13 +17,15 @@ GnuProp::GnuProp(std::unique_ptr<simprop::cosmo::Cosmology> cosmology)
 }
 
 void GnuProp::build() {
-  m_nuProductionRate = std::make_unique<gnuprop::NeutrinoProductionRate>();
-  m_losses = std::make_unique<gnuprop::EnergyLosses>();
-  if (m_doPhotoPion) {
-    m_losses->enablePhotoPion();
-  } else {
-    m_losses->disablePhotoPion();
-  }
+  // m_nuProductionRate = std::make_unique<gnuprop::NeutrinoProductionRate>();
+  m_losses_pair = std::make_unique<gnuprop::ProtonLossRate>("data/gnuprop_proton_losses_pair.bin");
+  m_losses_photopion =
+      std::make_unique<gnuprop::ProtonLossRate>("data/gnuprop_proton_losses_photopion.bin");
+  // if (m_doPhotoPion) {
+  //   m_losses->enablePhotoPion();
+  // } else {
+  //   m_losses->disablePhotoPion();
+  // }
   m_eAxis = simprop::utils::LogAxis(m_energyMin, m_energyMax, m_energySize);
   m_np.assign(m_energySize, 0.0);
   m_nnu.assign(m_energySize, 0.0);
@@ -111,8 +113,9 @@ void GnuProp::evolve(double zObs) {
         const auto Eup = m_eAxis[i + 1];
         const auto dE = Eup - E;
         const auto Q = dtdz * std::pow(1. + z, 3.0) * Source(E, z) - 3. / (1. + z) * m_np[i];
-        const auto b = dtdz * E * (m_losses->beta(E, z) + H);
-        const auto bUp = dtdz * Eup * (m_losses->beta(Eup, z) + H);
+        const auto beta = m_losses_pair->beta(E, z) + m_losses_photopion->beta(E, z);
+        const auto b = dtdz * E * (beta + H);
+        const auto bUp = dtdz * Eup * (beta + H);
 
         const auto U_i = 0.5 * dz * bUp / dE;
         const auto C_i = 0.5 * dz * b / dE;
@@ -182,7 +185,7 @@ void GnuProp::computeNuEmissivity(double z) {
     const auto Enu = m_eAxis[i];
     double value = 0.;
     for (size_t j = i; j < m_energySize; ++j) {
-      value += m_np[j] * m_nuProductionRate->get(Enu, m_eAxis[j], z);
+      // value += m_np[j] * m_nuProductionRate->get(Enu, m_eAxis[j], z);
     }
     m_qnu[i] = ln_eRatio * value;
   }
