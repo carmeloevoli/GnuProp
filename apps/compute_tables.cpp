@@ -172,7 +172,7 @@ int main() {
 
     {
       simprop::utils::Timer timer("proton losses");
-      const auto energyAxis = simprop::utils::LogAxis(1e16 * SI::eV, 1e25 * SI::eV, 10000);
+      const auto energyAxis = simprop::utils::LogAxis(1e16 * SI::eV, 1e24 * SI::eV, 10000);
 
       cache::ProtonLosses<simprop::losses::PairProductionLosses>(cmb, energyAxis,
                                                                  "gnuprop_proton_losses_pair.bin");

@@ -14,7 +14,7 @@ class ProtonLossRate {
 
  private:
   const double m_lgEnergyMin = 16;
-  const double m_lgEnergyMax = 25;
+  const double m_lgEnergyMax = 24;
   const size_t m_energySize = 10000;
 
   std::vector<double> m_lgE;
