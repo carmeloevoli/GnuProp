@@ -37,43 +37,6 @@ void GnuProp::build() {
   lowerDiagonal.assign(m_energySize - 2, 0.0);
 }
 
-// void GnuProp::evolve(double zObs) {
-//   assert(zObs < m_zMax);
-//   auto zAxis = simprop::utils::LinAxis(zObs, m_zMax, m_zSize);
-//   std::reverse(zAxis.begin(), zAxis.end());
-//   const auto dz = zAxis[0] - zAxis[1];
-
-//   std::vector<double> npUp(m_energySize);
-
-//   for (const auto& z : zAxis) {
-//     // for (auto it = zAxis.rbegin(); it != zAxis.rend(); ++it) {  // Reverse iteration
-//     // auto z = *it;
-
-//     LOGD << std::setprecision(5) << z << "\t" << std::accumulate(m_np.begin(), m_np.end(), 0.);
-
-//     const auto dtdz = std::abs(m_cosmology->dtdz(z));
-//     const auto H = std::abs(m_cosmology->hubbleRate(z));
-
-//     // evolve protons
-//     //    #pragma omp parallel for  // Optional: Enable parallelism
-//     for (size_t i = 0; i < m_energySize - 1.; ++i) {
-//       const auto E = m_eAxis[i];
-//       const auto Eup = m_eAxis[i + 1];
-//       const auto Q = std::pow(1. + z, 3.0) * pComovingSource(E, z);
-
-//       const auto b = E * (m_losses->beta(E, z) + H);
-//       const auto bUp = Eup * (m_losses->beta(Eup, z) + H);
-//       const auto dbndE = (bUp * m_np[i + 1] - b * m_np[i]) / (Eup - E);
-
-//       auto value = m_np[i] + dz * (dtdz * Q - 3.0 / (1.0 + z) * m_np[i] + dtdz * dbndE);
-//       value = std::max(value, 0.0);
-//       npUp[i] = value;
-//     }
-
-//     m_np = std::move(npUp);
-//   }
-// }
-
 void GnuProp::evolve(double zObs) {
   assert(zObs < m_zMax);
   auto zAxis = simprop::utils::LinAxis(zObs, m_zMax, m_zSize);
@@ -85,26 +48,6 @@ void GnuProp::evolve(double zObs) {
 
     const auto dtdz = std::abs(m_cosmology->dtdz(z));
     const auto H = std::abs(m_cosmology->hubbleRate(z));
-
-    // {
-    //   // evolve protons
-    //   std::vector<double> npUp(m_energySize, 0.);
-
-    //   for (size_t i = 0; i < m_energySize - 1.; ++i) {
-    //     const auto E = m_eAxis[i];
-    //     const auto Eup = m_eAxis[i + 1];
-    //     const auto Q = dtdz * std::pow(1. + z, 3.0) * Source(E, z) - 3. / (1. + z) * m_np[i];
-    //     const auto b = E * (m_losses->beta(E, z) + H);
-    //     const auto bUp = Eup * (m_losses->beta(Eup, z) + H);
-    //     const auto dbndE = dtdz * (bUp * m_np[i + 1] - b * m_np[i]) / (Eup - E);
-    //     const auto value = m_np[i] + dz * (Q + dbndE);
-    //     assert(value > 0.);
-    //     npUp[i] = value;
-    //   }
-
-    //   m_np = std::move(npUp);
-    // }
-
     {
       std::vector<double> npUp(m_energySize - 1, 0.);
 
@@ -115,7 +58,8 @@ void GnuProp::evolve(double zObs) {
         const auto Q = dtdz * std::pow(1. + z, 3.0) * Source(E, z) - 3. / (1. + z) * m_np[i];
         const auto beta = m_losses_pair->beta(E, z) + m_losses_photopion->beta(E, z);
         const auto b = dtdz * E * (beta + H);
-        const auto bUp = dtdz * Eup * (beta + H);
+        const auto betaUp = m_losses_pair->beta(Eup, z) + m_losses_photopion->beta(Eup, z);
+        const auto bUp = dtdz * Eup * (betaUp + H);
 
         const auto U_i = 0.5 * dz * bUp / dE;
         const auto C_i = 0.5 * dz * b / dE;
@@ -185,25 +129,10 @@ void GnuProp::computeNuEmissivity(double z) {
     const auto Enu = m_eAxis[i];
     double value = 0.;
     for (size_t j = i; j < m_energySize; ++j) {
-      // value += m_np[j] * m_nuProductionRate->get(Enu, m_eAxis[j], z);
+      value += m_np[j];  // * m_nuProductionRate->get(Enu, m_eAxis[j], z);
     }
     m_qnu[i] = ln_eRatio * value;
   }
 }
 
 }  // namespace gnuprop
-
-// std::vector<double> computeNuEmissivity(double z) const;
-// double nuInteractionRate(double Enu, double Ep, double z, size_t N = 5) const;
-
-// std::vector<double> m_nnu;
-// std::vector<double> m_Qnu;
-
-// m_nnu = std::vector<double>(m_energySize, 0.0);
-// m_Qnu = std::vector<double>(m_energySize, 0.0);
-//
-// const double units_emissivity = 1. / SI::eV / SI::m3 / SI::sec;
-// out << SI::cLight / 4. / M_PI * m_nnu.at(i) / units << " ";
-// out << m_Qnu.at(i) / units_emissivity << " ";
-
-//
