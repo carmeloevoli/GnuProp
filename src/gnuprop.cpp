@@ -13,21 +13,21 @@ namespace gnuprop {
 GnuProp::GnuProp(std::unique_ptr<simprop::cosmo::Cosmology> cosmology)
     : m_cosmology(std::move(cosmology)) {
   LOGI << "h: " << m_cosmology->h << " Omega_M: " << m_cosmology->OmegaM
-       << "Omega_L: " << m_cosmology->OmegaL;
+       << " Omega_L: " << m_cosmology->OmegaL;
 }
 
 void GnuProp::build() {
   // m_nuProductionRate = std::make_unique<gnuprop::NeutrinoProductionRate>();
-  m_losses_pair = std::make_unique<gnuprop::ProtonLossRate>("data/gnuprop_proton_losses_pair.bin");
-  m_losses_photopion =
-      std::make_unique<gnuprop::ProtonLossRate>("data/gnuprop_proton_losses_photopion.bin");
-  // if (m_doPhotoPion) {
-  //   m_losses->enablePhotoPion();
-  // } else {
-  //   m_losses->disablePhotoPion();
-  // }
+  m_losses.push_back(
+      std::make_unique<gnuprop::ProtonLossRate>("data/gnuprop_proton_losses_pair.bin"));
+  m_losses.push_back(
+      std::make_unique<gnuprop::ProtonLossRate>("data/gnuprop_proton_losses_photopion.bin"));
   m_eAxis = simprop::utils::LogAxis(m_energyMin, m_energyMax, m_energySize);
+
   m_np.assign(m_energySize, 0.0);
+  m_betap.assign(m_energySize, 0.0);
+  m_qp.assign(m_energySize, 0.0);
+
   m_nnu.assign(m_energySize, 0.0);
   m_qnu.assign(m_energySize, 0.0);
 
@@ -44,26 +44,25 @@ void GnuProp::evolve(double zObs) {
 
   for (auto it = zAxis.rbegin(); it != zAxis.rend(); ++it) {
     auto z = *it;
-    LOGD << std::setprecision(5) << z << "\t" << std::accumulate(m_np.begin(), m_np.end(), 0.);
+    // LOGD << std::setprecision(5) << z << "\t" << std::accumulate(m_np.begin(), m_np.end(), 0.);
 
     const auto dtdz = std::abs(m_cosmology->dtdz(z));
     const auto H = std::abs(m_cosmology->hubbleRate(z));
-    {
-      std::vector<double> npUp(m_energySize - 1, 0.);
 
+    // evolve protons
+    {
+      evolveProtonEmissivity(z);
+      evolveProtonLosses(z);
+      std::vector<double> npUp(m_energySize - 1, 0.);
       for (size_t i = 0; i < m_energySize - 1; ++i) {
         const auto E = m_eAxis[i];
         const auto Eup = m_eAxis[i + 1];
         const auto dE = Eup - E;
-        const auto Q = dtdz * std::pow(1. + z, 3.0) * Source(E, z) - 3. / (1. + z) * m_np[i];
-        const auto beta = m_losses_pair->beta(E, z) + m_losses_photopion->beta(E, z);
-        const auto b = dtdz * E * (beta + H);
-        const auto betaUp = m_losses_pair->beta(Eup, z) + m_losses_photopion->beta(Eup, z);
-        const auto bUp = dtdz * Eup * (betaUp + H);
-
+        const auto Q = dtdz * std::pow(1. + z, 3.0) * m_qp[i] - 3. / (1. + z) * m_np[i];
+        const auto b = dtdz * E * (m_betap[i] + H);
+        const auto bUp = dtdz * Eup * (m_betap[i + 1] + H);
         const auto U_i = 0.5 * dz * bUp / dE;
         const auto C_i = 0.5 * dz * b / dE;
-
         diagonal[i] = 1. + C_i;
         if (i != m_energySize - 2) upperDiagonal[i] = -U_i;
         knownTerm[i] = U_i * m_np[i + 1] + (1. - C_i) * m_np[i] + dz * Q;
@@ -77,28 +76,52 @@ void GnuProp::evolve(double zObs) {
     }
 
     // evolve neutrinos
-    computeNuEmissivity(z);
-
-    std::vector<double> nnuUp(m_energySize, 0.);
-    for (size_t i = 0; i < m_energySize - 1.; ++i) {
-      const auto E = m_eAxis[i];
-      const auto Eup = m_eAxis[i + 1];
-      const auto b = E * H;
-      const auto bUp = Eup * H;
-      const auto dbndE = (bUp * m_nnu[i + 1] - b * m_nnu[i]) / (Eup - E);
-      nnuUp[i] = m_nnu[i] + dz * (dtdz * m_qnu[i] - 3. / (1. + z) * m_nnu[i] + dtdz * dbndE);
+    {
+      evolveNuEmissivity(z);
+      std::vector<double> nnuUp(m_energySize, 0.);
+      for (size_t i = 0; i < m_energySize - 1.; ++i) {
+        const auto E = m_eAxis[i];
+        const auto Eup = m_eAxis[i + 1];
+        const auto b = E * H;
+        const auto bUp = Eup * H;
+        const auto dbndE = (bUp * m_nnu[i + 1] - b * m_nnu[i]) / (Eup - E);
+        nnuUp[i] = m_nnu[i] + dz * (dtdz * m_qnu[i] - 3. / (1. + z) * m_nnu[i] + dtdz * dbndE);
+      }
+      m_nnu = std::move(nnuUp);
     }
-
-    m_nnu = std::move(nnuUp);
   }
 }
 
-double GnuProp::Source(double E, double z) const {
+void GnuProp::evolveProtonEmissivity(double z) {
   const auto K = m_sourceComovingEmissivity * (m_injSlope - 2.0) / std::pow(m_energyMin, 2.);
-  auto value = (E >= m_energyMin) ? std::pow(E / m_energyMin, -m_injSlope) : 0.;
-  value *= (m_expCutoff > 0.0) ? std::exp(-E / m_expCutoff) : 1.;
-  value *= (z <= m_zMax) ? std::pow(1.0 + z, m_evolutionIndex) : 0.;
-  return K * std::max(value, 0.0);
+  const auto zfactor = (z <= m_zMax) ? std::pow(1.0 + z, m_evolutionIndex) : 0.;
+  for (size_t i = 0; i < m_energySize; ++i) {
+    const auto E = m_eAxis[i];
+    auto value = (E >= m_energyMin) ? std::pow(E / m_energyMin, -m_injSlope) : 0.;
+    value *= (m_expCutoff > 0.0) ? std::exp(-E / m_expCutoff) : 1.;
+    m_qp[i] = K * zfactor * std::max(value, 0.0);
+  }
+}
+
+void GnuProp::evolveProtonLosses(double z) {
+  for (size_t i = 0; i < m_energySize; ++i) {
+    const auto E = m_eAxis[i];
+    auto value = 0.;
+    for (const auto& loss : m_losses) value += loss->beta(E, z);
+    m_betap[i] = value;
+  }
+}
+
+void GnuProp::evolveNuEmissivity(double z) {
+  const auto ln_eRatio = std::log(m_eAxis[1] / m_eAxis[0]);
+  for (size_t i = 0; i < m_energySize; ++i) {
+    const auto Enu = m_eAxis[i];
+    double value = 0.;
+    for (size_t j = i; j < m_energySize; ++j) {
+      value += m_np[j] * Enu;  // * m_nuProductionRate->get(Enu, m_eAxis[j], z);
+    }
+    m_qnu[i] = ln_eRatio * value;
+  }
 }
 
 void GnuProp::dump(const std::string& filename) const {
@@ -121,18 +144,6 @@ void GnuProp::dump(const std::string& filename) const {
   }
 
   LOGD << "Dumped spectrum to " << filename;
-}
-
-void GnuProp::computeNuEmissivity(double z) {
-  const auto ln_eRatio = std::log(m_eAxis[1] / m_eAxis[0]);
-  for (size_t i = 0; i < m_energySize; ++i) {
-    const auto Enu = m_eAxis[i];
-    double value = 0.;
-    for (size_t j = i; j < m_energySize; ++j) {
-      value += m_np[j];  // * m_nuProductionRate->get(Enu, m_eAxis[j], z);
-    }
-    m_qnu[i] = ln_eRatio * value;
-  }
 }
 
 }  // namespace gnuprop

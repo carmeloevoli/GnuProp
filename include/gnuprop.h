@@ -5,7 +5,6 @@
 
 #include "rates.h"
 #include "simprop/core/cosmology.h"
-#include "simprop/photonFields/CmbPhotonField.h"
 
 namespace gnuprop {
 
@@ -14,33 +13,18 @@ class GnuProp {
   explicit GnuProp(std::unique_ptr<simprop::cosmo::Cosmology> cosmology);
   virtual ~GnuProp() = default;
 
-  double getRedshiftMax() const { return m_zMax; }
-
+  // parameter setters
   void setRedshiftSize(size_t N) { m_zSize = N; }
   void setRedshiftMax(double zMax) { m_zMax = zMax; }
-  void enablePhotoPion() { m_doPhotoPion = true; }
-  void disablePhotoPion() { m_doPhotoPion = false; }
   void setCutoffEnergy(double Ec) { m_expCutoff = Ec; }
   void setInjectionSlope(double slope) { m_injSlope = slope; }
 
-  // protons
+  // gnuprop
+  void build();
   void evolve(double zObs);
   void dump(const std::string& filename) const;
-  void build();
 
-  // neutrinos
-  // double nuInteractionRate(double Enu, double Ep, double z, size_t N = 1000) const;
-
- protected:
-  std::unique_ptr<simprop::cosmo::Cosmology> m_cosmology;
-  std::unique_ptr<gnuprop::ProtonLossRate> m_losses_pair;
-  std::unique_ptr<gnuprop::ProtonLossRate> m_losses_photopion;
-
-  // std::unique_ptr<gnuprop::EnergyLosses> m_losses;
-  // std::unique_ptr<gnuprop::NeutrinoProductionRate> m_nuProductionRate;
-  // std::unique_ptr<simprop::photonfields::CMB> m_cmb;
-  // std::unique_ptr<KelnerAharonian2008::NeutrinoProductionSpectrum> m_nuSpec;
-
+ protected:  // main parameters
   double m_sourceComovingEmissivity{1.86036e45 * SI::erg / SI::Mpc3 / SI::year};
   double m_injSlope{2.5};
   double m_evolutionIndex{0.0};
@@ -51,24 +35,33 @@ class GnuProp {
   size_t m_energySize{300};
   size_t m_zSize{100000};
 
-  bool m_doPhotoPion = false;
+ protected:
+  // cosmology
+  std::unique_ptr<simprop::cosmo::Cosmology> m_cosmology;
 
   // energy axis
   std::vector<double> m_eAxis;
+
   // protons
+  std::vector<std::unique_ptr<gnuprop::ProtonLossRate>> m_losses;
+  std::vector<double> m_qp;
+  std::vector<double> m_betap;
   std::vector<double> m_np;
+
   // neutrinos
   std::vector<double> m_qnu;
   std::vector<double> m_nnu;
 
-  double Source(double E, double z) const;
-  void computeNuEmissivity(double z);
-
- protected:  // CN
+  // CN method temporary vectors
   std::vector<double> knownTerm;
   std::vector<double> diagonal;
   std::vector<double> upperDiagonal;
   std::vector<double> lowerDiagonal;
+
+ protected:  // source functions
+  void evolveProtonEmissivity(double z);
+  void evolveProtonLosses(double z);
+  void evolveNuEmissivity(double z);
 };
 
 }  // namespace gnuprop
