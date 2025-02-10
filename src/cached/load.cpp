@@ -69,7 +69,7 @@ std::vector<std::vector<double>> loadFromFile(const std::string& filename, size_
   size_t sliceSize = numDoubles / redshiftSize;
   assert(sliceSize * redshiftSize == numDoubles);
   for (size_t i = 0; i < redshiftSize; i++) {
-    result.emplace_back(data.begin() + (i * sliceSize), data.begin() + ((i + 1) * sliceSize - 1));
+    result.emplace_back(data.begin() + (i * sliceSize), data.begin() + ((i + 1) * sliceSize));
   }
 
   return result;

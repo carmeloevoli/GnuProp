@@ -30,10 +30,12 @@ class GnuProp {
   double m_evolutionIndex{0.0};
   double m_expCutoff{1e23 * SI::eV};
   double m_zMax{6.0};
-  double m_energyMin{std::pow(10., 17.0) * SI::eV};
+  double m_energyMin{1e17 * SI::eV};
   double m_energyMax{1e22 * SI::eV};
-  size_t m_energySize{300};
-  size_t m_zSize{100000};
+  // size_t m_energySize{300};
+  // size_t m_zSize{3000};
+  size_t m_energySize{100};
+  size_t m_zSize{1000};
 
  protected:
   // cosmology
@@ -49,6 +51,7 @@ class GnuProp {
   std::vector<double> m_np;
 
   // neutrinos
+  std::unique_ptr<gnuprop::PhotoPionProductionRate> m_photoPionNu;
   std::vector<double> m_qnu;
   std::vector<double> m_nnu;
 
@@ -58,7 +61,8 @@ class GnuProp {
   std::vector<double> upperDiagonal;
   std::vector<double> lowerDiagonal;
 
- protected:  // source functions
+ protected:
+  // source functions
   void evolveProtonEmissivity(double z);
   void evolveProtonLosses(double z);
   void evolveNuEmissivity(double z);

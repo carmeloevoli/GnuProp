@@ -37,7 +37,6 @@ void PhotoPionRate(std::shared_ptr<simprop::photonfields::PhotonField> phField,
         const auto a = std::log(epsMin);
         const auto b = std::log(epsMax);
         const size_t N = 10000;
-        // double value = simprop::utils::RombergIntegration<double>(integrand, a, b, N, 1e-3);
         auto value = simprop::utils::QAGIntegration<double>(integrand, a, b, N, 1e-3);
         value /= std::pow(1. + z, 3.);
 

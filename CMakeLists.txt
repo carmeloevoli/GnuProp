@@ -100,8 +100,11 @@ target_link_libraries (protonlosses gammaprop ${GNUPROP_EXTRA_LIBRARIES})
 add_executable(photopion examples/dumpPhotoPionRates.cpp)
 target_link_libraries (photopion gammaprop ${GNUPROP_EXTRA_LIBRARIES})
 
-# add_executable(gammaabsorption examples/dumpGammaAbsorption.cpp)
-# target_link_libraries (gammaabsorption gammaprop ${GNUPROP_EXTRA_LIBRARIES})
+add_executable(gammaabsorption examples/dumpGammaAbsorption.cpp)
+target_link_libraries (gammaabsorption gammaprop ${GNUPROP_EXTRA_LIBRARIES})
+
+add_executable(pairabsorption examples/dumpPairAbsorption.cpp)
+target_link_libraries (pairabsorption gammaprop ${GNUPROP_EXTRA_LIBRARIES})
 
 # add_executable(opticaldepth examples/computeOpticalDepth.cpp)
 # target_link_libraries (opticaldepth gammaprop ${GNUPROP_EXTRA_LIBRARIES})

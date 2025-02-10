@@ -17,11 +17,14 @@ GnuProp::GnuProp(std::unique_ptr<simprop::cosmo::Cosmology> cosmology)
 }
 
 void GnuProp::build() {
-  // m_nuProductionRate = std::make_unique<gnuprop::NeutrinoProductionRate>();
   m_losses.push_back(
       std::make_unique<gnuprop::ProtonLossRate>("data/gnuprop_proton_losses_pair.bin"));
   m_losses.push_back(
       std::make_unique<gnuprop::ProtonLossRate>("data/gnuprop_proton_losses_photopion.bin"));
+
+  m_photoPionNu = std::make_unique<gnuprop::PhotoPionProductionRate>(
+      "data/gnuprop_photopion_neutrinos_cmb.bin");
+
   m_eAxis = simprop::utils::LogAxis(m_energyMin, m_energyMax, m_energySize);
 
   m_np.assign(m_energySize, 0.0);
@@ -44,7 +47,7 @@ void GnuProp::evolve(double zObs) {
 
   for (auto it = zAxis.rbegin(); it != zAxis.rend(); ++it) {
     auto z = *it;
-    // LOGD << std::setprecision(5) << z << "\t" << std::accumulate(m_np.begin(), m_np.end(), 0.);
+    LOGD << std::setprecision(5) << z;
 
     const auto dtdz = std::abs(m_cosmology->dtdz(z));
     const auto H = std::abs(m_cosmology->hubbleRate(z));
@@ -115,10 +118,11 @@ void GnuProp::evolveProtonLosses(double z) {
 void GnuProp::evolveNuEmissivity(double z) {
   const auto ln_eRatio = std::log(m_eAxis[1] / m_eAxis[0]);
   for (size_t i = 0; i < m_energySize; ++i) {
-    const auto Enu = m_eAxis[i];
     double value = 0.;
+    const auto E_nu = m_eAxis[i];
     for (size_t j = i; j < m_energySize; ++j) {
-      value += m_np[j] * Enu;  // * m_nuProductionRate->get(Enu, m_eAxis[j], z);
+      const auto E_p = m_eAxis[j];
+      value += m_np[j] * m_photoPionNu->get(E_nu, E_p, z);
     }
     m_qnu[i] = ln_eRatio * value;
   }
@@ -130,17 +134,18 @@ void GnuProp::dump(const std::string& filename) const {
     throw std::runtime_error("Failed to open output file: output/" + filename);
   }
 
-  const double Ip_units = 1.0 / (SI::eV * SI::m2 * SI::sr * SI::sec);
-  const double E2Inu_units = SI::GeV / (SI::cm2 * SI::sr * SI::sec);
+  const double I_units = 1.0 / (SI::eV * SI::m2 * SI::sr * SI::sec);
   const double q_units = 1.0 / (SI::eV * SI::m3 * SI::sec);
-  out << "# E [eV] - I [eV-1 m-2 s-1 sr-1]\n";
+  const double n2i = SI::cLight / (4.0 * M_PI);
+  out << "# E [eV] - I_p [eV-1 m-2 s-1 sr-1]- E2 I_nu - Q_nu \n";
+  out << std::scientific << std::setprecision(4);
 
   for (size_t i = 0; i < m_energySize; ++i) {
     auto E = m_eAxis[i] / SI::eV;
-    auto Ip = SI::cLight / (4.0 * M_PI) * m_np[i] / Ip_units;
-    auto E2Inu = pow2(E) * SI::cLight / (4.0 * M_PI) * m_nnu[i] / E2Inu_units;
-    auto Qnu = m_qnu[i] / q_units;
-    out << std::setprecision(5) << E << " " << Ip << " " << E2Inu << " " << Qnu << "\n";
+    auto I_p = n2i * m_np[i] / I_units;
+    auto I_nu = n2i * m_nnu[i] / I_units;
+    auto Q_nu = m_qnu[i] / q_units;
+    out << E << " " << I_p << " " << I_nu << " " << Q_nu << "\n";
   }
 
   LOGD << "Dumped spectrum to " << filename;
