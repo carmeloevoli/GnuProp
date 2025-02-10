@@ -4,7 +4,7 @@
 namespace Interactions {
 
 struct InverseCompton {
-  double sigmaInCoMFrame(double s);
+  double sigmaInCoMFrame(double s) const;
   double sigma(double eGamma, double eBkg, double mu);
   double dsigmadE(double eGamma, double eLepton, double eBkg);
 };

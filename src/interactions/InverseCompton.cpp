@@ -4,17 +4,18 @@
 
 namespace Interactions {
 
-double InverseCompton::sigmaInCoMFrame(double s) {
-  const auto me_2 = pow2(SI::electronMassC2);
-  if (s < me_2) return 0.;
-  const auto b_e = (s - me_2) / (s + me_2);
-  const auto be_2 = pow2(b_e);
-  const auto be_3 = pow3(b_e);
-  const auto c_0 = (1 - b_e) / (1 + b_e) / b_e;
-  const auto c_1 = 2. * (2. + 2. * b_e - be_2 - 2. * be_3) / b_e / (1. + b_e);
-  const auto c_2 = (2. - 3. * be_2 - be_3) / be_2 * std::log((1 + b_e) / (1. - b_e));
-  const auto value = 3. / 8. * SI::sigmaTh * c_0 * (c_1 - c_2);
-  return value;
+double InverseCompton::sigmaInCoMFrame(double s) const {
+  auto value = 0.;
+  const auto x = s / pow2(SI::electronMassC2);
+  if (x > 1.) {
+    const auto b_e = (x - 1.) / (x + 1.);
+    const auto be_2 = pow2(b_e);
+    const auto be_3 = pow3(b_e);
+    const auto c_1 = 2. * (2. + 2. * b_e - be_2 - 2. * be_3) / b_e / (1. + b_e);
+    const auto c_2 = (2. - 3. * be_2 - be_3) / be_2 * std::log(x);
+    value = 3. / 8. * SI::sigmaTh / x / b_e * (c_1 - c_2);
+  }
+  return std::max(value, 0.);
 }
 
 double InverseCompton::sigma(double eElectron, double eBkg, double mu) {
