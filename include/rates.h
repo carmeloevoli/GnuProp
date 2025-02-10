@@ -15,7 +15,7 @@ class ProtonLossRate {
  private:
   const double m_lgEnergyMin = 16;
   const double m_lgEnergyMax = 24;
-  const size_t m_energySize = 400;
+  const size_t m_energySize = 1000;
 
   std::vector<double> m_lgE;
 
@@ -61,9 +61,9 @@ class GammaAbsorptionRate {
   const double m_zMax = 10;
   const size_t m_zSize = 101;
 
-  const double m_lgEnergyMin = 12;
-  const double m_lgEnergyMax = 22;
-  const size_t m_energySize = 1000;
+  const double m_lgEnergyMin = 9;
+  const double m_lgEnergyMax = 20;
+  const size_t m_energySize = 100;
 
   std::vector<double> m_z;
   std::vector<double> m_lgE;

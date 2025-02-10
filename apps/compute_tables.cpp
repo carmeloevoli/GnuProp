@@ -1,5 +1,6 @@
 #include "cached/GammaAbsorptionCached.h"
 #include "cached/PairAbsorptionCached.h"
+#include "cached/PhotoPairCached.h"
 #include "cached/PhotoPionCached.h"
 #include "cached/ProtonLossesCached.h"
 #include "simprop.h"
@@ -8,7 +9,7 @@ void protonlosses() {
   simprop::utils::Timer timer("proton losses");
 
   auto cmb = std::make_shared<simprop::photonfields::CMB>();
-  const auto energyAxis = simprop::utils::LogAxis(1e16 * SI::eV, 1e24 * SI::eV, 400);
+  const auto energyAxis = simprop::utils::LogAxis(1e16 * SI::eV, 1e24 * SI::eV, 1000);
 
   cache::ProtonLosses<simprop::losses::PairProductionLosses>(cmb, energyAxis,
                                                              "gnuprop_proton_losses_pair.bin");
@@ -39,6 +40,19 @@ void photopionrates() {
                                                      "gnuprop_photopion_pairs_ebl.bin");
 }
 
+void photopairrates() {
+  simprop::utils::Timer timer("photo-pair production rate");
+  const auto redshifts = simprop::utils::LinAxis<double>(0, 10, 21);
+  const auto xAxis = simprop::utils::LogAxis<double>(1e-5, 1, 60);
+  const auto eGammaAxis = simprop::utils::LogAxis<double>(1e17 * SI::eV, 1e23 * SI::eV, 200);
+
+  auto cmb = std::make_shared<simprop::photonfields::CMB>();
+  auto ebl = std::make_shared<simprop::photonfields::Saldana2021PhotonField>();
+
+  cache::PhotoPairRate(cmb, redshifts, xAxis, eGammaAxis, "gnuprop_photopair_cmb.bin");
+  cache::PhotoPairRate(ebl, redshifts, xAxis, eProtonAxis, "gnuprop_photopair_ebl.bin");
+}
+
 void absorptionrates() {
   simprop::utils::Timer timer("absorption rates");
 
@@ -46,7 +60,7 @@ void absorptionrates() {
   auto ebl = std::make_shared<simprop::photonfields::Saldana2021PhotonField>();
 
   const auto redshifts = simprop::utils::LinAxis<double>(0, 10, 101);
-  const auto energyAxis = simprop::utils::LogAxis<double>(1e12 * SI::eV, 1e22 * SI::eV, 1000);
+  const auto energyAxis = simprop::utils::LogAxis<double>(1e9 * SI::eV, 1e20 * SI::eV, 100);
 
   cache::GammaAbsorptionRate(cmb, redshifts, energyAxis, "gnuprop_absorption_gammas_cmb.bin");
   cache::PairAbsorptionRate(cmb, redshifts, energyAxis, "gnuprop_absorption_pairs_cmb.bin");
@@ -58,9 +72,10 @@ int main() {
   try {
     // Display startup information
     simprop::utils::startup_information();
-    // protonlosses();
+    /// protonlosses();
     // photopionrates();
-    absorptionrates();
+    photopairrates();
+    // absorptionrates();
   } catch (const std::exception& ex) {
     std::cerr << "Error: " << ex.what() << "\n";
   }

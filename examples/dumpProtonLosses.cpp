@@ -8,7 +8,7 @@ void protonLosses() {
   simprop::losses::PhotoPionContinuousLosses losses_photopi(std::make_unique<cmb>());
 
   // Open output file for writing
-  const std::string outputFile = "output/gnuprop_proton_losses_17_24_3e2.txt";
+  const std::string outputFile = "output/gnuprop_proton_losses_sirente.txt";
   std::ofstream out(outputFile);
   if (!out.is_open()) {
     throw std::runtime_error("Failed to open output file: " + outputFile);

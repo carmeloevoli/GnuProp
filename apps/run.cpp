@@ -9,7 +9,7 @@ int main() {
       gnuprop::GnuProp g(std::make_unique<simprop::cosmo::Cosmology>());
       g.build();
       g.evolve(0.);
-      g.dump("gnuprop_spectrum_test_db.txt");
+      g.dump("gnuprop_spectrum_ebl_db.txt");
     }
 
   } catch (const std::exception &e) {

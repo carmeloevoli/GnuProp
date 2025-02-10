@@ -25,17 +25,15 @@ class GnuProp {
   void dump(const std::string& filename) const;
 
  protected:  // main parameters
-  double m_sourceComovingEmissivity{1.86036e45 * SI::erg / SI::Mpc3 / SI::year};
+  double m_sourceComovingEmissivity{2e45 * SI::erg / SI::Mpc3 / SI::year};
   double m_injSlope{2.5};
   double m_evolutionIndex{0.0};
   double m_expCutoff{1e23 * SI::eV};
   double m_zMax{6.0};
   double m_energyMin{1e17 * SI::eV};
   double m_energyMax{1e22 * SI::eV};
-  // size_t m_energySize{300};
-  // size_t m_zSize{3000};
-  size_t m_energySize{100};
-  size_t m_zSize{1000};
+  size_t m_energySize{6 * 64};
+  size_t m_zSize{10000};
 
  protected:
   // cosmology
