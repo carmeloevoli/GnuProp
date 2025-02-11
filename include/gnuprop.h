@@ -49,7 +49,7 @@ class GnuProp {
   std::vector<double> m_np;
 
   // neutrinos
-  std::unique_ptr<gnuprop::PhotoPionProductionRate> m_photoPionNu;
+  std::unique_ptr<gnuprop::PhotoPionRate> m_photoPionNu;
   std::vector<double> m_qnu;
   std::vector<double> m_nnu;
 

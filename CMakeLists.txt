@@ -69,15 +69,13 @@ list(APPEND GNUPROP_EXTRA_LIBRARIES ${SIMPROP_LIBRARIES})
 include_directories(include ${GNUPROP_EXTRA_INCLUDES})
 
 add_library(gammaprop SHARED
-    src/gnuprop.cpp
+    # src/gnuprop.cpp
     src/cached/cached.cpp
     src/cached/load.cpp
-    src/interactions/GammaPairProduction.cpp
     src/interactions/InverseCompton.cpp
+    src/interactions/PhotoPair.cpp
     src/interactions/PhotoPion.cpp
-    #src/losses.cpp
     src/rates.cpp
-    #src/cosmoneutrinos.cpp
     src/tridiag.cpp
     )
     target_link_libraries(gammaprop ${GNUPROP_EXTRA_LIBRARIES})
@@ -94,17 +92,14 @@ file(GLOB GNUPROP_DATA "data/*.txt")
 file(COPY ${GNUPROP_DATA} DESTINATION ${PROJECT_BINARY_DIR}/data)
 
 # make examples
-add_executable(protonlosses examples/dumpProtonLosses.cpp)
-target_link_libraries (protonlosses gammaprop ${GNUPROP_EXTRA_LIBRARIES})
+# add_executable(protonlosses examples/dumpProtonLosses.cpp)
+# target_link_libraries (protonlosses gammaprop ${GNUPROP_EXTRA_LIBRARIES})
 
-add_executable(photopion examples/dumpPhotoPionRates.cpp)
-target_link_libraries (photopion gammaprop ${GNUPROP_EXTRA_LIBRARIES})
+# add_executable(photopion examples/dumpPhotoPionRates.cpp)
+# target_link_libraries (photopion gammaprop ${GNUPROP_EXTRA_LIBRARIES})
 
-add_executable(gammaabsorption examples/dumpGammaAbsorption.cpp)
-target_link_libraries (gammaabsorption gammaprop ${GNUPROP_EXTRA_LIBRARIES})
-
-add_executable(pairabsorption examples/dumpPairAbsorption.cpp)
-target_link_libraries (pairabsorption gammaprop ${GNUPROP_EXTRA_LIBRARIES})
+add_executable(absorptionrates examples/dumpAbsorptionRates.cpp)
+target_link_libraries (absorptionrates gammaprop ${GNUPROP_EXTRA_LIBRARIES})
 
 # add_executable(opticaldepth examples/computeOpticalDepth.cpp)
 # target_link_libraries (opticaldepth gammaprop ${GNUPROP_EXTRA_LIBRARIES})
@@ -113,8 +108,8 @@ target_link_libraries (pairabsorption gammaprop ${GNUPROP_EXTRA_LIBRARIES})
 add_executable(compute_tables apps/compute_tables.cpp)
 target_link_libraries (compute_tables gammaprop ${GNUPROP_EXTRA_LIBRARIES})
 
-add_executable(run apps/run.cpp)
-target_link_libraries (run gammaprop ${GNUPROP_EXTRA_LIBRARIES})
+# add_executable(run apps/run.cpp)
+# target_link_libraries (run gammaprop ${GNUPROP_EXTRA_LIBRARIES})
 
 # add_executable(generationeenergy apps/generationEnergy.cpp)
 # target_link_libraries (generationeenergy beniamino ${GNUPROP_EXTRA_LIBRARIES})

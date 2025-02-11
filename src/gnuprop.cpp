@@ -22,8 +22,8 @@ void GnuProp::build() {
   m_losses.push_back(
       std::make_unique<gnuprop::ProtonLossRate>("data/gnuprop_proton_losses_photopion.bin"));
 
-  m_photoPionNu = std::make_unique<gnuprop::PhotoPionProductionRate>(
-      "data/gnuprop_photopion_neutrinos_cmb.bin");
+  m_photoPionNu =
+      std::make_unique<gnuprop::PhotoPionRate>("data/gnuprop_photopion_neutrinos_cmb.bin");
 
   m_eAxis = simprop::utils::LogAxis(m_energyMin, m_energyMax, m_energySize);
 
