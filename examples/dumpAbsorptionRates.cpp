@@ -1,4 +1,5 @@
 #include "interactions/InverseCompton.h"
+#include "interactions/PhotoPair.h"
 #include "rates.h"
 #include "simprop.h"
 
@@ -12,18 +13,33 @@ void inversecompton() {
     auto s = chi * pow2(SI::electronMassC2);
     out << chi << "\t";
     out << s / SI::GeV2 << "\t";
-    out << ic.sigmaInCoMFrame(s) / SI::mbarn << "\t";
+    out << ic.sigma_com(s) / SI::mbarn << "\t";
+    out << "\n";
+  }
+}
+
+void breitwheeler() {
+  const auto chiAxis = simprop::utils::LogAxis<double>(1, 1e4, 1000);
+  Interactions::PhotoPair photoPair;
+  std::ofstream out("output/gnuprop_xsecs_breitwheeler.txt");
+  out << "# chi - s [GeV^2] - sigma [mbarn]\n";
+  out << std::scientific;
+  for (auto chi : chiAxis) {
+    auto s = chi * pow2(2. * SI::electronMassC2);
+    out << chi << "\t";
+    out << s / SI::GeV2 << "\t";
+    out << photoPair.sigma_com(s) / SI::mbarn << "\t";
     out << "\n";
   }
 }
 
 void absorptionRate(const std::string& inputfile, const std::string& outputfile) {
-  gnuprop::GammaAbsorptionRate rate(inputfile);
-  std::ofstream out(outputfile);
+  gnuprop::AbsorptionRate rate("data/" + inputfile);
+  std::ofstream out("output/" + outputfile);
   out << "# energy [eV] - absorption rate [Gyr-1]\n";
   out << std::scientific;
   const auto units = 1. / SI::Gyr;
-  auto eAxis = simprop::utils::LogAxis<double>(1e9 * SI::eV, 1e24 * SI::eV, 1000);
+  auto eAxis = simprop::utils::LogAxis<double>(1e10 * SI::eV, 1e20 * SI::eV, 100);
   for (auto E : eAxis) {
     out << E / SI::eV << "\t";
     out << rate.get(E, 0.) / units << " ";
@@ -34,14 +50,18 @@ void absorptionRate(const std::string& inputfile, const std::string& outputfile)
 int main() {
   try {
     simprop::utils::startup_information();
-
     simprop::utils::Timer timer("main timer");
 
+    // cross-sections
     inversecompton();
-    absorptionRate("data/gnuprop_absorption_pairs_cmb.bin",
-                   "output/gnuprop_pair_absorption_cmb.txt");
-    absorptionRate("data/gnuprop_absorption_pairs_ebl.bin",
-                   "output/gnuprop_pair_absorption_ebl.txt");
+    breitwheeler();
+
+    // rates
+    absorptionRate("gnuprop_absorption_gammas_cmb.bin", "gnuprop_absorption_gammas_cmb.txt");
+    absorptionRate("gnuprop_absorption_gammas_ebl.bin", "gnuprop_absorption_gammas_ebl.txt");
+    absorptionRate("gnuprop_absorption_pairs_cmb.bin", "gnuprop_absorption_pairs_cmb.txt");
+    absorptionRate("gnuprop_absorption_pairs_ebl.bin", "gnuprop_absorption_pairs_ebl.txt");
+
   } catch (const std::exception& e) {
     std::cerr << "Exception caught: " << e.what() << std::endl;
     return EXIT_FAILURE;
