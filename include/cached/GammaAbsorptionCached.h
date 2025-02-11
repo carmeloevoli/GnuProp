@@ -2,7 +2,7 @@
 #define GNUPROP_CACHED_GAMMAABSORPTIONCACHED_H
 
 #include "cached/cached.h"
-#include "interactions/GammaPairProduction.h"
+#include "interactions/PhotoPair.h"
 #include "simprop.h"
 
 namespace cache {
@@ -11,7 +11,7 @@ void GammaAbsorptionRate(std::shared_ptr<simprop::photonfields::PhotonField> phF
                          const std::vector<double>& redshifts,
                          const std::vector<double>& energyAxis, const std::string& filename) {
   const auto units = 1. / SI::Gyr;
-  const auto sigma_pp = Interactions::GammaPairProduction();
+  const auto photoPair = Interactions::PhotoPair();
 
   CachedFunction2D cache(
       filename,
@@ -32,7 +32,7 @@ void GammaAbsorptionRate(std::shared_ptr<simprop::photonfields::PhotonField> phF
           const size_t N = 10000;
           auto value = simprop::utils::QAGIntegration<double>(integrandInner, a, b, N, 1e-3);
 
-          return s * sigma_pp.sigmaInCoMFrame(s) * value;
+          return s * photoPair.sigma_com(s) * value;
         };
 
         const auto sMin = 4. * pow2(SI::electronMassC2);

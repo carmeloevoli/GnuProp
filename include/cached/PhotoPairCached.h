@@ -2,6 +2,7 @@
 #define GNUPROP_CACHED_PHOTOPAIRCACHED_H
 
 #include "cached/cached.h"
+#include "interactions/PhotoPair.h"
 #include "simprop.h"
 
 namespace cache {
@@ -10,7 +11,7 @@ void PhotoPairRate(std::shared_ptr<simprop::photonfields::PhotonField> phField,
                    const std::vector<double>& redshifts, const std::vector<double>& xAxis,
                    const std::vector<double>& eGammaAxis, const std::string& filename) {
   const auto units = 1. / SI::Gyr;
-  const auto dsigmadEe = T();
+  const auto photoPair = Interactions::PhotoPair();
 
   CachedFunction3D cache(
       filename,
@@ -26,7 +27,9 @@ void PhotoPairRate(std::shared_ptr<simprop::photonfields::PhotonField> phField,
 
         auto integrand = [&](double lnEpsilon) {
           const auto epsilon = std::exp(lnEpsilon);
-          auto value = phField->density(epsilon, z) * dsigmadEe.get(E_e, E_gamma, epsilon);
+          auto value =
+              phField->density(epsilon, z) * photoPair.dsigma_dE(E_gamma, epsilon, x * E_gamma);
+
           return epsilon * value;
         };
 

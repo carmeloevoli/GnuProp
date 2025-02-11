@@ -11,7 +11,7 @@ void PairAbsorptionRate(std::shared_ptr<simprop::photonfields::PhotonField> phFi
                         const std::vector<double>& redshifts, const std::vector<double>& energyAxis,
                         const std::string& filename) {
   const auto units = 1. / SI::Gyr;
-  const auto sigma_ic = Interactions::InverseCompton();
+  const auto ic = Interactions::InverseCompton();
 
   CachedFunction2D cache(
       filename,
@@ -34,7 +34,7 @@ void PairAbsorptionRate(std::shared_ptr<simprop::photonfields::PhotonField> phFi
           const size_t N = 10000;
           auto value = simprop::utils::QAGIntegration<double>(integrandInner, a, b, N, 1e-3);
 
-          return (s - me_2) * sigma_ic.sigmaInCoMFrame(s) * value;
+          return (s - me_2) * ic.sigma_com(s) * value;
         };
 
         const auto sMin = me_2;
