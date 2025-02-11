@@ -30,45 +30,46 @@ void compute_absorption_rates() {
   cache::PairAbsorptionRate(ebl, redshifts, energyAxis, "gnuprop_absorption_pairs_ebl.bin");
 }
 
-// void photopionrates() {
-//   simprop::utils::Timer timer("photo-pion production rate");
-//   const auto redshifts = simprop::utils::LinAxis<double>(0, 10, 21);
-//   const auto xAxis = simprop::utils::LogAxis<double>(1e-5, 1, 60);
-//   const auto eProtonAxis = simprop::utils::LogAxis<double>(1e17 * SI::eV, 1e23 * SI::eV, 200);
+void compute_photo_pion_rates() {
+  simprop::utils::Timer timer("photo-pion production rate");
 
-//   cache::PhotoPionRate<interactions::PhotoPionNeutrinos>(cmb, redshifts, xAxis, eProtonAxis,
-//                                                          "gnuprop_photopion_neutrinos_cmb.bin");
-//   cache::PhotoPionRate<interactions::PhotoPionGammas>(cmb, redshifts, xAxis, eProtonAxis,
-//                                                       "gnuprop_photopion_gammas_cmb.bin");
-//   cache::PhotoPionRate<interactions::PhotoPionPairs>(cmb, redshifts, xAxis, eProtonAxis,
-//                                                      "gnuprop_photopion_pairs_cmb.bin");
-//   cache::PhotoPionRate<interactions::PhotoPionNeutrinos>(ebl, redshifts, xAxis, eProtonAxis,
-//                                                          "gnuprop_photopion_neutrinos_ebl.bin");
-//   cache::PhotoPionRate<interactions::PhotoPionGammas>(ebl, redshifts, xAxis, eProtonAxis,
-//                                                       "gnuprop_photopion_gammas_ebl.bin");
-//   cache::PhotoPionRate<interactions::PhotoPionPairs>(ebl, redshifts, xAxis, eProtonAxis,
-//                                                      "gnuprop_photopion_pairs_ebl.bin");
-// }
+  const auto redshifts = simprop::utils::LinAxis<double>(0, 10, 11);
+  const auto xAxis = simprop::utils::LogAxis<double>(1e-5, 1, 100);
+  const auto eProtonAxis = simprop::utils::LogAxis<double>(1e15 * SI::eV, 1e22 * SI::eV, 1000);
 
-// void photopairrates() {
-//   simprop::utils::Timer timer("photo-pair production rate");
+  cache::PhotoPionRate<interactions::PhotoPionNeutrinos>(cmb, redshifts, xAxis, eProtonAxis,
+                                                         "gnuprop_photopion_neutrinos_cmb.bin");
+  cache::PhotoPionRate<interactions::PhotoPionGammas>(cmb, redshifts, xAxis, eProtonAxis,
+                                                      "gnuprop_photopion_gammas_cmb.bin");
+  cache::PhotoPionRate<interactions::PhotoPionPairs>(cmb, redshifts, xAxis, eProtonAxis,
+                                                     "gnuprop_photopion_pairs_cmb.bin");
+  cache::PhotoPionRate<interactions::PhotoPionNeutrinos>(ebl, redshifts, xAxis, eProtonAxis,
+                                                         "gnuprop_photopion_neutrinos_ebl.bin");
+  cache::PhotoPionRate<interactions::PhotoPionGammas>(ebl, redshifts, xAxis, eProtonAxis,
+                                                      "gnuprop_photopion_gammas_ebl.bin");
+  cache::PhotoPionRate<interactions::PhotoPionPairs>(ebl, redshifts, xAxis, eProtonAxis,
+                                                     "gnuprop_photopion_pairs_ebl.bin");
+}
 
-//   const auto redshifts = simprop::utils::LinAxis<double>(0, 10, 21);
-//   const auto xAxis = simprop::utils::LogAxis<double>(1e-5, 1, 60);
-//   const auto eGammaAxis = simprop::utils::LogAxis<double>(1e17 * SI::eV, 1e23 * SI::eV, 200);
+void compute_photo_pair_rates() {
+  simprop::utils::Timer timer("photo-pair production rate");
 
-//   cache::PhotoPairRate(cmb, redshifts, xAxis, eGammaAxis, "gnuprop_photopair_pairs_cmb.bin");
-//   cache::PhotoPairRate(ebl, redshifts, xAxis, eGammaAxis, "gnuprop_photopair_pairs_ebl.bin");
-// }
+  const auto redshifts = simprop::utils::LinAxis<double>(0, 10, 11);
+  const auto xAxis = simprop::utils::LogAxis<double>(1e-5, 1, 100);
+  const auto eGammaAxis = simprop::utils::LogAxis<double>(1e15 * SI::eV, 1e22 * SI::eV, 1000);
+
+  cache::PhotoPairRate(cmb, redshifts, xAxis, eGammaAxis, "gnuprop_photopair_pairs_cmb.bin");
+  cache::PhotoPairRate(ebl, redshifts, xAxis, eGammaAxis, "gnuprop_photopair_pairs_ebl.bin");
+}
 
 int main() {
   try {
     // Display startup information
     simprop::utils::startup_information();
     // compute_proton_losses();
-    compute_absorption_rates();
-    // photopionrates();
-    // photopairrates();
+    // compute_absorption_rates();
+    // compute_photo_pion_rates();
+    compute_photo_pair_rates();
   } catch (const std::exception& ex) {
     std::cerr << "Error: " << ex.what() << "\n";
   }

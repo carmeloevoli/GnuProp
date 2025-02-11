@@ -95,11 +95,17 @@ file(COPY ${GNUPROP_DATA} DESTINATION ${PROJECT_BINARY_DIR}/data)
 # add_executable(protonlosses examples/dumpProtonLosses.cpp)
 # target_link_libraries (protonlosses gammaprop ${GNUPROP_EXTRA_LIBRARIES})
 
-# add_executable(photopion examples/dumpPhotoPionRates.cpp)
-# target_link_libraries (photopion gammaprop ${GNUPROP_EXTRA_LIBRARIES})
+add_executable(interactions examples/dumpInteractions.cpp)
+target_link_libraries (interactions gammaprop ${GNUPROP_EXTRA_LIBRARIES})
 
 add_executable(absorptionrates examples/dumpAbsorptionRates.cpp)
 target_link_libraries (absorptionrates gammaprop ${GNUPROP_EXTRA_LIBRARIES})
+
+add_executable(photopion examples/dumpPhotoPionRates.cpp)
+target_link_libraries (photopion gammaprop ${GNUPROP_EXTRA_LIBRARIES})
+
+add_executable(photopair examples/dumpPhotoPairRates.cpp)
+target_link_libraries (photopair gammaprop ${GNUPROP_EXTRA_LIBRARIES})
 
 # add_executable(opticaldepth examples/computeOpticalDepth.cpp)
 # target_link_libraries (opticaldepth gammaprop ${GNUPROP_EXTRA_LIBRARIES})

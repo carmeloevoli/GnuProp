@@ -37,6 +37,7 @@ void PhotoPairRate(std::shared_ptr<simprop::photonfields::PhotonField> phField,
         const auto b = std::log(epsMax);
         const size_t N = 10000;
         auto value = simprop::utils::QAGIntegration<double>(integrand, a, b, N, 1e-3);
+        value *= SI::cLight * E_gamma;
         value /= std::pow(1. + z, 3.);
 
         return std::max(value / units, 0.);

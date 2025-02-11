@@ -38,25 +38,27 @@ class AbsorptionRate {
   std::vector<std::vector<double>> m_rate;
 };
 
-// class ProductionRate {
-//  public:
-//   ProductionRate(const std::string& filename);
-//   double get(double E_sec, double E_pri, double z = 0) const;
+class ProductionRate {
+ public:
+  ProductionRate(const std::string& filename);
+  double get(double E_sec, double E_pri, double z = 0) const;
 
-//  private:
-//   const double m_zMin = 0;
-//   const double m_zMax = 10;
-//   const size_t m_zSize = 21;
+ private:
+  const double m_zMin = 0;
+  const double m_zMax = 10;
+  const size_t m_zSize = 11;
 
-//   const Range m_lgxRange = {-5, 0};
-//   const size_t m_xSize = 60;
+  const double m_lgxMin = -5;
+  const double m_lgxMax = 0;
+  const size_t m_xSize = 100;
 
-//   const Range m_lgEnergyRange = {17, 23;
-//   const size_t m_energySize = 200;
+  const double m_lgEnergyMin = 15;
+  const double m_lgEnergyMax = 22;
+  const size_t m_lgEnergySize = 1000;
 
-//   std::vector<double> m_z, m_lgx, m_lgE;
-//   std::vector<std::vector<double>> m_rate;
-// };
+  std::vector<double> m_z, m_lgx, m_lgE;
+  std::vector<std::vector<double>> m_rate;
+};
 
 }  // namespace gnuprop
 
