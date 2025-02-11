@@ -26,17 +26,21 @@ double InverseCompton::sigma_lab(double eElectron, double eBkg, double mu) const
 }
 
 double InverseCompton::dsigma_dE(double eElectron, double eBkg, double eGamma) const {
-  const auto gamma_e = std::sqrt(1. + pow2(eElectron / SI::electronMassC2));
-  const auto Gamma_e = 4. * eBkg * gamma_e / SI::electronMassC2;
-  const auto E_1 = eGamma / gamma_e / SI::electronMassC2;
+  const auto _eGamma = eGamma / SI::electronMassC2;
+  const auto _eBkg = eBkg / SI::electronMassC2;
+  const auto _eElectron = eElectron / SI::electronMassC2;
+
+  const auto gamma_e = std::sqrt(1. + pow2(_eElectron));
+  const auto Gamma_e = 4. * _eBkg * gamma_e;
+  const auto E_1 = _eGamma / gamma_e;
   const auto q = E_1 / Gamma_e / (1. - E_1);
-  if (E_1 < eBkg / eElectron or E_1 > Gamma_e / (Gamma_e + 1)) return 0.;
+  if (E_1 < _eBkg / _eElectron or E_1 > Gamma_e / (Gamma_e + 1)) return 0.;
 
   const auto c_1 = 2. * q * std::log(q) + (1. + 2. * q) * (1. - q);
   const auto c_2 = 0.5 * pow2(Gamma_e * q) * (1. - q) / (1. + Gamma_e * q);
-  const auto value = 3. / 4. * SI::sigmaTh / eBkg / gamma_e * (c_1 + c_2);
+  const auto value = 3. / 4. * SI::sigmaTh / _eBkg / gamma_e * (c_1 + c_2);
 
-  return value;
+  return std::max(value / SI::electronMassC2, 0.);
 }
 
 }  // namespace Interactions

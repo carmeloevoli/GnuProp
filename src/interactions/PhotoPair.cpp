@@ -11,8 +11,11 @@ double PhotoPair::sigma_com(double s) const {
   if (chi < 1. || chi > 1e5) return 0.;
 
   const auto beta = sqrt(1. - 1. / chi);
-  return 3. / 16. * SI::sigmaTh * (1. - pow2(beta)) *
-         (2. * beta * (pow2(beta) - 2.) + (3. - pow4(beta)) * log((1. + beta) / (1. - beta)));
+  const auto value =
+      3. / 16. * SI::sigmaTh * (1. - pow2(beta)) *
+      (2. * beta * (pow2(beta) - 2.) + (3. - pow4(beta)) * log((1. + beta) / (1. - beta)));
+
+  return std::max(value, 0.);
 }
 
 double PhotoPair::sigma_lab(double eGamma, double eBkg, double mu) const {
@@ -51,7 +54,7 @@ double PhotoPair::dsigma_dE(double eGamma, double eBkg, double eLepton) const {
     value = c * (a1 + a2 + a3 + a4);
   }
 
-  return value / SI::electronMassC2;
+  return value / SI::electronMassC2;  // , 0.);
 }
 
 }  // namespace Interactions

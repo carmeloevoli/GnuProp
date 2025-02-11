@@ -1,4 +1,5 @@
 #include "cached/GammaAbsorptionCached.h"
+#include "cached/InverseComptonCached.h"
 #include "cached/PairAbsorptionCached.h"
 #include "cached/PhotoPairCached.h"
 #include "cached/PhotoPionCached.h"
@@ -62,6 +63,21 @@ void compute_photo_pair_rates() {
   cache::PhotoPairRate(ebl, redshifts, xAxis, eGammaAxis, "gnuprop_photopair_pairs_ebl.bin");
 }
 
+void compute_IC_rates() {
+  simprop::utils::Timer timer("IC production rate");
+
+  const auto redshifts = simprop::utils::LinAxis<double>(0, 10, 11);
+  const auto xAxis = simprop::utils::LogAxis<double>(1e-5, 1, 100);
+  const auto eElectronAxis = simprop::utils::LogAxis<double>(1e15 * SI::eV, 1e22 * SI::eV, 1000);
+
+  cache::InverseComptonRate(cmb, redshifts, xAxis, eElectronAxis, "gnuprop_IC_gammas_cmb.bin");
+  cache::InverseComptonRate(ebl, redshifts, xAxis, eElectronAxis, "gnuprop_IC_gammas_ebl.bin");
+  cache::InverseComptonRate(cmb, redshifts, xAxis, eElectronAxis, "gnuprop_IC_pairs_cmb.bin",
+                            false);
+  cache::InverseComptonRate(ebl, redshifts, xAxis, eElectronAxis, "gnuprop_IC_pairs_ebl.bin",
+                            false);
+}
+
 int main() {
   try {
     // Display startup information
@@ -69,7 +85,8 @@ int main() {
     // compute_proton_losses();
     // compute_absorption_rates();
     // compute_photo_pion_rates();
-    compute_photo_pair_rates();
+    // compute_photo_pair_rates();
+    compute_IC_rates();
   } catch (const std::exception& ex) {
     std::cerr << "Error: " << ex.what() << "\n";
   }
