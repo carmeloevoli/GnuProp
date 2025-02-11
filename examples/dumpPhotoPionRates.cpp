@@ -1,67 +1,11 @@
-#include "gnuprop.h"
-#include "interactions/PhotoPion.h"
 #include "rates.h"
 #include "simprop.h"
 
-void testCrossSections() {
-  {
-    interactions::PhotoPionNeutrinos nuSpec;
-    std::string filename = "output/gnuprop_neutrino_KA_phi.txt";
-    std::ofstream out(filename);
-    out << "# x | phi (0.5) | phi (2) | phi(20) | phi(30) [cm3/s]\n";
-    out << std::scientific;
-    const auto units = SI::cm3 / SI::sec;
-    auto xAxis = simprop::utils::LogAxis<double>(1e-4, 1, 1000);
-    for (auto x : xAxis) {
-      out << std::scientific << x << "\t";
-      out << nuSpec.Phi(0.5, x) / units << "\t";
-      out << nuSpec.Phi(2., x) / units << "\t";
-      out << nuSpec.Phi(20., x) / units << "\t";
-      out << nuSpec.Phi(30., x) / units << "\t";
-      out << "\n";
-    }
-    LOGI << "Neutrino cross-sections saved in " << filename;
-  }
-  {
-    interactions::PhotoPionGammas gammaSpec;
-    std::string filename = "output/gnuprop_gamma_KA_phi.txt";
-    std::ofstream out(filename);
-    out << "# x | phi (0.5) | phi (2) | phi(20) | phi(30) [cm3/s]\n";
-    out << std::scientific;
-    const auto units = SI::cm3 / SI::sec;
-    auto xAxis = simprop::utils::LogAxis<double>(1e-4, 1, 1000);
-    for (auto x : xAxis) {
-      out << std::scientific << x << "\t";
-      out << gammaSpec.Phi(0.5, x) / units << "\t";
-      out << gammaSpec.Phi(2., x) / units << "\t";
-      out << gammaSpec.Phi(20., x) / units << "\t";
-      out << gammaSpec.Phi(30., x) / units << "\t";
-      out << "\n";
-    }
-    LOGI << "Gamma cross-sections saved in " << filename;
-  }
-  {
-    interactions::PhotoPionPairs pairSpec;
-    std::string filename = "output/gnuprop_pair_KA_phi.txt";
-    std::ofstream out(filename);
-    out << "# x | phi (0.5) | phi (2) | phi(20) | phi(30) [cm3/s]\n";
-    out << std::scientific;
-    const auto units = SI::cm3 / SI::sec;
-    auto xAxis = simprop::utils::LogAxis<double>(1e-4, 1, 1000);
-    for (auto x : xAxis) {
-      out << std::scientific << x << "\t";
-      out << pairSpec.Phi(0.5, x) / units << "\t";
-      out << pairSpec.Phi(2., x) / units << "\t";
-      out << pairSpec.Phi(20., x) / units << "\t";
-      out << pairSpec.Phi(30., x) / units << "\t";
-      out << "\n";
-    }
-    LOGI << "Pair cross-sections saved in " << filename;
-  }
-}
+void testInteractionRate(const std::string& filename) {
+  std::string inputfile = "data/" + filename + ".bin";
+  std::string outputfile = "output/" + filename + ".txt";
 
-void testInteractionRate(const std::string& inputfile, const std::string& outputfile) {
-  gnuprop::PhotoPionProductionRate gnu(inputfile);
+  gnuprop::ProductionRate gnu(inputfile);
   std::ofstream out(outputfile);
   out << "# Enu [eV] - rates[Gyr] \n";
   out << std::scientific;
@@ -78,8 +22,11 @@ void testInteractionRate(const std::string& inputfile, const std::string& output
   LOGI << "Photo-pion interaction rates saved in " << outputfile;
 }
 
-void testInteractionRate2D(const std::string& inputfile, const std::string& outputfile) {
-  gnuprop::PhotoPionProductionRate gnu(inputfile);
+void testInteractionRate2d(const std::string& filename) {
+  std::string inputfile = "data/" + filename + ".bin";
+  std::string outputfile = "output/" + filename + "_2d.txt";
+
+  gnuprop::ProductionRate gnu(inputfile);
   std::ofstream out(outputfile);
   out << "# Enu [eV] - rates[Gyr] \n";
   out << std::scientific << std::setprecision(6);
@@ -99,20 +46,17 @@ void testInteractionRate2D(const std::string& inputfile, const std::string& outp
 int main() {
   try {
     simprop::utils::startup_information();
-
     simprop::utils::Timer timer("main timer");
 
-    testCrossSections();
-    testInteractionRate("data/gnuprop_photopion_neutrinos_cmb.bin",
-                        "output/gnuprop_neutrinos_rate_xaxis.txt");
-    testInteractionRate("data/gnuprop_photopion_gammas_cmb.bin",
-                        "output/gnuprop_gammas_rate_xaxis.txt");
-    testInteractionRate("data/gnuprop_photopion_pairs_cmb.bin",
-                        "output/gnuprop_pairs_rate_xaxis.txt");
-    testInteractionRate2D("data/gnuprop_photopion_neutrinos_cmb.bin",
-                          "output/gnuprop_neutrinos_cmb_rate_2D.txt");
-    testInteractionRate2D("data/gnuprop_photopion_neutrinos_ebl.bin",
-                          "output/gnuprop_neutrinos_ebl_rate_2D.txt");
+    testInteractionRate("gnuprop_photopion_neutrinos_cmb");
+    testInteractionRate("gnuprop_photopion_gammas_cmb");
+    testInteractionRate("gnuprop_photopion_pairs_cmb");
+    testInteractionRate("gnuprop_photopion_neutrinos_ebl");
+    testInteractionRate("gnuprop_photopion_gammas_ebl");
+    testInteractionRate("gnuprop_photopion_pairs_ebl");
+
+    testInteractionRate2d("gnuprop_photopion_neutrinos_cmb");
+    testInteractionRate2d("gnuprop_photopion_neutrinos_ebl");
 
   } catch (const std::exception& e) {
     std::cerr << "Exception caught: " << e.what() << std::endl;

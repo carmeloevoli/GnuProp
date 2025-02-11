@@ -1,37 +1,5 @@
-#include "interactions/InverseCompton.h"
-#include "interactions/PhotoPair.h"
 #include "rates.h"
 #include "simprop.h"
-
-void inversecompton() {
-  const auto chiAxis = simprop::utils::LogAxis<double>(0.1, 1e4, 1000);
-  Interactions::InverseCompton ic;
-  std::ofstream out("output/gnuprop_xsecs_inversecompton.txt");
-  out << "# chi - s [GeV^2] - sigma [mbarn]\n";
-  out << std::scientific;
-  for (auto chi : chiAxis) {
-    auto s = chi * pow2(SI::electronMassC2);
-    out << chi << "\t";
-    out << s / SI::GeV2 << "\t";
-    out << ic.sigma_com(s) / SI::mbarn << "\t";
-    out << "\n";
-  }
-}
-
-void breitwheeler() {
-  const auto chiAxis = simprop::utils::LogAxis<double>(1, 1e4, 1000);
-  Interactions::PhotoPair photoPair;
-  std::ofstream out("output/gnuprop_xsecs_breitwheeler.txt");
-  out << "# chi - s [GeV^2] - sigma [mbarn]\n";
-  out << std::scientific;
-  for (auto chi : chiAxis) {
-    auto s = chi * pow2(2. * SI::electronMassC2);
-    out << chi << "\t";
-    out << s / SI::GeV2 << "\t";
-    out << photoPair.sigma_com(s) / SI::mbarn << "\t";
-    out << "\n";
-  }
-}
 
 void absorptionRate(const std::string& inputfile, const std::string& outputfile) {
   gnuprop::AbsorptionRate rate("data/" + inputfile);
@@ -51,10 +19,6 @@ int main() {
   try {
     simprop::utils::startup_information();
     simprop::utils::Timer timer("main timer");
-
-    // cross-sections
-    inversecompton();
-    breitwheeler();
 
     // rates
     absorptionRate("gnuprop_absorption_gammas_cmb.bin", "gnuprop_absorption_gammas_cmb.txt");
