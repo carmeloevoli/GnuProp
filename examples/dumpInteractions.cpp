@@ -1,71 +1,70 @@
 #include "interactions/InverseCompton.h"
 #include "interactions/PhotoPair.h"
+#include "interactions/PhotoPion.h"
 #include "simprop.h"
 
-// #include "interactions/InverseCompton.h"
-// #include "interactions/PhotoPair.h"
-
-// void testCrossSections() {
-//   {
-//     interactions::PhotoPionNeutrinos nuSpec;
-//     std::string filename = "output/gnuprop_neutrino_KA_phi.txt";
-//     std::ofstream out(filename);
-//     out << "# x | phi (0.5) | phi (2) | phi(20) | phi(30) [cm3/s]\n";
-//     out << std::scientific;
-//     const auto units = SI::cm3 / SI::sec;
-//     auto xAxis = simprop::utils::LogAxis<double>(1e-4, 1, 1000);
-//     for (auto x : xAxis) {
-//       out << std::scientific << x << "\t";
-//       out << nuSpec.Phi(0.5, x) / units << "\t";
-//       out << nuSpec.Phi(2., x) / units << "\t";
-//       out << nuSpec.Phi(20., x) / units << "\t";
-//       out << nuSpec.Phi(30., x) / units << "\t";
-//       out << "\n";
-//     }
-//     LOGI << "Neutrino cross-sections saved in " << filename;
-//   }
-//   {
-//     interactions::PhotoPionGammas gammaSpec;
-//     std::string filename = "output/gnuprop_gamma_KA_phi.txt";
-//     std::ofstream out(filename);
-//     out << "# x | phi (0.5) | phi (2) | phi(20) | phi(30) [cm3/s]\n";
-//     out << std::scientific;
-//     const auto units = SI::cm3 / SI::sec;
-//     auto xAxis = simprop::utils::LogAxis<double>(1e-4, 1, 1000);
-//     for (auto x : xAxis) {
-//       out << std::scientific << x << "\t";
-//       out << gammaSpec.Phi(0.5, x) / units << "\t";
-//       out << gammaSpec.Phi(2., x) / units << "\t";
-//       out << gammaSpec.Phi(20., x) / units << "\t";
-//       out << gammaSpec.Phi(30., x) / units << "\t";
-//       out << "\n";
-//     }
-//     LOGI << "Gamma cross-sections saved in " << filename;
-//   }
-//   {
-//     interactions::PhotoPionPairs pairSpec;
-//     std::string filename = "output/gnuprop_pair_KA_phi.txt";
-//     std::ofstream out(filename);
-//     out << "# x | phi (0.5) | phi (2) | phi(20) | phi(30) [cm3/s]\n";
-//     out << std::scientific;
-//     const auto units = SI::cm3 / SI::sec;
-//     auto xAxis = simprop::utils::LogAxis<double>(1e-4, 1, 1000);
-//     for (auto x : xAxis) {
-//       out << std::scientific << x << "\t";
-//       out << pairSpec.Phi(0.5, x) / units << "\t";
-//       out << pairSpec.Phi(2., x) / units << "\t";
-//       out << pairSpec.Phi(20., x) / units << "\t";
-//       out << pairSpec.Phi(30., x) / units << "\t";
-//       out << "\n";
-//     }
-//     LOGI << "Pair cross-sections saved in " << filename;
-//   }
-// }
+void photopion() {
+  {
+    interactions::PhotoPionNeutrinos nuSpec;
+    std::string filename = "output/gnuprop_xsecs_photopion_neutrinos.txt";
+    std::ofstream out(filename);
+    out << "# x | phi (0.5) | phi (2) | phi(20) | phi(30) [cm3/s]\n";
+    out << std::scientific;
+    const auto units = SI::cm3 / SI::sec;
+    auto xAxis = simprop::utils::LogAxis<double>(1e-4, 1, 1000);
+    for (auto x : xAxis) {
+      out << std::scientific << x << "\t";
+      out << nuSpec.Phi(0.5, x) / units << "\t";
+      out << nuSpec.Phi(2., x) / units << "\t";
+      out << nuSpec.Phi(20., x) / units << "\t";
+      out << nuSpec.Phi(30., x) / units << "\t";
+      out << "\n";
+    }
+    LOGI << "Photo-pion neutrino cross-sections saved in " << filename;
+  }
+  {
+    interactions::PhotoPionGammas gammaSpec;
+    std::string filename = "output/gnuprop_xsecs_photopion_gammas.txt";
+    std::ofstream out(filename);
+    out << "# x | phi (0.5) | phi (2) | phi(20) | phi(30) [cm3/s]\n";
+    out << std::scientific;
+    const auto units = SI::cm3 / SI::sec;
+    auto xAxis = simprop::utils::LogAxis<double>(1e-4, 1, 1000);
+    for (auto x : xAxis) {
+      out << std::scientific << x << "\t";
+      out << gammaSpec.Phi(0.5, x) / units << "\t";
+      out << gammaSpec.Phi(2., x) / units << "\t";
+      out << gammaSpec.Phi(20., x) / units << "\t";
+      out << gammaSpec.Phi(30., x) / units << "\t";
+      out << "\n";
+    }
+    LOGI << "Photo-pion gamma cross-sections saved in " << filename;
+  }
+  {
+    interactions::PhotoPionPairs pairSpec;
+    std::string filename = "output/gnuprop_xsecs_photopion_pairs.txt";
+    std::ofstream out(filename);
+    out << "# x | phi (0.5) | phi (2) | phi(20) | phi(30) [cm3/s]\n";
+    out << std::scientific;
+    const auto units = SI::cm3 / SI::sec;
+    auto xAxis = simprop::utils::LogAxis<double>(1e-4, 1, 1000);
+    for (auto x : xAxis) {
+      out << std::scientific << x << "\t";
+      out << pairSpec.Phi(0.5, x) / units << "\t";
+      out << pairSpec.Phi(2., x) / units << "\t";
+      out << pairSpec.Phi(20., x) / units << "\t";
+      out << pairSpec.Phi(30., x) / units << "\t";
+      out << "\n";
+    }
+    LOGI << "Photo-pion pair cross-sections saved in " << filename;
+  }
+}
 
 void inversecompton() {
   const auto chiAxis = simprop::utils::LogAxis<double>(0.1, 1e4, 1000);
   Interactions::InverseCompton ic;
-  std::ofstream out("output/gnuprop_xsecs_inversecompton.txt");
+  const std::string filename = "output/gnuprop_xsecs_inversecompton.txt";
+  std::ofstream out(filename);
   out << "# chi - s [GeV^2] - sigma [mbarn]\n";
   out << std::scientific;
   for (auto chi : chiAxis) {
@@ -75,12 +74,14 @@ void inversecompton() {
     out << ic.sigma_com(s) / SI::mbarn << "\t";
     out << "\n";
   }
+  LOGI << "Inverse Compton cross-sections saved in " << filename;
 }
 
 void breitwheeler() {
   const auto chiAxis = simprop::utils::LogAxis<double>(0.1, 1e4, 1000);
   Interactions::PhotoPair photoPair;
-  std::ofstream out("output/gnuprop_xsecs_breitwheeler.txt");
+  const std::string filename = "output/gnuprop_xsecs_breitwheeler.txt";
+  std::ofstream out(filename);
   out << "# chi - s [GeV^2] - sigma [mbarn]\n";
   out << std::scientific;
   for (auto chi : chiAxis) {
@@ -90,38 +91,47 @@ void breitwheeler() {
     out << photoPair.sigma_com(s) / SI::mbarn << "\t";
     out << "\n";
   }
+  LOGI << "Photo-pair cross-sections saved in " << filename;
 }
 
 void inversecompton_differential() {
-  const auto eElectron = 1e16 * SI::eV;
+  // e + epsilon -> e' + gamma
+  const auto eGammas = {SI::PeV, 1e1 * SI::PeV, 1e2 * SI::PeV, 1e3 * SI::PeV};
   const auto eBkg = 2.35e-4 * SI::eV;
-  const auto eGammaAxis = simprop::utils::LogAxis<double>(1e12 * SI::eV, 1e16 * SI::eV, 1000);
+  const auto eElectronAxis = simprop::utils::LogAxis<double>(SI::PeV, 1e10 * SI::TeV, 10000);
   const auto units = SI::mbarn;
   Interactions::InverseCompton ic;
-  std::ofstream out("output/gnuprop_xsecs_inversecompton_differential.txt");
+  const std::string filename = "output/gnuprop_xsecs_inversecompton_differential.txt";
+  std::ofstream out(filename);
   out << "# E_gamma [eV] - E dsigmadE [mbarn]\n";
   out << std::scientific;
-  for (auto eGamma : eGammaAxis) {
-    out << eGamma / SI::eV << "\t";
-    out << eGamma * ic.dsigma_dE(eElectron, eBkg, eGamma) / units << "\t";
+  for (auto eElectron : eElectronAxis) {
+    out << eElectron / SI::eV << "\t";
+    for (auto eGamma : eGammas)
+      out << eGamma * ic.dsigma_dE(eElectron, eBkg, eGamma) / units << "\t";
     out << "\n";
   }
+  LOGI << "Inverse Compton differential cross-sections saved in " << filename;
 }
 
 void breitwheeler_differential() {
-  const auto eElectron = 1e4 * SI::TeV;
+  // gamma + epsilon -> e^- + e^+
+  const auto eElectrons = {SI::PeV, 1e1 * SI::PeV, 1e2 * SI::PeV, 1e3 * SI::PeV};
   const auto eBkg = 2.35e-4 * SI::eV;
-  const auto eGammaAxis = simprop::utils::LogAxis<double>(1e4 * SI::TeV, 1e9 * SI::TeV, 1000);
+  const auto eGammaAxis = simprop::utils::LogAxis<double>(SI::PeV, 1e10 * SI::TeV, 10000);
   const auto units = SI::mbarn;
   Interactions::PhotoPair photoPair;
-  std::ofstream out("output/gnuprop_xsecs_breitwheeler_differential.txt");
+  const std::string filename = "output/gnuprop_xsecs_breitwheeler_differential.txt";
+  std::ofstream out(filename);
   out << "# E_gamma [eV] - E dsigmadE [mbarn]\n";
   out << std::scientific;
   for (auto eGamma : eGammaAxis) {
     out << eGamma / SI::eV << "\t";
-    out << eElectron * photoPair.dsigma_dE(eGamma, eBkg, eElectron) / units << "\t";
+    for (auto eElectron : eElectrons)
+      out << eElectron * photoPair.dsigma_dE(eGamma, eBkg, eElectron) / units << "\t";
     out << "\n";
   }
+  LOGI << "Photo-pair differential cross-sections saved in " << filename;
 }
 
 int main() {
@@ -130,6 +140,7 @@ int main() {
     simprop::utils::Timer timer("main timer");
 
     // cross-sections
+    photopion();
     breitwheeler();
     breitwheeler_differential();
     inversecompton();
