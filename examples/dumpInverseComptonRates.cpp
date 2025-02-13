@@ -13,10 +13,10 @@ void testInteractionRate(const std::string& filename) {
   auto xAxis = simprop::utils::LogAxis<double>(1e-5, 1, 1000);
   for (auto x : xAxis) {
     out << std::scientific << x << "\t";
-    out << gnu.get(x * 1e12 * SI::eV, 1e15 * SI::eV, 0.) / units << " ";
-    out << gnu.get(x * 1e13 * SI::eV, 1e16 * SI::eV, 0.) / units << " ";
-    out << gnu.get(x * 1e14 * SI::eV, 1e17 * SI::eV, 0.) / units << " ";
-    out << gnu.get(x * 1e15 * SI::eV, 1e18 * SI::eV, 0.) / units << " ";
+    out << gnu.get(x * 1e16 * SI::eV, 1e16 * SI::eV, 0.) / units << " ";
+    out << gnu.get(x * 1e17 * SI::eV, 1e17 * SI::eV, 0.) / units << " ";
+    out << gnu.get(x * 1e18 * SI::eV, 1e18 * SI::eV, 0.) / units << " ";
+    out << gnu.get(x * 1e19 * SI::eV, 1e19 * SI::eV, 0.) / units << " ";
     out << "\n";
   }
   LOGI << "Photo-pair interaction rates saved in " << outputfile;

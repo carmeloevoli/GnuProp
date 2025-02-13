@@ -52,7 +52,7 @@ class ProductionRate {
   const double m_lgxMax = 0;
   const size_t m_xSize = 100;
 
-  const double m_lgEnergyMin = 17;
+  const double m_lgEnergyMin = 15;
   const double m_lgEnergyMax = 23;
   const size_t m_lgEnergySize = 1000;
 
