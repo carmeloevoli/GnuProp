@@ -13,7 +13,7 @@ class ProtonLossRate {
 
  private:
   const double m_lgEnergyMin = 16;
-  const double m_lgEnergyMax = 24;
+  const double m_lgEnergyMax = 23;
   const size_t m_lgEnergySize = 1000;
 
   std::vector<double> m_lgE;
@@ -28,10 +28,10 @@ class AbsorptionRate {
  private:
   const double m_zMin = 0;
   const double m_zMax = 10;
-  const size_t m_zSize = 11;
+  const size_t m_zSize = 51;
 
   const double m_lgEnergyMin = 10;
-  const double m_lgEnergyMax = 20;
+  const double m_lgEnergyMax = 23;
   const size_t m_lgEnergySize = 1000;
 
   std::vector<double> m_z, m_lgE;
@@ -46,14 +46,14 @@ class ProductionRate {
  private:
   const double m_zMin = 0;
   const double m_zMax = 10;
-  const size_t m_zSize = 11;
+  const size_t m_zSize = 51;
 
   const double m_lgxMin = -5;
   const double m_lgxMax = 0;
   const size_t m_xSize = 100;
 
-  const double m_lgEnergyMin = 15;
-  const double m_lgEnergyMax = 22;
+  const double m_lgEnergyMin = 17;
+  const double m_lgEnergyMax = 23;
   const size_t m_lgEnergySize = 1000;
 
   std::vector<double> m_z, m_lgx, m_lgE;
