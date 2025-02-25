@@ -6,22 +6,36 @@
 
 namespace cache {
 
-template <class T>
-void ProtonLosses(std::shared_ptr<simprop::photonfields::PhotonField> phField,
-                  const std::vector<double>& energyAxis, const std::string& filename) {
-  const auto losses = T(phField);
-  const auto units = 1. / SI::Gyr;
+class ProtonLossesCached {
+ private:
+  const double m_units = 1. / SI::Gyr;
+  std::vector<double> m_energyAxis;
+  std::unique_ptr<simprop::losses::ContinuousLosses> m_losses;
 
-  CachedFunction1D cache(
-      filename,
-      [&](double energy) {
-        const auto gammap = energy / SI::protonMassC2;
-        return losses.beta(simprop::proton, gammap) / units;
-      },
-      energyAxis);
+ public:
+  ProtonLossesCached() {};
+  virtual ~ProtonLossesCached() = default;
 
-  cache.computeAndSave();
-}
+  void buildEnergyAxis(double energyMin, double energyMax, size_t energySize) {
+    m_energyAxis = simprop::utils::LogAxis(energyMin, energyMax, energySize);
+  }
+
+  void builLosses(std::unique_ptr<simprop::losses::ContinuousLosses> losses) {
+    m_losses = std::move(losses);
+  }
+
+  void run(const std::string& filename) {
+    CachedFunction1D cache(
+        filename,
+        [&](double energy) {
+          const auto gammap = energy / SI::protonMassC2;
+          return m_losses->beta(simprop::proton, gammap) / m_units;
+        },
+        m_energyAxis);
+
+    cache.computeAndSave();
+  }
+};
 
 }  // namespace cache
 

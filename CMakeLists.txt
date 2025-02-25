@@ -69,12 +69,12 @@ list(APPEND GNUPROP_EXTRA_LIBRARIES ${SIMPROP_LIBRARIES})
 include_directories(include ${GNUPROP_EXTRA_INCLUDES})
 
 add_library(gammaprop SHARED
-    # src/gnuprop.cpp
     src/cached/cached.cpp
     src/cached/load.cpp
     src/interactions/InverseCompton.cpp
     src/interactions/PhotoPair.cpp
     src/interactions/PhotoPion.cpp
+    src/gnuprop.cpp
     src/rates.cpp
     src/tridiag.cpp
     )
@@ -92,8 +92,8 @@ file(GLOB GNUPROP_DATA "data/*.txt")
 file(COPY ${GNUPROP_DATA} DESTINATION ${PROJECT_BINARY_DIR}/data)
 
 # make examples
-# add_executable(protonlosses examples/dumpProtonLosses.cpp)
-# target_link_libraries (protonlosses gammaprop ${GNUPROP_EXTRA_LIBRARIES})
+add_executable(protonlosses examples/dumpProtonLosses.cpp)
+target_link_libraries (protonlosses gammaprop ${GNUPROP_EXTRA_LIBRARIES})
 
 add_executable(interactions examples/dumpInteractions.cpp)
 target_link_libraries (interactions gammaprop ${GNUPROP_EXTRA_LIBRARIES})
@@ -117,8 +117,11 @@ target_link_libraries (photopair gammaprop ${GNUPROP_EXTRA_LIBRARIES})
 add_executable(compute_tables apps/compute_tables.cpp)
 target_link_libraries (compute_tables gammaprop ${GNUPROP_EXTRA_LIBRARIES})
 
-# add_executable(run apps/run.cpp)
-# target_link_libraries (run gammaprop ${GNUPROP_EXTRA_LIBRARIES})
+add_executable(run apps/run.cpp)
+target_link_libraries (run gammaprop ${GNUPROP_EXTRA_LIBRARIES})
+
+add_executable(testparams apps/test_params.cpp)
+target_link_libraries (testparams gammaprop ${GNUPROP_EXTRA_LIBRARIES})
 
 # add_executable(generationeenergy apps/generationEnergy.cpp)
 # target_link_libraries (generationeenergy beniamino ${GNUPROP_EXTRA_LIBRARIES})

@@ -6,8 +6,8 @@
 
 namespace cache {
 
-std::vector<double> loadFromFile1D(const std::string& filename);
-std::vector<std::vector<double>> loadFromFile(const std::string& filename, size_t redshiftSize);
+std::vector<double> loadFromFile(const std::string& filename);
+// std::vector<std::vector<double>> loadFromFile(const std::string& filename, size_t redshiftSize);
 
 }  // namespace cache
 

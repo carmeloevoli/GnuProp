@@ -12,9 +12,9 @@ class ProtonLossRate {
   double beta(double E, double z = 0) const;
 
  private:
-  const double m_lgEnergyMin = 16;
-  const double m_lgEnergyMax = 23;
-  const size_t m_lgEnergySize = 1000;
+  double m_lgEnergyMin = 0;
+  double m_lgEnergyMax = 0;
+  size_t m_lgEnergySize = 0;
 
   std::vector<double> m_lgE;
   std::vector<double> m_beta;
@@ -26,39 +26,42 @@ class AbsorptionRate {
   double get(double energy, double z = 0) const;
 
  private:
-  const double m_zMin = 0;
-  const double m_zMax = 10;
-  const size_t m_zSize = 51;
+  double m_zMin = 0;
+  double m_zMax = 0;
+  size_t m_zSize = 0;
 
-  const double m_lgEnergyMin = 10;
-  const double m_lgEnergyMax = 23;
-  const size_t m_lgEnergySize = 1000;
+  double m_lgEnergyMin = 0;
+  double m_lgEnergyMax = 0;
+  size_t m_lgEnergySize = 0;
 
   std::vector<double> m_z, m_lgE;
   std::vector<std::vector<double>> m_rate;
 };
+;
 
 class ProductionRate {
  public:
   ProductionRate(const std::string& filename);
+  void setLimits(std::vector<double>& data);
   double get(double E_sec, double E_pri, double z = 0) const;
 
  private:
-  const double m_zMin = 0;
-  const double m_zMax = 10;
-  const size_t m_zSize = 51;
+  double m_zMin = 0;
+  double m_zMax = 0;
+  size_t m_zSize = 0;
 
-  const double m_lgxMin = -5;
-  const double m_lgxMax = 0;
-  const size_t m_xSize = 100;
+  double m_lgxMin = 0;
+  double m_lgxMax = 0;
+  size_t m_xSize = 0;
 
-  const double m_lgEnergyMin = 15;
-  const double m_lgEnergyMax = 23;
-  const size_t m_lgEnergySize = 1000;
+  double m_lgEnergyMin = 0;
+  double m_lgEnergyMax = 0;
+  size_t m_lgEnergySize = 0;
 
   std::vector<double> m_z, m_lgx, m_lgE;
   std::vector<std::vector<double>> m_rate;
 };
+;
 
 }  // namespace gnuprop
 

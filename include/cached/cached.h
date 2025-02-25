@@ -15,22 +15,29 @@ namespace cache {
 // Base class for chaced functions
 class CachedFunction {
  protected:
-  std::string filename;  // Output file to save cached data
+  std::string filename;                     // Output file to save cached data
+  std::vector<double> results;              // Results of the computation
+  std::vector<std::vector<double>> params;  // Parameters of the axes
 
  public:
+  // Constructor with output file
   explicit CachedFunction(const std::string& outputFile) : filename(outputFile) {
     LOGI << "Starting computation cached fuction in " << filename;
   }
 
-  // Pure virtual function for tabulation logic
-  virtual void computeAndSave() = 0;
-
-  // Utility to save data to a binary file (1D data)
+  // Utility to save data to a binary file
   template <typename T>
-  void saveToBinaryFile(const std::vector<T>& data) const {
+  void saveToBinaryFile(const std::vector<T>& data,
+                        const std::vector<std::vector<double>>& params) const {
     std::ofstream file(filename, std::ios::binary);
     if (!file.is_open()) {
       throw std::runtime_error("Unable to open file: " + filename);
+    }
+
+    for (const auto& param : params) {
+      file.write(reinterpret_cast<const char*>(&param[0]), sizeof(T));
+      file.write(reinterpret_cast<const char*>(&param[1]), sizeof(T));
+      file.write(reinterpret_cast<const char*>(&param[2]), sizeof(T));
     }
 
     for (const auto& value : data) {
@@ -41,7 +48,10 @@ class CachedFunction {
     LOGW << "Data saved in binary format to " << filename;
   }
 
-  virtual ~CachedFunction() = default;
+  // Pure virtual function for tabulation logic
+  virtual void computeAndSave() = 0;
+
+  virtual ~CachedFunction() { LOGI << "Finished computation cached fuction in " << filename; };
 };
 
 // Derived class for 1D caching

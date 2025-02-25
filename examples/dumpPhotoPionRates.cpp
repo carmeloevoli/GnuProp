@@ -49,9 +49,9 @@ int main() {
     simprop::utils::Timer timer("main timer");
 
     testInteractionRate("gnuprop_photopion_neutrinos_cmb");
+    testInteractionRate("gnuprop_photopion_neutrinos_ebl");
     testInteractionRate("gnuprop_photopion_gammas_cmb");
     testInteractionRate("gnuprop_photopion_pairs_cmb");
-    testInteractionRate("gnuprop_photopion_neutrinos_ebl");
     testInteractionRate("gnuprop_photopion_gammas_ebl");
     testInteractionRate("gnuprop_photopion_pairs_ebl");
 
