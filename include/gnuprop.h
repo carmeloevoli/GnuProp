@@ -25,7 +25,6 @@ class GnuProp {
   void addNeutrinoSource(std::unique_ptr<gnuprop::ProductionRate> q_nu) {
     m_photoPionNus.push_back(std::move(q_nu));
   }
-  // secondary models
   void addPhotonSource(std::unique_ptr<gnuprop::ProductionRate> q_gamma) {
     m_photoPionGammas.push_back(std::move(q_gamma));
   }

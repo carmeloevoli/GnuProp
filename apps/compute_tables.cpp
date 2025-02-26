@@ -134,29 +134,29 @@ int main() {
     // auto pionLosses = GnuPropTables::protonPionLosses();
     // pionLosses->run("gnuprop_proton_losses_photopion.bin");
 
-    // + absorption rates
-    auto gammaAbsCmb = GnuPropTables::absorptionCached<cache::GammaAbsorptionCached>(cmb);
-    gammaAbsCmb->run("gnuprop_absorption_gammas_cmb.bin");
-    auto gammaAbsEbl = GnuPropTables::absorptionCached<cache::GammaAbsorptionCached>(ebl);
-    gammaAbsEbl->run("gnuprop_absorption_gammas_ebl.bin");
-    auto pairAbsCmb = GnuPropTables::absorptionCached<cache::PairAbsorptionCached>(cmb);
-    pairAbsCmb->run("gnuprop_absorption_pairs_cmb.bin");
-    auto pairAbsEbl = GnuPropTables::absorptionCached<cache::PairAbsorptionCached>(ebl);
-    pairAbsEbl->run("gnuprop_absorption_pairs_ebl.bin");
+    // // + absorption rates
+    // auto gammaAbsCmb = GnuPropTables::absorptionCached<cache::GammaAbsorptionCached>(cmb);
+    // gammaAbsCmb->run("gnuprop_absorption_gammas_cmb.bin");
+    // auto gammaAbsEbl = GnuPropTables::absorptionCached<cache::GammaAbsorptionCached>(ebl);
+    // gammaAbsEbl->run("gnuprop_absorption_gammas_ebl.bin");
+    // auto pairAbsCmb = GnuPropTables::absorptionCached<cache::PairAbsorptionCached>(cmb);
+    // pairAbsCmb->run("gnuprop_absorption_pairs_cmb.bin");
+    // auto pairAbsEbl = GnuPropTables::absorptionCached<cache::PairAbsorptionCached>(ebl);
+    // pairAbsEbl->run("gnuprop_absorption_pairs_ebl.bin");
 
     // + production rates
-    // auto ppNuCmb = GnuPropTables::photoPionCached<interactions::PhotoPionNeutrinos>(cmb);
-    // ppNuCmb->run("gnuprop_photopion_neutrinos_cmb.bin");
-    // auto ppGammaCmb = GnuPropTables::photoPionCached<interactions::PhotoPionGammas>(cmb);
-    // ppGammaCmb->run("gnuprop_photopion_gammas_cmb.bin");
-    // auto ppPairCmb = GnuPropTables::photoPionCached<interactions::PhotoPionPairs>(cmb);
-    // ppPairCmb->run("gnuprop_photopion_pairs_cmb.bin");
-    // auto ppNuEbl = GnuPropTables::photoPionCached<interactions::PhotoPionNeutrinos>(ebl);
-    // ppNuEbl->run("gnuprop_photopion_neutrinos_ebl.bin");
-    // auto ppGammaEbl = GnuPropTables::photoPionCached<interactions::PhotoPionGammas>(ebl);
-    // ppGammaEbl->run("gnuprop_photopion_gammas_ebl.bin");
-    // auto ppPairEbl = GnuPropTables::photoPionCached<interactions::PhotoPionPairs>(ebl);
-    // ppPairEbl->run("gnuprop_photopion_pairs_ebl.bin");
+    auto ppNuCmb = GnuPropTables::photoPionCached<interactions::PhotoPionNeutrinos>(cmb);
+    ppNuCmb->run("gnuprop_photopion_neutrinos_cmb.bin");
+    auto ppGammaCmb = GnuPropTables::photoPionCached<interactions::PhotoPionGammas>(cmb);
+    ppGammaCmb->run("gnuprop_photopion_gammas_cmb.bin");
+    auto ppPairCmb = GnuPropTables::photoPionCached<interactions::PhotoPionPairs>(cmb);
+    ppPairCmb->run("gnuprop_photopion_pairs_cmb.bin");
+    auto ppNuEbl = GnuPropTables::photoPionCached<interactions::PhotoPionNeutrinos>(ebl);
+    ppNuEbl->run("gnuprop_photopion_neutrinos_ebl.bin");
+    auto ppGammaEbl = GnuPropTables::photoPionCached<interactions::PhotoPionGammas>(ebl);
+    ppGammaEbl->run("gnuprop_photopion_gammas_ebl.bin");
+    auto ppPairEbl = GnuPropTables::photoPionCached<interactions::PhotoPionPairs>(ebl);
+    ppPairEbl->run("gnuprop_photopion_pairs_ebl.bin");
 
     // compute_photo_pion_rates();
     //   compute_photo_pair_rates();

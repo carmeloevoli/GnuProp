@@ -76,107 +76,107 @@ int main() {
       params.outputFilename = "gnuprop_spectrum_dipmodel_m-3.txt";
       RunModels::runModel(params);
     }
-    {
-      RunModels::ModelParameters params;
-      params.evolutionIndex = 0.;
-      params.injectionSlope = 2.5;
-      params.cutoffEnergy = 7e18 * SI::eV;
-      params.doCmbNeutrinos = 1;
-      params.doEblNeutrinos = 0;
-      params.outputFilename = "gnuprop_spectrum_auger_m0.txt";
-      RunModels::runModel(params);
-    }
-    {
-      RunModels::ModelParameters params;
-      params.evolutionIndex = 3.;
-      params.injectionSlope = 2.1;
-      params.cutoffEnergy = 5e18 * SI::eV;
-      params.doCmbNeutrinos = 1;
-      params.doEblNeutrinos = 0;
-      params.outputFilename = "gnuprop_spectrum_auger_m+3.txt";
-      RunModels::runModel(params);
-    }
-    {
-      RunModels::ModelParameters params;
-      params.evolutionIndex = -3.;
-      params.injectionSlope = 2.7;
-      params.cutoffEnergy = 5e18 * SI::eV;
-      params.doCmbNeutrinos = 1;
-      params.doEblNeutrinos = 0;
-      params.outputFilename = "gnuprop_spectrum_auger_m-3.txt";
-      RunModels::runModel(params);
-    }
+    // {
+    //   RunModels::ModelParameters params;
+    //   params.evolutionIndex = 0.;
+    //   params.injectionSlope = 2.5;
+    //   params.cutoffEnergy = 7e18 * SI::eV;
+    //   params.doCmbNeutrinos = 1;
+    //   params.doEblNeutrinos = 0;
+    //   params.outputFilename = "gnuprop_spectrum_auger_m0.txt";
+    //   RunModels::runModel(params);
+    // }
+    // {
+    //   RunModels::ModelParameters params;
+    //   params.evolutionIndex = 3.;
+    //   params.injectionSlope = 2.1;
+    //   params.cutoffEnergy = 5e18 * SI::eV;
+    //   params.doCmbNeutrinos = 1;
+    //   params.doEblNeutrinos = 0;
+    //   params.outputFilename = "gnuprop_spectrum_auger_m+3.txt";
+    //   RunModels::runModel(params);
+    // }
+    // {
+    //   RunModels::ModelParameters params;
+    //   params.evolutionIndex = -3.;
+    //   params.injectionSlope = 2.7;
+    //   params.cutoffEnergy = 5e18 * SI::eV;
+    //   params.doCmbNeutrinos = 1;
+    //   params.doEblNeutrinos = 0;
+    //   params.outputFilename = "gnuprop_spectrum_auger_m-3.txt";
+    //   RunModels::runModel(params);
+    // }
     // EBL
-    {
-      RunModels::ModelParameters params;
-      params.evolutionIndex = 0.;
-      params.injectionSlope = 2.5;
-      params.cutoffEnergy = 0;
-      params.doCmbNeutrinos = 1;
-      params.doEblNeutrinos = 1;
-      params.outputFilename = "gnuprop_spectrum_dipmodel_m0_ebl.txt";
-      RunModels::runModel(params);
-    }
-    {
-      RunModels::ModelParameters params;
-      params.evolutionIndex = 3.;
-      params.injectionSlope = 2.5;
-      params.cutoffEnergy = 0;
-      params.doCmbNeutrinos = 1;
-      params.doEblNeutrinos = 1;
-      params.outputFilename = "gnuprop_spectrum_dipmodel_m+3_ebl.txt";
-      RunModels::runModel(params);
-    }
-    {
-      RunModels::ModelParameters params;
-      params.evolutionIndex = -3.;
-      params.injectionSlope = 2.5;
-      params.cutoffEnergy = 0;
-      params.doCmbNeutrinos = 1;
-      params.doEblNeutrinos = 1;
-      params.outputFilename = "gnuprop_spectrum_dipmodel_m-3_ebl.txt";
-      RunModels::runModel(params);
-    }
-    {
-      RunModels::ModelParameters params;
-      params.evolutionIndex = 0.;
-      params.injectionSlope = 2.5;
-      params.cutoffEnergy = 7e18 * SI::eV;
-      params.doCmbNeutrinos = 1;
-      params.doEblNeutrinos = 1;
-      params.outputFilename = "gnuprop_spectrum_auger_m0_ebl.txt";
-      RunModels::runModel(params);
-    }
-    {
-      RunModels::ModelParameters params;
-      params.evolutionIndex = 3.;
-      params.injectionSlope = 2.1;
-      params.cutoffEnergy = 5e18 * SI::eV;
-      params.doCmbNeutrinos = 1;
-      params.doEblNeutrinos = 1;
-      params.outputFilename = "gnuprop_spectrum_auger_m+3_ebl.txt";
-      RunModels::runModel(params);
-    }
-    {
-      RunModels::ModelParameters params;
-      params.evolutionIndex = -3.;
-      params.injectionSlope = 2.7;
-      params.cutoffEnergy = 5e18 * SI::eV;
-      params.doCmbNeutrinos = 1;
-      params.doEblNeutrinos = 1;
-      params.outputFilename = "gnuprop_spectrum_auger_m-3_ebl.txt";
-      RunModels::runModel(params);
-    }
-    {
-      RunModels::ModelParameters params;
-      params.evolutionIndex = 0.;
-      params.injectionSlope = 1.3;
-      params.cutoffEnergy = 1e20 * SI::eV;
-      params.doCmbNeutrinos = 1;
-      params.doEblNeutrinos = 0;
-      params.outputFilename = "gnuprop_spectrum_uhe_m0.txt";
-      RunModels::runModel(params);
-    }
+    // {
+    //   RunModels::ModelParameters params;
+    //   params.evolutionIndex = 0.;
+    //   params.injectionSlope = 2.5;
+    //   params.cutoffEnergy = 0;
+    //   params.doCmbNeutrinos = 1;
+    //   params.doEblNeutrinos = 1;
+    //   params.outputFilename = "gnuprop_spectrum_dipmodel_m0_ebl.txt";
+    //   RunModels::runModel(params);
+    // }
+    // {
+    //   RunModels::ModelParameters params;
+    //   params.evolutionIndex = 3.;
+    //   params.injectionSlope = 2.5;
+    //   params.cutoffEnergy = 0;
+    //   params.doCmbNeutrinos = 1;
+    //   params.doEblNeutrinos = 1;
+    //   params.outputFilename = "gnuprop_spectrum_dipmodel_m+3_ebl.txt";
+    //   RunModels::runModel(params);
+    // }
+    // {
+    //   RunModels::ModelParameters params;
+    //   params.evolutionIndex = -3.;
+    //   params.injectionSlope = 2.5;
+    //   params.cutoffEnergy = 0;
+    //   params.doCmbNeutrinos = 1;
+    //   params.doEblNeutrinos = 1;
+    //   params.outputFilename = "gnuprop_spectrum_dipmodel_m-3_ebl.txt";
+    //   RunModels::runModel(params);
+    // }
+    // {
+    //   RunModels::ModelParameters params;
+    //   params.evolutionIndex = 0.;
+    //   params.injectionSlope = 2.5;
+    //   params.cutoffEnergy = 7e18 * SI::eV;
+    //   params.doCmbNeutrinos = 1;
+    //   params.doEblNeutrinos = 1;
+    //   params.outputFilename = "gnuprop_spectrum_auger_m0_ebl.txt";
+    //   RunModels::runModel(params);
+    // }
+    // {
+    //   RunModels::ModelParameters params;
+    //   params.evolutionIndex = 3.;
+    //   params.injectionSlope = 2.1;
+    //   params.cutoffEnergy = 5e18 * SI::eV;
+    //   params.doCmbNeutrinos = 1;
+    //   params.doEblNeutrinos = 1;
+    //   params.outputFilename = "gnuprop_spectrum_auger_m+3_ebl.txt";
+    //   RunModels::runModel(params);
+    // }
+    // {
+    //   RunModels::ModelParameters params;
+    //   params.evolutionIndex = -3.;
+    //   params.injectionSlope = 2.7;
+    //   params.cutoffEnergy = 5e18 * SI::eV;
+    //   params.doCmbNeutrinos = 1;
+    //   params.doEblNeutrinos = 1;
+    //   params.outputFilename = "gnuprop_spectrum_auger_m-3_ebl.txt";
+    //   RunModels::runModel(params);
+    // }
+    // {
+    //   RunModels::ModelParameters params;
+    //   params.evolutionIndex = 0.;
+    //   params.injectionSlope = 1.3;
+    //   params.cutoffEnergy = 1e20 * SI::eV;
+    //   params.doCmbNeutrinos = 1;
+    //   params.doEblNeutrinos = 0;
+    //   params.outputFilename = "gnuprop_spectrum_uhe_m0.txt";
+    //   RunModels::runModel(params);
+    // }
   } catch (const std::exception& e) {
     std::cerr << "exception caught with message: " << e.what();
   }

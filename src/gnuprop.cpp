@@ -28,12 +28,12 @@ void GnuProp::build() {
 
   m_np.assign(m_energySize, 0.0);
   m_betap.assign(m_energySize, 0.0);
-  m_qp.assign(m_energySize, 0.0);
 
   m_nnu.assign(m_energySize, 0.0);
-  m_qnu.assign(m_energySize, 0.0);
-
   m_ngamma.assign(m_energySize, 0.0);
+
+  m_qp.assign(m_energySize, 0.0);
+  m_qnu.assign(m_energySize, 0.0);
   m_qgamma.assign(m_energySize, 0.0);
 
   knownTerm.assign(m_energySize - 1, 0.0);
@@ -85,31 +85,39 @@ void GnuProp::evolve(double zObs) {
       evolveNuEmissivity(z);
       std::vector<double> nnuUp(m_energySize, 0.);
       for (size_t i = 0; i < m_energySize - 1.; ++i) {
-        const auto E = m_eAxis[i];
-        const auto Eup = m_eAxis[i + 1];
-        const auto b = E * H;
-        const auto bUp = Eup * H;
-        const auto dbndE = (bUp * m_nnu[i + 1] - b * m_nnu[i]) / (Eup - E);
-        nnuUp[i] = m_nnu[i] + dz * (dtdz * m_qnu[i] - 3. / (1. + z) * m_nnu[i] + dtdz * dbndE);
+        const auto dlnf = (m_nnu[i] > 0.) ? (m_nnu[i + 1] / m_nnu[i] - 1.) : 0.;
+        const auto dlnE = (m_eAxis[i + 1] / m_eAxis[i] - 1.);
+        const auto dlnfdlnE = dlnf / dlnE;
+        nnuUp[i] = m_nnu[i] + dz * (dtdz * m_qnu[i] - m_nnu[i] / (1. + z) * (2. - dlnfdlnE));
       }
       m_nnu = std::move(nnuUp);
     }
 
     // evolve photons
     {
-      // evolveGammaEmissivity(z);
-      // std::vector<double> ngammaUp(m_energySize, 0.);
+      evolveGammaEmissivity(z);
+      std::vector<double> ngammaUp(m_energySize, 0.);
       // for (size_t i = 0; i < m_energySize - 1.; ++i) {
-      //   const auto E = m_eAxis[i];
-      //   const auto Eup = m_eAxis[i + 1];
-      //   const auto b = E * H;
-      //   const auto bUp = Eup * H;
-      //   const auto dbndE = (bUp * m_ngamma[i + 1] - b * m_ngamma[i]) / (Eup - E);
-      //   const auto rate = m_absGammas->get(E, z);
-      //   ngammaUp[i] = m_ngamma[i] + dz * (dtdz * m_qgamma[i] - dtdz * rate * m_ngamma[i] -
-      //                                     3. / (1. + z) * m_ngamma[i] + dtdz * dbndE);
+      //   const auto dlnf = (m_ngamma[i] > 0.) ? (m_ngamma[i + 1] / m_ngamma[i] - 1.) : 0.;
+      //   const auto dlnE = (m_eAxis[i + 1] / m_eAxis[i] - 1.);
+      //   const auto dlnfdlnE = dlnf / dlnE;
+      //   const auto K = m_absGammas->get(m_eAxis[i], z);
+      //   LOGD << "E: " << m_eAxis[i] << " K / H: " << K / H;
+      //   ngammaUp[i] = m_ngamma[i] +
+      //                 dz * (dtdz * m_qgamma[i] - m_ngamma[i] / (1. + z) * (2. + K / H -
+      //                 dlnfdlnE));
       // }
-      // m_ngamma = std::move(ngammaUp);
+      for (size_t i = 0; i < m_energySize - 1.; ++i) {
+        const auto dlnf = (m_ngamma[i] > 0.) ? (m_ngamma[i + 1] / m_ngamma[i] - 1.) : 0.;
+        const auto dlnE = (m_eAxis[i + 1] / m_eAxis[i] - 1.);
+        const auto dlnfdlnE = dlnf / dlnE;
+        const auto K = m_absGammas->get(m_eAxis[i], z);
+        const auto C = 1. / (1. + z) * (2. + K / H - dlnfdlnE);
+        ngammaUp[i] =
+            (dz * dtdz * m_qgamma[i] + (1. - 0.5 * C * dz) * m_ngamma[i]) / (1. + 0.5 * C * dz);
+      }
+
+      m_ngamma = std::move(ngammaUp);
     }
   }
 }
