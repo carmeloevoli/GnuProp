@@ -11,18 +11,22 @@ const auto ebl = std::make_shared<simprop::photonfields::Saldana2021PhotonField>
 
 class GnuPropTables {
  public:
-  static std::unique_ptr<cache::ProtonLossesCached> protonPairLosses() {
+  template <typename T>
+  static std::unique_ptr<cache::ProtonLossesCached> protonLosses() {
     auto losses = std::make_unique<cache::ProtonLossesCached>();
-    losses->buildEnergyAxis(1e17 * SI::eV, 1e24 * SI::eV, 10000);
-    losses->builLosses(std::make_unique<simprop::losses::PairProductionLosses>(cmb));
+    losses->buildEnergyAxis(1e16 * SI::eV, 1e24 * SI::eV, 8 * 128);
+    losses->builLosses(std::make_unique<T>(cmb));
     return losses;
   }
 
-  static std::unique_ptr<cache::ProtonLossesCached> protonPionLosses() {
-    auto losses = std::make_unique<cache::ProtonLossesCached>();
-    losses->buildEnergyAxis(1e17 * SI::eV, 1e24 * SI::eV, 10000);
-    losses->builLosses(std::make_unique<simprop::losses::PhotoPionContinuousLosses>(cmb));
-    return losses;
+  template <typename T>
+  static std::unique_ptr<T> absorptionCached(
+      const std::shared_ptr<simprop::photonfields::PhotonField>& photonField) {
+    auto absorption = std::make_unique<T>();
+    absorption->buildEnergyAxis(1e10 * SI::eV, 1e23 * SI::eV, 13 * 64);
+    absorption->buildRedshiftAxis(0., 5., 101);
+    absorption->buildPhotonField(photonField);
+    return absorption;
   }
 
   template <typename T>
@@ -31,38 +35,118 @@ class GnuPropTables {
     auto photoPion = std::make_unique<cache::PhotoPionCached<T>>();
     photoPion->buildEnergyAxis(1e17 * SI::eV, 1e23 * SI::eV, 6 * 64);
     photoPion->buildXAxis(1e-4, 1., 4 * 64);
-    photoPion->buildRedshiftAxis(0., 5., 51);
+    photoPion->buildRedshiftAxis(0., 5., 101);
     photoPion->buildPhotonField(photonField);
     photoPion->setPrecision(1e-2);
     return photoPion;
   }
 
-  template <typename T>
-  static std::unique_ptr<T> absorptionCached(
+  static std::unique_ptr<cache::PhotoPairCached> photoPairCached(
       const std::shared_ptr<simprop::photonfields::PhotonField>& photonField) {
-    auto absorption = std::make_unique<T>();
-    absorption->buildEnergyAxis(1e15 * SI::eV, 1e23 * SI::eV, 8 * 64);
-    absorption->buildRedshiftAxis(0., 5., 51);
-    absorption->buildPhotonField(photonField);
-    return absorption;
+    auto photoPair = std::make_unique<cache::PhotoPairCached>();
+    photoPair->buildEnergyAxis(1e17 * SI::eV, 1e23 * SI::eV, 6 * 64);
+    photoPair->buildXAxis(1e-4, 1., 4 * 64);
+    photoPair->buildRedshiftAxis(0., 5., 101);
+    photoPair->buildPhotonField(photonField);
+    return photoPair;
   }
 
-  // static std::unique_ptr<cache::PairAbsorptionCached> pairAbsorptionCmb() {
-  //   auto ic = std::make_unique<cache::PairAbsorptionCached>();
-  //   ic->buildEnergyAxis(1e15 * SI::eV, 1e22 * SI::eV, 1000);
-  //   ic->buildRedshiftAxis(0., 6., 6);
-  //   ic->buildPhotonField(cmb);
-  //   return ic;
-  // }
-
-  // static std::unique_ptr<cache::PairAbsorptionCached> pairAbsorptionEbl() {
-  //   auto ic = std::make_unique<cache::PairAbsorptionCached>();
-  //   ic->buildEnergyAxis(1e15 * SI::eV, 1e22 * SI::eV, 1000);
-  //   ic->buildRedshiftAxis(0., 6., 6);
-  //   ic->buildPhotonField(ebl);
-  //   return ic;
-  // }
+  static std::unique_ptr<cache::InverseComptonCached> inverseComptonCached(
+      const std::shared_ptr<simprop::photonfields::PhotonField>& photonField,
+      bool doGammas = true) {
+    auto ic = std::make_unique<cache::InverseComptonCached>();
+    ic->buildEnergyAxis(1e15 * SI::eV, 1e22 * SI::eV, 1000);
+    ic->buildXAxis(1e-4, 1., 4 * 64);
+    ic->buildRedshiftAxis(0., 5., 101);
+    ic->setDoGammas(doGammas);
+    ic->buildPhotonField(photonField);
+    return ic;
+  }
 };
+
+int main() {
+  try {
+    // Display startup information
+    simprop::utils::startup_information();
+
+    // + proton losses
+    // auto pairLosses = GnuPropTables::protonLosses<simprop::losses::PairProductionLosses>();
+    // pairLosses->run("gnuprop_proton_losses_pair.bin");
+    // auto pionLosses = GnuPropTables::protonLosses<simprop::losses::PhotoPionContinuousLosses>();
+    // pionLosses->run("gnuprop_proton_losses_photopion.bin");
+
+    // // + absorption rates
+    // auto gammaAbsCmb = GnuPropTables::absorptionCached<cache::GammaAbsorptionCached>(cmb);
+    // gammaAbsCmb->run("gnuprop_absorption_gammas_cmb.bin");
+    // auto gammaAbsEbl = GnuPropTables::absorptionCached<cache::GammaAbsorptionCached>(ebl);
+    // gammaAbsEbl->run("gnuprop_absorption_gammas_ebl.bin");
+    // auto pairAbsCmb = GnuPropTables::absorptionCached<cache::PairAbsorptionCached>(cmb);
+    // pairAbsCmb->run("gnuprop_absorption_pairs_cmb.bin");
+    // auto pairAbsEbl = GnuPropTables::absorptionCached<cache::PairAbsorptionCached>(ebl);
+    // pairAbsEbl->run("gnuprop_absorption_pairs_ebl.bin");
+
+    // + photo-pion rates
+    // auto ppNuCmb = GnuPropTables::photoPionCached<interactions::PhotoPionNeutrinos>(cmb);
+    // ppNuCmb->run("gnuprop_photopion_neutrinos_cmb.bin");
+    // auto ppGammaCmb = GnuPropTables::photoPionCached<interactions::PhotoPionGammas>(cmb);
+    // ppGammaCmb->run("gnuprop_photopion_gammas_cmb.bin");
+    // auto ppPairCmb = GnuPropTables::photoPionCached<interactions::PhotoPionPairs>(cmb);
+    // ppPairCmb->run("gnuprop_photopion_pairs_cmb.bin");
+    // auto ppNuEbl = GnuPropTables::photoPionCached<interactions::PhotoPionNeutrinos>(ebl);
+    // ppNuEbl->run("gnuprop_photopion_neutrinos_ebl.bin");
+    // auto ppGammaEbl = GnuPropTables::photoPionCached<interactions::PhotoPionGammas>(ebl);
+    // ppGammaEbl->run("gnuprop_photopion_gammas_ebl.bin");
+    // auto ppPairEbl = GnuPropTables::photoPionCached<interactions::PhotoPionPairs>(ebl);
+    // ppPairEbl->run("gnuprop_photopion_pairs_ebl.bin");
+
+    // + photo-pair rates
+    // auto ppCmb = GnuPropTables::photoPairCached(cmb);
+    // ppCmb->run("gnuprop_photopair_pairs_cmb.bin");
+    // auto ppEbl = GnuPropTables::photoPairCached(ebl);
+    // ppEbl->run("gnuprop_photopair_pairs_ebl.bin");
+
+    // + IC rates
+    auto icCmb = GnuPropTables::inverseComptonCached(cmb);
+    icCmb->run("gnuprop_inversecompton_gammas_cmb.bin");
+    auto icEbl = GnuPropTables::inverseComptonCached(ebl);
+    icEbl->run("gnuprop_inversecompton_gammas_ebl.bin");
+    auto icPairCmb = GnuPropTables::inverseComptonCached(cmb, false);
+    icPairCmb->run("gnuprop_inversecompton_pairs_cmb.bin");
+    auto icPairEbl = GnuPropTables::inverseComptonCached(ebl, false);
+    icPairEbl->run("gnuprop_inversecompton_pairs_ebl.bin");
+  } catch (const std::exception& ex) {
+    std::cerr << "Error: " << ex.what() << "\n";
+  }
+
+  return 0;
+}
+
+// void compute_photo_pair_rates() {
+//   simprop::utils::Timer timer("photo-pair production rate");
+
+//   cache::PhotoPairRate(ebl, redshifts, xAxis, energyAxis, "gnuprop_photopair_pairs_ebl.bin");
+//   cache::PhotoPairRate(cmb, redshifts, xAxis, energyAxis, "gnuprop_photopair_pairs_cmb.bin");
+// }
+
+// compute_photo_pion_rates();
+//   compute_photo_pair_rates();
+//   compute_IC_rates();
+
+// static std::unique_ptr<cache::PairAbsorptionCached> pairAbsorptionCmb() {
+//   auto ic = std::make_unique<cache::PairAbsorptionCached>();
+//   ic->buildEnergyAxis(1e15 * SI::eV, 1e22 * SI::eV, 1000);
+//   ic->buildRedshiftAxis(0., 6., 6);
+//   ic->buildPhotonField(cmb);
+//   return ic;
+// }
+
+// static std::unique_ptr<cache::PairAbsorptionCached> pairAbsorptionEbl() {
+//   auto ic = std::make_unique<cache::PairAbsorptionCached>();
+//   ic->buildEnergyAxis(1e15 * SI::eV, 1e22 * SI::eV, 1000);
+//   ic->buildRedshiftAxis(0., 6., 6);
+//   ic->buildPhotonField(ebl);
+//   return ic;
+// }
 
 // void compute_proton_losses() {
 //   simprop::utils::Timer timer("proton losses");
@@ -122,48 +206,3 @@ class GnuPropTables {
 //   false); cache::InverseComptonRate(ebl, redshifts, xAxis, energyAxis,
 //   "gnuprop_IC_pairs_ebl.bin", false);
 // }
-
-int main() {
-  try {
-    // Display startup information
-    simprop::utils::startup_information();
-
-    // + proton losses
-    // auto pairLosses = GnuPropTables::protonPairLosses();
-    // pairLosses->run("gnuprop_proton_losses_pair.bin");
-    // auto pionLosses = GnuPropTables::protonPionLosses();
-    // pionLosses->run("gnuprop_proton_losses_photopion.bin");
-
-    // // + absorption rates
-    // auto gammaAbsCmb = GnuPropTables::absorptionCached<cache::GammaAbsorptionCached>(cmb);
-    // gammaAbsCmb->run("gnuprop_absorption_gammas_cmb.bin");
-    // auto gammaAbsEbl = GnuPropTables::absorptionCached<cache::GammaAbsorptionCached>(ebl);
-    // gammaAbsEbl->run("gnuprop_absorption_gammas_ebl.bin");
-    // auto pairAbsCmb = GnuPropTables::absorptionCached<cache::PairAbsorptionCached>(cmb);
-    // pairAbsCmb->run("gnuprop_absorption_pairs_cmb.bin");
-    // auto pairAbsEbl = GnuPropTables::absorptionCached<cache::PairAbsorptionCached>(ebl);
-    // pairAbsEbl->run("gnuprop_absorption_pairs_ebl.bin");
-
-    // + production rates
-    auto ppNuCmb = GnuPropTables::photoPionCached<interactions::PhotoPionNeutrinos>(cmb);
-    ppNuCmb->run("gnuprop_photopion_neutrinos_cmb.bin");
-    auto ppGammaCmb = GnuPropTables::photoPionCached<interactions::PhotoPionGammas>(cmb);
-    ppGammaCmb->run("gnuprop_photopion_gammas_cmb.bin");
-    auto ppPairCmb = GnuPropTables::photoPionCached<interactions::PhotoPionPairs>(cmb);
-    ppPairCmb->run("gnuprop_photopion_pairs_cmb.bin");
-    auto ppNuEbl = GnuPropTables::photoPionCached<interactions::PhotoPionNeutrinos>(ebl);
-    ppNuEbl->run("gnuprop_photopion_neutrinos_ebl.bin");
-    auto ppGammaEbl = GnuPropTables::photoPionCached<interactions::PhotoPionGammas>(ebl);
-    ppGammaEbl->run("gnuprop_photopion_gammas_ebl.bin");
-    auto ppPairEbl = GnuPropTables::photoPionCached<interactions::PhotoPionPairs>(ebl);
-    ppPairEbl->run("gnuprop_photopion_pairs_ebl.bin");
-
-    // compute_photo_pion_rates();
-    //   compute_photo_pair_rates();
-    //   compute_IC_rates();
-  } catch (const std::exception& ex) {
-    std::cerr << "Error: " << ex.what() << "\n";
-  }
-
-  return 0;
-}

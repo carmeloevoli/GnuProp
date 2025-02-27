@@ -25,16 +25,24 @@ class RunModels {
       g->setHeCutoff(params.cutoffEnergy);
     }
     if (params.doCmbNeutrinos) {
-      g->addNeutrinoSource(
+      g->addPhotoPionNeutrinoSource(
           std::make_unique<gnuprop::ProductionRate>("data/gnuprop_photopion_neutrinos_cmb.bin"));
-      g->addPhotonSource(
+      g->addPhotoPionGammaSource(
           std::make_unique<gnuprop::ProductionRate>("data/gnuprop_photopion_gammas_cmb.bin"));
+      g->addPhotoPionElectronSource(
+          std::make_unique<gnuprop::ProductionRate>("data/gnuprop_photopion_pairs_cmb.bin"));
+      g->addPhotoPairElectronSource(
+          std::make_unique<gnuprop::ProductionRate>("data/gnuprop_photopair_pairs_cmb.bin"));
     }
     if (params.doEblNeutrinos) {
-      g->addNeutrinoSource(
+      g->addPhotoPionNeutrinoSource(
           std::make_unique<gnuprop::ProductionRate>("data/gnuprop_photopion_neutrinos_ebl.bin"));
-      g->addPhotonSource(
+      g->addPhotoPionGammaSource(
           std::make_unique<gnuprop::ProductionRate>("data/gnuprop_photopion_gammas_ebl.bin"));
+      g->addPhotoPionElectronSource(
+          std::make_unique<gnuprop::ProductionRate>("data/gnuprop_photopion_pairs_ebl.bin"));
+      g->addPhotoPairElectronSource(
+          std::make_unique<gnuprop::ProductionRate>("data/gnuprop_photopair_pairs_ebl.bin"));
     }
     g->build();
     g->evolve(0.);
@@ -76,7 +84,38 @@ int main() {
       params.outputFilename = "gnuprop_spectrum_dipmodel_m-3.txt";
       RunModels::runModel(params);
     }
-    // {
+    // EBL
+    {
+      RunModels::ModelParameters params;
+      params.evolutionIndex = 0.;
+      params.injectionSlope = 2.5;
+      params.cutoffEnergy = 0;
+      params.doCmbNeutrinos = 1;
+      params.doEblNeutrinos = 1;
+      params.outputFilename = "gnuprop_spectrum_dipmodel_m0_ebl.txt";
+      RunModels::runModel(params);
+    }
+    {
+      RunModels::ModelParameters params;
+      params.evolutionIndex = 3.;
+      params.injectionSlope = 2.5;
+      params.cutoffEnergy = 0;
+      params.doCmbNeutrinos = 1;
+      params.doEblNeutrinos = 1;
+      params.outputFilename = "gnuprop_spectrum_dipmodel_m+3_ebl.txt";
+      RunModels::runModel(params);
+    }
+    {
+      RunModels::ModelParameters params;
+      params.evolutionIndex = -3.;
+      params.injectionSlope = 2.5;
+      params.cutoffEnergy = 0;
+      params.doCmbNeutrinos = 1;
+      params.doEblNeutrinos = 1;
+      params.outputFilename = "gnuprop_spectrum_dipmodel_m-3_ebl.txt";
+      RunModels::runModel(params);
+    }
+    //{
     //   RunModels::ModelParameters params;
     //   params.evolutionIndex = 0.;
     //   params.injectionSlope = 2.5;
@@ -106,37 +145,7 @@ int main() {
     //   params.outputFilename = "gnuprop_spectrum_auger_m-3.txt";
     //   RunModels::runModel(params);
     // }
-    // EBL
-    // {
-    //   RunModels::ModelParameters params;
-    //   params.evolutionIndex = 0.;
-    //   params.injectionSlope = 2.5;
-    //   params.cutoffEnergy = 0;
-    //   params.doCmbNeutrinos = 1;
-    //   params.doEblNeutrinos = 1;
-    //   params.outputFilename = "gnuprop_spectrum_dipmodel_m0_ebl.txt";
-    //   RunModels::runModel(params);
-    // }
-    // {
-    //   RunModels::ModelParameters params;
-    //   params.evolutionIndex = 3.;
-    //   params.injectionSlope = 2.5;
-    //   params.cutoffEnergy = 0;
-    //   params.doCmbNeutrinos = 1;
-    //   params.doEblNeutrinos = 1;
-    //   params.outputFilename = "gnuprop_spectrum_dipmodel_m+3_ebl.txt";
-    //   RunModels::runModel(params);
-    // }
-    // {
-    //   RunModels::ModelParameters params;
-    //   params.evolutionIndex = -3.;
-    //   params.injectionSlope = 2.5;
-    //   params.cutoffEnergy = 0;
-    //   params.doCmbNeutrinos = 1;
-    //   params.doEblNeutrinos = 1;
-    //   params.outputFilename = "gnuprop_spectrum_dipmodel_m-3_ebl.txt";
-    //   RunModels::runModel(params);
-    // }
+
     // {
     //   RunModels::ModelParameters params;
     //   params.evolutionIndex = 0.;

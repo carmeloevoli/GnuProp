@@ -22,11 +22,17 @@ class GnuProp {
   void setInjectionSlope(double slope) { m_injSlope = slope; }
 
   // secondary models
-  void addNeutrinoSource(std::unique_ptr<gnuprop::ProductionRate> q_nu) {
-    m_photoPionNus.push_back(std::move(q_nu));
+  void addPhotoPionNeutrinoSource(std::unique_ptr<gnuprop::ProductionRate> q_nu) {
+    m_nu_photopion.push_back(std::move(q_nu));
   }
-  void addPhotonSource(std::unique_ptr<gnuprop::ProductionRate> q_gamma) {
-    m_photoPionGammas.push_back(std::move(q_gamma));
+  void addPhotoPionGammaSource(std::unique_ptr<gnuprop::ProductionRate> q_gamma) {
+    m_gamma_photopion.push_back(std::move(q_gamma));
+  }
+  void addPhotoPionElectronSource(std::unique_ptr<gnuprop::ProductionRate> q_electron) {
+    m_electron_photopion.push_back(std::move(q_electron));
+  }
+  void addPhotoPairElectronSource(std::unique_ptr<gnuprop::ProductionRate> q_electron) {
+    m_electron_photopair.push_back(std::move(q_electron));
   }
 
   // gnuprop
@@ -34,7 +40,8 @@ class GnuProp {
   void evolve(double zObs);
   void dump(const std::string& filename) const;
 
- protected:  // main parameters
+ protected:
+  // main parameters
   double m_sourceComovingEmissivity{1e45 * SI::erg / SI::Mpc3 / SI::year};
   double m_injSlope{2.5};
   double m_evolutionIndex{0.0};
@@ -54,21 +61,30 @@ class GnuProp {
   std::vector<double> m_eAxis;
 
   // protons
-  std::vector<std::unique_ptr<gnuprop::ProtonLossRate>> m_losses;
-  std::vector<double> m_qp;
-  std::vector<double> m_betap;
-  std::vector<double> m_np;
+  std::vector<std::unique_ptr<gnuprop::ProtonLossRate>> m_proton_losses;
+  std::vector<double> m_n_proton;
+  std::vector<double> m_q_proton;
+  std::vector<double> m_beta_proton;
 
   // neutrinos
-  std::vector<std::unique_ptr<gnuprop::ProductionRate>> m_photoPionNus;
-  std::vector<double> m_qnu;
-  std::vector<double> m_nnu;
+  std::vector<std::unique_ptr<gnuprop::ProductionRate>> m_nu_photopion;
+  std::vector<double> m_q_nu;
+  std::vector<double> m_n_nu;
 
   // photons
-  std::vector<std::unique_ptr<gnuprop::ProductionRate>> m_photoPionGammas;
-  std::unique_ptr<gnuprop::AbsorptionRate> m_absGammas;
-  std::vector<double> m_qgamma;
-  std::vector<double> m_ngamma;
+  std::vector<std::unique_ptr<gnuprop::ProductionRate>> m_gamma_photopion;
+  std::unique_ptr<gnuprop::AbsorptionRate> m_gamma_absorption;
+  std::vector<double> m_q_gamma;
+  std::vector<double> m_n_gamma;
+  std::vector<double> m_k_gamma;
+
+  // electrons
+  std::vector<std::unique_ptr<gnuprop::ProductionRate>> m_electron_photopion;
+  std::vector<std::unique_ptr<gnuprop::ProductionRate>> m_electron_photopair;
+  std::unique_ptr<gnuprop::AbsorptionRate> m_electron_absorption;
+  std::vector<double> m_q_electron;
+  std::vector<double> m_n_electron;
+  std::vector<double> m_k_electron;
 
   // CN method temporary vectors
   std::vector<double> knownTerm;
@@ -82,6 +98,9 @@ class GnuProp {
   void evolveProtonLosses(double z);
   void evolveNuEmissivity(double z);
   void evolveGammaEmissivity(double z);
+  void evolveGammaAbsorption(double z);
+  void evolveElectronEmissivity(double z);
+  void evolveElectronAbsorption(double z);
 };
 
 }  // namespace gnuprop
