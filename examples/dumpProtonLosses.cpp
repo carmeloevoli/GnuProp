@@ -19,7 +19,7 @@ void protonLosses() {
   out << std::scientific << std::setprecision(6);
 
   // Generate energy axis
-  const auto energyAxis = simprop::utils::LogAxis(1e17 * SI::eV, 1e24 * SI::eV, 300);
+  const auto energyAxis = simprop::utils::LogAxis(1e17 * SI::eV, 1e24 * SI::eV, 1000);
   const auto units = 1. / SI::Gyr;
 
   // Compute and write results
@@ -34,8 +34,8 @@ void protonLosses() {
 }
 
 void protonLossesInterpolated() {
-  gnuprop::ProtonLossRate losses_pair("data/gnuprop_proton_losses_pair.bin");
-  gnuprop::ProtonLossRate losses_pi("data/gnuprop_proton_losses_photopion.bin");
+  gnuprop::ProtonLossRate losses_pair("tables/gnuprop_proton_losses_pair.bin");
+  gnuprop::ProtonLossRate losses_pi("tables/gnuprop_proton_losses_photopion.bin");
 
   // Open output file for writing
   const std::string outputFile = "output/gnuprop_proton_losses_interpolated.txt";
@@ -49,7 +49,7 @@ void protonLossesInterpolated() {
   out << std::scientific << std::setprecision(6);
 
   // Generate energy axis
-  const auto energyAxis = simprop::utils::LogAxis(1e17 * SI::eV, 1e24 * SI::eV, 10000);
+  const auto energyAxis = simprop::utils::LogAxis(1e17 * SI::eV, 1e24 * SI::eV, 1000);
   const auto units = 1. / SI::Gyr;
 
   // Compute and write results

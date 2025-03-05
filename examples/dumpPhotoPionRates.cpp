@@ -2,7 +2,7 @@
 #include "simprop.h"
 
 void testInteractionRate(const std::string& filename) {
-  std::string inputfile = "data/" + filename + ".bin";
+  std::string inputfile = "tables/" + filename + ".bin";
   std::string outputfile = "output/" + filename + ".txt";
 
   gnuprop::ProductionRate gnu(inputfile);
@@ -23,7 +23,7 @@ void testInteractionRate(const std::string& filename) {
 }
 
 void testInteractionRate2d(const std::string& filename) {
-  std::string inputfile = "data/" + filename + ".bin";
+  std::string inputfile = "tables/" + filename + ".bin";
   std::string outputfile = "output/" + filename + "_2d.txt";
 
   gnuprop::ProductionRate gnu(inputfile);
@@ -33,8 +33,8 @@ void testInteractionRate2d(const std::string& filename) {
 
   const double units = 1. / SI::Gyr;
   const double z = 0.;
-  auto eAxis = simprop::utils::LogAxis<double>(1e17 * SI::eV, 1e23 * SI::eV, 300);
-  auto xAxis = simprop::utils::LogAxis<double>(1e-5, 1, 300);
+  auto eAxis = simprop::utils::LogAxis<double>(1e16 * SI::eV, 1e24 * SI::eV, 400);
+  auto xAxis = simprop::utils::LogAxis<double>(1e-5, 1, 400);
   for (auto E : eAxis) {
     for (auto x : xAxis) {
       out << x << " " << E / SI::eV << " " << gnu.get(x * E, E, z) / units << "\n";
@@ -57,7 +57,10 @@ int main() {
 
     testInteractionRate2d("gnuprop_photopion_neutrinos_cmb");
     testInteractionRate2d("gnuprop_photopion_neutrinos_ebl");
-
+    testInteractionRate2d("gnuprop_photopion_gammas_cmb");
+    testInteractionRate2d("gnuprop_photopion_gammas_ebl");
+    testInteractionRate2d("gnuprop_photopion_pairs_cmb");
+    testInteractionRate2d("gnuprop_photopion_pairs_ebl");
   } catch (const std::exception& e) {
     std::cerr << "Exception caught: " << e.what() << std::endl;
     return EXIT_FAILURE;

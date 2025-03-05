@@ -8,7 +8,7 @@ namespace Interactions {
 
 double PhotoPair::sigma_com(double s) const {
   const auto chi = s / 4. / pow2(SI::electronMassC2);
-  if (chi < 1. || chi > 1e5) return 0.;
+  if (chi < 1. || chi > 1e10) return 0.;
 
   const auto beta = sqrt(1. - 1. / chi);
   const auto value =
@@ -54,7 +54,7 @@ double PhotoPair::dsigma_dE(double eGamma, double eBkg, double eLepton) const {
     value = c * (a1 + a2 + a3 + a4);
   }
 
-  return value / SI::electronMassC2;  // , 0.);
+  return std::max(value, 0.) / SI::electronMassC2;
 }
 
 }  // namespace Interactions

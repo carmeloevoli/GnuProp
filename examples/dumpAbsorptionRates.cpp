@@ -2,15 +2,16 @@
 #include "simprop.h"
 
 void absorptionRate(const std::string& inputfile, const std::string& outputfile) {
-  gnuprop::AbsorptionRate rate("data/" + inputfile);
+  gnuprop::AbsorptionRate rate("tables/" + inputfile);
   std::ofstream out("output/" + outputfile);
   out << "# energy [eV] - absorption rate [Gyr-1]\n";
   out << std::scientific;
   const auto units = 1. / SI::Gyr;
-  auto eAxis = simprop::utils::LogAxis<double>(1e10 * SI::eV, 1e20 * SI::eV, 100);
+  auto eAxis = simprop::utils::LogAxis<double>(1e10 * SI::eV, 1e24 * SI::eV, 1000);
   for (auto E : eAxis) {
     out << E / SI::eV << "\t";
     out << rate.get(E, 0.) / units << " ";
+    out << rate.get(E, 4.99) / units << " ";
     out << "\n";
   }
 }
