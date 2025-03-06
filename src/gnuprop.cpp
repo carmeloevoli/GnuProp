@@ -56,8 +56,8 @@ void GnuProp::evolve(double zObs) {
   for (auto it = zAxis.rbegin(); it != zAxis.rend(); ++it) {
     auto z = *it;
     LOGD << std::setprecision(5) << z;
-    //  << *std::min_element(m_n_gamma.begin(), m_n_gamma.end()) << " "
-    //  << *std::max_element(m_n_gamma.begin(), m_n_gamma.end());
+    LOGD << *std::min_element(m_n_gamma.begin(), m_n_gamma.end()) << " "
+         << *std::max_element(m_n_gamma.begin(), m_n_gamma.end());
 
     const auto dtdz = std::abs(m_cosmology->dtdz(z));
     const auto H = std::abs(m_cosmology->hubbleRate(z));
@@ -201,17 +201,17 @@ void GnuProp::evolveGammaEmissivity(double z) {
     q_gamma[i] += ln_eRatio * value;
   }
   // Inverse Compton
-  // for (size_t i = 0; i < m_energySize; ++i) {
-  //   double value = 0.;
-  //   const auto E_gamma = m_eAxis[i];
-  //   for (size_t j = i; j < m_energySize; ++j) {
-  //     const auto E_electron = m_eAxis[j];
-  //     double R_j = 0.;
-  //     for (const auto& R_gamma : m_gamma_ic) R_j += R_gamma->get(E_gamma, E_electron, z);
-  //     value += m_n_electron[j] * R_j;
-  //   }
-  //   m_q_gamma[i] += ln_eRatio * value;
-  // }
+  for (size_t i = 0; i < m_energySize; ++i) {
+    double value = 0.;
+    const auto E_gamma = m_eAxis[i];
+    for (size_t j = i; j < m_energySize; ++j) {
+      const auto E_electron = m_eAxis[j];
+      double R_j = 0.;
+      for (const auto& R_gamma : m_gamma_ic) R_j += R_gamma->get(E_gamma, E_electron, z);
+      value += m_n_electron[j] * R_j;
+    }
+    // q_gamma[i] += ln_eRatio * value;
+  }
   m_q_gamma = std::move(q_gamma);
 }
 
@@ -252,18 +252,18 @@ void GnuProp::evolveElectronEmissivity(double z) {
     q_electron[i] += ln_eRatio * value;
   }
   // Inverse Compton
-  // for (size_t i = 0; i < m_energySize; ++i) {
-  //   double value = 0.;
-  //   const auto E_electron = m_eAxis[i];
-  //   for (size_t j = i; j < m_energySize; ++j) {
-  //     const auto E_electron_prime = m_eAxis[j];
-  //     double R_j = 0.;
-  //     for (const auto& R_electron : m_electrons_ic)
-  //       R_j += R_electron->get(E_electron, E_electron_prime, z);
-  //     value += m_n_electron[j] * R_j;
-  //   }
-  //   m_q_electron[i] += ln_eRatio * value;
-  // }
+  for (size_t i = 0; i < m_energySize; ++i) {
+    double value = 0.;
+    const auto E_electron = m_eAxis[i];
+    for (size_t j = i; j < m_energySize; ++j) {
+      const auto E_electron_prime = m_eAxis[j];
+      double R_j = 0.;
+      for (const auto& R_electron : m_electrons_ic)
+        R_j += R_electron->get(E_electron, E_electron_prime, z);
+      value += m_n_electron[j] * R_j;
+    }
+    q_electron[i] += ln_eRatio * value;
+  }
   m_q_electron = std::move(q_electron);
 }
 
