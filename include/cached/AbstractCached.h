@@ -9,7 +9,6 @@ class AbstractCached {
  protected:
   const size_t LIMIT = 10000;
   const double m_units = 1. / SI::Gyr;
-  double m_precision = 1e-4;
   std::vector<double> m_energyAxis;
   std::vector<double> m_xAxis;
   std::vector<double> m_redshiftAxis;
@@ -34,9 +33,7 @@ class AbstractCached {
     m_phField = std::move(phField);
   }
 
-  void setPrecision(double prec) { m_precision = prec; }
-
-  virtual void run(const std::string& filename) = 0;
+  virtual void run(const std::string& filename, double precision = 1e-3) = 0;
 };
 
 }  // namespace cache

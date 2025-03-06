@@ -21,18 +21,26 @@ class GnuProp {
   void setLeCutoff(double Ec) { m_leCutoff = Ec; }
   void setInjectionSlope(double slope) { m_injSlope = slope; }
 
-  // secondary models
+  // neutrino production rates
   void addPhotoPionNeutrinoSource(std::unique_ptr<gnuprop::ProductionRate> q_nu) {
     m_nu_photopion.push_back(std::move(q_nu));
   }
+  // gamma production rates
   void addPhotoPionGammaSource(std::unique_ptr<gnuprop::ProductionRate> q_gamma) {
     m_gamma_photopion.push_back(std::move(q_gamma));
   }
+  void addInverseComptonGammaSource(std::unique_ptr<gnuprop::ProductionRate> q_gamma) {
+    m_gamma_ic.push_back(std::move(q_gamma));
+  }
+  // electron production rates
   void addPhotoPionElectronSource(std::unique_ptr<gnuprop::ProductionRate> q_electron) {
     m_electron_photopion.push_back(std::move(q_electron));
   }
   void addPhotoPairElectronSource(std::unique_ptr<gnuprop::ProductionRate> q_electron) {
     m_electron_photopair.push_back(std::move(q_electron));
+  }
+  void addInverseComptonElectronSource(std::unique_ptr<gnuprop::ProductionRate> q_electron) {
+    m_electrons_ic.push_back(std::move(q_electron));
   }
 
   // gnuprop
@@ -48,9 +56,9 @@ class GnuProp {
   double m_heCutoff{1e23 * SI::eV};
   double m_leCutoff{1e17 * SI::eV};
   double m_zMax{5.0};
-  double m_energyMin{1e15 * SI::eV};
+  double m_energyMin{1e10 * SI::eV};
   double m_energyMax{1e22 * SI::eV};
-  size_t m_energySize{7 * 64};
+  size_t m_energySize{12 * 64};
   size_t m_zSize{10000};
 
  protected:
@@ -73,6 +81,7 @@ class GnuProp {
 
   // photons
   std::vector<std::unique_ptr<gnuprop::ProductionRate>> m_gamma_photopion;
+  std::vector<std::unique_ptr<gnuprop::ProductionRate>> m_gamma_ic;
   std::unique_ptr<gnuprop::AbsorptionRate> m_gamma_absorption;
   std::vector<double> m_q_gamma;
   std::vector<double> m_n_gamma;
@@ -81,6 +90,7 @@ class GnuProp {
   // electrons
   std::vector<std::unique_ptr<gnuprop::ProductionRate>> m_electron_photopion;
   std::vector<std::unique_ptr<gnuprop::ProductionRate>> m_electron_photopair;
+  std::vector<std::unique_ptr<gnuprop::ProductionRate>> m_electrons_ic;
   std::unique_ptr<gnuprop::AbsorptionRate> m_electron_absorption;
   std::vector<double> m_q_electron;
   std::vector<double> m_n_electron;

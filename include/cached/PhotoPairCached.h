@@ -7,41 +7,15 @@
 
 namespace cache {
 
-class PhotoPairCached {
+class PhotoPairCached : public AbstractCached {
  private:
-  const double m_units = 1. / SI::Gyr;
-  double m_precision = 1e-3;
-
-  std::vector<double> m_energyAxis;
-  std::vector<double> m_xAxis;
-  std::vector<double> m_redshiftAxis;
-  std::shared_ptr<simprop::photonfields::PhotonField> m_phField;
   std::unique_ptr<Interactions::PhotoPair> m_secondarySpectrum =
       std::make_unique<Interactions::PhotoPair>();
 
  public:
-  PhotoPairCached() {};
   virtual ~PhotoPairCached() = default;
 
-  void buildEnergyAxis(double energyMin, double energyMax, size_t energySize) {
-    m_energyAxis = simprop::utils::LogAxis(energyMin, energyMax, energySize);
-  }
-
-  void buildXAxis(double xMin, double xMax, size_t xSize) {
-    m_xAxis = simprop::utils::LogAxis(xMin, xMax, xSize);
-  }
-
-  void buildRedshiftAxis(double zMin, double zMax, size_t zSize) {
-    m_redshiftAxis = simprop::utils::LinAxis(zMin, zMax, zSize);
-  }
-
-  void buildPhotonField(std::shared_ptr<simprop::photonfields::PhotonField> phField) {
-    m_phField = std::move(phField);
-  }
-
-  void setPrecision(double prec) { m_precision = prec; }
-
-  void run(const std::string& filename) {
+  void run(const std::string& filename, double precision = 1e-3) override {
     CachedFunction3D cache(
         filename,
         [&](double z, double x, double E_gamma) {
@@ -64,7 +38,7 @@ class PhotoPairCached {
           const auto a = std::log(epsMin);
           const auto b = std::log(epsMax);
           const size_t N = 10000;
-          auto value = simprop::utils::QAGIntegration<double>(integrand, a, b, N, m_precision);
+          auto value = simprop::utils::QAGIntegration<double>(integrand, a, b, N, precision);
           value *= SI::cLight * E_gamma;
           value /= std::pow(1. + z, 3.);
 

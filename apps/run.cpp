@@ -18,6 +18,8 @@ class RunModels {
   };
 
   static std::unique_ptr<gnuprop::GnuProp> runModel(const ModelParameters& params) {
+    simprop::utils::Timer timer("Time for running model " + params.outputFilename);
+
     auto g = std::make_unique<gnuprop::GnuProp>(std::make_unique<simprop::cosmo::Cosmology>());
     g->setEvolutionIndex(params.evolutionIndex);
     g->setInjectionSlope(params.injectionSlope);
@@ -26,23 +28,35 @@ class RunModels {
     }
     if (params.doCmbNeutrinos) {
       g->addPhotoPionNeutrinoSource(
-          std::make_unique<gnuprop::ProductionRate>("data/gnuprop_photopion_neutrinos_cmb.bin"));
+          std::make_unique<gnuprop::ProductionRate>("tables/gnuprop_photopion_neutrinos_cmb.bin"));
+
       g->addPhotoPionGammaSource(
-          std::make_unique<gnuprop::ProductionRate>("data/gnuprop_photopion_gammas_cmb.bin"));
+          std::make_unique<gnuprop::ProductionRate>("tables/gnuprop_photopion_gammas_cmb.bin"));
+      g->addInverseComptonGammaSource(std::make_unique<gnuprop::ProductionRate>(
+          "tables/gnuprop_inversecompton_gammas_cmb.bin"));
+
       g->addPhotoPionElectronSource(
-          std::make_unique<gnuprop::ProductionRate>("data/gnuprop_photopion_pairs_cmb.bin"));
+          std::make_unique<gnuprop::ProductionRate>("tables/gnuprop_photopion_pairs_cmb.bin"));
+      g->addInverseComptonElectronSource(
+          std::make_unique<gnuprop::ProductionRate>("tables/gnuprop_inversecompton_pairs_cmb.bin"));
       g->addPhotoPairElectronSource(
-          std::make_unique<gnuprop::ProductionRate>("data/gnuprop_photopair_pairs_cmb.bin"));
+          std::make_unique<gnuprop::ProductionRate>("tables/gnuprop_photopair_pairs_cmb.bin"));
     }
     if (params.doEblNeutrinos) {
       g->addPhotoPionNeutrinoSource(
-          std::make_unique<gnuprop::ProductionRate>("data/gnuprop_photopion_neutrinos_ebl.bin"));
+          std::make_unique<gnuprop::ProductionRate>("tables/gnuprop_photopion_neutrinos_ebl.bin"));
+
       g->addPhotoPionGammaSource(
-          std::make_unique<gnuprop::ProductionRate>("data/gnuprop_photopion_gammas_ebl.bin"));
+          std::make_unique<gnuprop::ProductionRate>("tables/gnuprop_photopion_gammas_ebl.bin"));
+      g->addInverseComptonGammaSource(std::make_unique<gnuprop::ProductionRate>(
+          "tables/gnuprop_inversecompton_gammas_ebl.bin"));
+
       g->addPhotoPionElectronSource(
-          std::make_unique<gnuprop::ProductionRate>("data/gnuprop_photopion_pairs_ebl.bin"));
+          std::make_unique<gnuprop::ProductionRate>("tables/gnuprop_photopion_pairs_ebl.bin"));
+      g->addInverseComptonElectronSource(
+          std::make_unique<gnuprop::ProductionRate>("tables/gnuprop_inversecompton_pairs_ebl.bin"));
       g->addPhotoPairElectronSource(
-          std::make_unique<gnuprop::ProductionRate>("data/gnuprop_photopair_pairs_ebl.bin"));
+          std::make_unique<gnuprop::ProductionRate>("tables/gnuprop_photopair_pairs_ebl.bin"));
     }
     g->build();
     g->evolve(0.);
@@ -64,26 +78,6 @@ int main() {
       params.outputFilename = "gnuprop_spectrum_dipmodel_m0.txt";
       RunModels::runModel(params);
     }
-    {
-      RunModels::ModelParameters params;
-      params.evolutionIndex = 3.;
-      params.injectionSlope = 2.5;
-      params.cutoffEnergy = 0;
-      params.doCmbNeutrinos = 1;
-      params.doEblNeutrinos = 0;
-      params.outputFilename = "gnuprop_spectrum_dipmodel_m+3.txt";
-      RunModels::runModel(params);
-    }
-    {
-      RunModels::ModelParameters params;
-      params.evolutionIndex = -3.;
-      params.injectionSlope = 2.5;
-      params.cutoffEnergy = 0;
-      params.doCmbNeutrinos = 1;
-      params.doEblNeutrinos = 0;
-      params.outputFilename = "gnuprop_spectrum_dipmodel_m-3.txt";
-      RunModels::runModel(params);
-    }
     // EBL
     {
       RunModels::ModelParameters params;
@@ -95,26 +89,48 @@ int main() {
       params.outputFilename = "gnuprop_spectrum_dipmodel_m0_ebl.txt";
       RunModels::runModel(params);
     }
-    {
-      RunModels::ModelParameters params;
-      params.evolutionIndex = 3.;
-      params.injectionSlope = 2.5;
-      params.cutoffEnergy = 0;
-      params.doCmbNeutrinos = 1;
-      params.doEblNeutrinos = 1;
-      params.outputFilename = "gnuprop_spectrum_dipmodel_m+3_ebl.txt";
-      RunModels::runModel(params);
-    }
-    {
-      RunModels::ModelParameters params;
-      params.evolutionIndex = -3.;
-      params.injectionSlope = 2.5;
-      params.cutoffEnergy = 0;
-      params.doCmbNeutrinos = 1;
-      params.doEblNeutrinos = 1;
-      params.outputFilename = "gnuprop_spectrum_dipmodel_m-3_ebl.txt";
-      RunModels::runModel(params);
-    }
+    // {
+    //   RunModels::ModelParameters params;
+    //   params.evolutionIndex = 3.;
+    //   params.injectionSlope = 2.5;
+    //   params.cutoffEnergy = 0;
+    //   params.doCmbNeutrinos = 1;
+    //   params.doEblNeutrinos = 0;
+    //   params.outputFilename = "gnuprop_spectrum_dipmodel_m+3.txt";
+    //   RunModels::runModel(params);
+    // }
+    // {
+    //   RunModels::ModelParameters params;
+    //   params.evolutionIndex = -3.;
+    //   params.injectionSlope = 2.5;
+    //   params.cutoffEnergy = 0;
+    //   params.doCmbNeutrinos = 1;
+    //   params.doEblNeutrinos = 0;
+    //   params.outputFilename = "gnuprop_spectrum_dipmodel_m-3.txt";
+    //   RunModels::runModel(params);
+    // }
+    // // EBL
+
+    // {
+    //   RunModels::ModelParameters params;
+    //   params.evolutionIndex = 3.;
+    //   params.injectionSlope = 2.5;
+    //   params.cutoffEnergy = 0;
+    //   params.doCmbNeutrinos = 1;
+    //   params.doEblNeutrinos = 1;
+    //   params.outputFilename = "gnuprop_spectrum_dipmodel_m+3_ebl.txt";
+    //   RunModels::runModel(params);
+    // }
+    // {
+    //   RunModels::ModelParameters params;
+    //   params.evolutionIndex = -3.;
+    //   params.injectionSlope = 2.5;
+    //   params.cutoffEnergy = 0;
+    //   params.doCmbNeutrinos = 1;
+    //   params.doEblNeutrinos = 1;
+    //   params.outputFilename = "gnuprop_spectrum_dipmodel_m-3_ebl.txt";
+    //   RunModels::runModel(params);
+    // }
     //{
     //   RunModels::ModelParameters params;
     //   params.evolutionIndex = 0.;

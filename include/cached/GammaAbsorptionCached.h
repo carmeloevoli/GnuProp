@@ -16,7 +16,7 @@ class GammaAbsorptionCached : public AbstractCached {
  public:
   virtual ~GammaAbsorptionCached() = default;
 
-  void run(const std::string& filename) {
+  void run(const std::string& filename, double precision = 1e-3) override {
     CachedFunction2D cache(
         filename,
         [&](double z, double E_gamma) {
@@ -33,15 +33,15 @@ class GammaAbsorptionCached : public AbstractCached {
 
             const auto a = std::log(epsMin);
             const auto b = std::log(epsMax);
-            auto value = simprop::utils::QAGIntegration<double>(integrandInner, a, b, LIMIT, 1e-5);
+            auto value = simprop::utils::QAGIntegration<double>(integrandInner, a, b, LIMIT, 1e-3);
 
             return s * m_photoPair->sigma_com(s) * value;
           };
 
           const auto sMin = 4. * pow2(SI::electronMassC2);
           const auto sMax = 4. * E_gamma * epsMax;
-          auto value = simprop::utils::QAGIntegration<double>(integrandOuter, sMin, sMax, LIMIT,
-                                                              m_precision);
+          auto value =
+              simprop::utils::QAGIntegration<double>(integrandOuter, sMin, sMax, LIMIT, precision);
           value *= SI::cLight / 8. / pow2(E_gamma);
           value /= std::pow(1. + z, 3.);
 

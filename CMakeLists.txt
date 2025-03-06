@@ -101,8 +101,8 @@ target_link_libraries (interactions gammaprop ${GNUPROP_EXTRA_LIBRARIES})
 add_executable(absorptionrates examples/dumpAbsorptionRates.cpp)
 target_link_libraries (absorptionrates gammaprop ${GNUPROP_EXTRA_LIBRARIES})
 
-add_executable(photopion examples/dumpPhotoPionRates.cpp)
-target_link_libraries (photopion gammaprop ${GNUPROP_EXTRA_LIBRARIES})
+# add_executable(photopion examples/dumpPhotoPionRates.cpp)
+# target_link_libraries (photopion gammaprop ${GNUPROP_EXTRA_LIBRARIES})
 
 add_executable(qrates examples/dumpProductionRates.cpp)
 target_link_libraries (qrates gammaprop ${GNUPROP_EXTRA_LIBRARIES})
