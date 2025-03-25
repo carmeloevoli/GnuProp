@@ -1,11 +1,6 @@
 #include "gnuprop.h"
 #include "simprop.h"
 
-// m_photoPionNu.push_back(
-//     std::make_unique<gnuprop::ProductionRate>("data/gnuprop_photopion_neutrinos_cmb.bin"));
-// m_photoPionNu.push_back(
-//     std::make_unique<gnuprop::ProductionRate>("data/gnuprop_photopion_neutrinos_ebl.bin"));
-
 class RunModels {
  public:
   struct ModelParameters {
@@ -78,7 +73,6 @@ int main() {
       params.outputFilename = "gnuprop_spectrum_dipmodel_m0.txt";
       RunModels::runModel(params);
     }
-    // EBL
     {
       RunModels::ModelParameters params;
       params.evolutionIndex = 0.;
