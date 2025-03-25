@@ -74,6 +74,7 @@ add_library(gammaprop SHARED
     src/interactions/InverseCompton.cpp
     src/interactions/PhotoPair.cpp
     src/interactions/PhotoPion.cpp
+    src/evolve.cpp
     src/gnuprop.cpp
     src/rates.cpp
     src/tridiag.cpp
