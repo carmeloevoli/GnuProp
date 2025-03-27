@@ -59,7 +59,7 @@ class GnuProp {
   double m_energyMin{1e10 * SI::eV};
   double m_energyMax{1e22 * SI::eV};
   size_t m_energySize{12 * 32};
-  size_t m_zSize{1000000};
+  size_t m_zSize{10000};
 
  protected:
   // cosmology
