@@ -55,7 +55,7 @@ class GnuProp {
   double m_evolutionIndex{0.0};
   double m_heCutoff{1e23 * SI::eV};
   double m_leCutoff{1e17 * SI::eV};
-  double m_zMax{1.0};
+  double m_zMax{6.0};
   double m_energyMin{1e10 * SI::eV};
   double m_energyMax{1e22 * SI::eV};
   size_t m_energySize{12 * 32};
