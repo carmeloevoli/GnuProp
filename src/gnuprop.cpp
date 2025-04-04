@@ -1,5 +1,7 @@
 #include "gnuprop.h"
 
+#include <omp.h>
+
 #include <cmath>
 #include <fstream>
 
@@ -79,7 +81,8 @@ void GnuProp::evolveProtonLosses(double z) {
 void GnuProp::evolveNuEmissivity(double z) {
   const auto ln_eRatio = std::log(m_eAxis[1] / m_eAxis[0]);
   std::vector<double> q_nu(m_energySize, 0.);
-  // Photopion
+// Photopion
+#pragma omp parallel for
   for (size_t i = 0; i < m_energySize; ++i) {
     double value = 0.;
     const auto E_nu = m_eAxis[i];
@@ -97,7 +100,8 @@ void GnuProp::evolveNuEmissivity(double z) {
 void GnuProp::evolveGammaEmissivity(double z) {
   const auto ln_eRatio = std::log(m_eAxis[1] / m_eAxis[0]);
   std::vector<double> q_gamma(m_energySize, 0.);
-  // Photopion
+// Photopion
+#pragma omp parallel for
   for (size_t i = 0; i < m_energySize; ++i) {
     double value = 0.;
     const auto E_gamma = m_eAxis[i];
@@ -109,7 +113,8 @@ void GnuProp::evolveGammaEmissivity(double z) {
     }
     q_gamma[i] += ln_eRatio * value;
   }
-  // Inverse Compton
+// Inverse Compton
+#pragma omp parallel for
   for (size_t i = 0; i < m_energySize; ++i) {
     double value = 0.;
     const auto E_gamma = m_eAxis[i];
@@ -125,6 +130,7 @@ void GnuProp::evolveGammaEmissivity(double z) {
 }
 
 void GnuProp::evolveGammaAbsorption(double z) {
+#pragma omp parallel for
   for (size_t i = 0; i < m_energySize; ++i) {
     const auto E_gamma = m_eAxis[i];
     m_k_gamma[i] = m_gamma_absorption->get(E_gamma, z);
@@ -134,7 +140,8 @@ void GnuProp::evolveGammaAbsorption(double z) {
 void GnuProp::evolveElectronEmissivity(double z) {
   const auto ln_eRatio = std::log(m_eAxis[1] / m_eAxis[0]);
   std::vector<double> q_electron(m_energySize, 0.);
-  // Photopion
+// Photopion
+#pragma omp parallel for
   for (size_t i = 0; i < m_energySize; ++i) {
     double value = 0.;
     const auto E_electron = m_eAxis[i];
@@ -147,7 +154,8 @@ void GnuProp::evolveElectronEmissivity(double z) {
     }
     q_electron[i] += ln_eRatio * value;
   }
-  // Photopair
+// Photopair
+#pragma omp parallel for
   for (size_t i = 0; i < m_energySize; ++i) {
     double value = 0.;
     const auto E_electron = m_eAxis[i];
@@ -160,7 +168,8 @@ void GnuProp::evolveElectronEmissivity(double z) {
     }
     q_electron[i] += ln_eRatio * value;
   }
-  // Inverse Compton
+// Inverse Compton
+#pragma omp parallel for
   for (size_t i = 0; i < m_energySize; ++i) {
     double value = 0.;
     const auto E_electron = m_eAxis[i];
@@ -177,6 +186,7 @@ void GnuProp::evolveElectronEmissivity(double z) {
 }
 
 void GnuProp::evolveElectronAbsorption(double z) {
+#pragma omp parallel for
   for (size_t i = 0; i < m_energySize; ++i) {
     const auto E_electron = m_eAxis[i];
     m_k_electron[i] = m_electron_absorption->get(E_electron, z);

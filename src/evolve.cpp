@@ -13,6 +13,10 @@ void GnuProp::evolve(double zObs) {
   for (auto it = zAxis.rbegin(); it != zAxis.rend(); ++it) {
     auto z = *it;
     LOGD << std::setprecision(5) << z;
+    LOGD << "p : " << std::accumulate(m_n_proton.begin(), m_n_proton.end(), 0.0);
+    LOGD << "n : " << std::accumulate(m_n_nu.begin(), m_n_nu.end(), 0.0);
+    LOGD << "g : " << std::accumulate(m_n_gamma.begin(), m_n_gamma.end(), 0.0);
+    LOGD << "e : " << std::accumulate(m_n_electron.begin(), m_n_electron.end(), 0.0);
 
     const auto dtdz = std::abs(m_cosmology->dtdz(z));
     const auto H = std::abs(m_cosmology->hubbleRate(z));
@@ -58,40 +62,38 @@ void GnuProp::evolve(double zObs) {
       m_n_nu = std::move(n_nu_up);
     }
 
-    // // evolve electrons
-    // {
-    //   evolveElectronEmissivity(z);
-    //   evolveElectronAbsorption(z);
-    //   std::vector<double> n_electron_up(m_energySize, 0.);
-    //   for (size_t i = 0; i < m_energySize - 1.; ++i) {
-    //     const auto dlnf =
-    //         (m_n_electron[i] > 0.) ? (m_n_electron[i + 1] / m_n_electron[i] - 1.) : 0.;
-    //     const auto dlnE = (m_eAxis[i + 1] / m_eAxis[i] - 1.);
-    //     const auto dlnfdlnE = dlnf / dlnE;
-    //     const auto C = 1. / (1. + z) * (2. + m_k_electron[i] / H - dlnfdlnE);
-    //     n_electron_up[i] = (dz * dtdz * m_q_electron[i] + (1. - 0.5 * C * dz) * m_n_electron[i])
-    //     /
-    //                        (1. + 0.5 * C * dz);
-    //   }
-    //   m_n_electron = std::move(n_electron_up);
-    // }
+    // evolve electrons
+    {
+      evolveElectronEmissivity(z);
+      evolveElectronAbsorption(z);
+      std::vector<double> n_electron_up(m_energySize, 0.);
+      for (size_t i = 0; i < m_energySize - 1.; ++i) {
+        const auto dlnf =
+            (m_n_electron[i] > 0.) ? (m_n_electron[i + 1] / m_n_electron[i] - 1.) : 0.;
+        const auto dlnE = (m_eAxis[i + 1] / m_eAxis[i] - 1.);
+        const auto dlnfdlnE = dlnf / dlnE;
+        const auto C = 1. / (1. + z) * (2. + m_k_electron[i] / H - dlnfdlnE);
+        n_electron_up[i] = (dz * dtdz * m_q_electron[i] + (1. - 0.5 * C * dz) * m_n_electron[i]) /
+                           (1. + 0.5 * C * dz);
+      }
+      m_n_electron = std::move(n_electron_up);
+    }
 
-    // // evolve photons
-    // {
-    //   evolveGammaEmissivity(z);
-    //   evolveGammaAbsorption(z);
-    //   std::vector<double> n_gamma_up(m_energySize, 0.);
-    //   for (size_t i = 0; i < m_energySize - 1.; ++i) {
-    //     const auto dlnf = (m_n_gamma[i] > 0.) ? (m_n_gamma[i + 1] / m_n_gamma[i] - 1.) : 0.;
-    //     const auto dlnE = (m_eAxis[i + 1] / m_eAxis[i] - 1.);
-    //     const auto dlnfdlnE = dlnf / dlnE;
-    //     const auto C = 1. / (1. + z) * (2. + m_k_gamma[i] / H - dlnfdlnE);
-    //     n_gamma_up[i] =
-    //         (dz * dtdz * m_q_gamma[i] + (1. - 0.5 * C * dz) * m_n_gamma[i]) / (1. + 0.5 * C *
-    //         dz);
-    //   }
-    //   m_n_gamma = std::move(n_gamma_up);
-    // }
+    // evolve photons
+    {
+      evolveGammaEmissivity(z);
+      evolveGammaAbsorption(z);
+      std::vector<double> n_gamma_up(m_energySize, 0.);
+      for (size_t i = 0; i < m_energySize - 1.; ++i) {
+        const auto dlnf = (m_n_gamma[i] > 0.) ? (m_n_gamma[i + 1] / m_n_gamma[i] - 1.) : 0.;
+        const auto dlnE = (m_eAxis[i + 1] / m_eAxis[i] - 1.);
+        const auto dlnfdlnE = dlnf / dlnE;
+        const auto C = 1. / (1. + z) * (2. + m_k_gamma[i] / H - dlnfdlnE);
+        n_gamma_up[i] =
+            (dz * dtdz * m_q_gamma[i] + (1. - 0.5 * C * dz) * m_n_gamma[i]) / (1. + 0.5 * C * dz);
+      }
+      m_n_gamma = std::move(n_gamma_up);
+    }
 
     // if (counter % 100 == 0) {
     //   std::string filename = "gnuprop_spectrum_" + std::to_string(counter) + ".txt";

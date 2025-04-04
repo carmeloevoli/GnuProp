@@ -69,50 +69,50 @@ int main() {
     simprop::utils::startup_information();
 
     // proton losses
-    auto pairLosses = GnuPropTables::protonLosses<simprop::losses::PairProductionLosses>();
-    pairLosses->run("gnuprop_proton_losses_pair.bin");
-    auto pionLosses = GnuPropTables::protonLosses<simprop::losses::PhotoPionContinuousLosses>();
-    pionLosses->run("gnuprop_proton_losses_photopion.bin");
+    // auto pairLosses = GnuPropTables::protonLosses<simprop::losses::PairProductionLosses>();
+    // pairLosses->run("gnuprop_proton_losses_pair.bin");
+    // auto pionLosses = GnuPropTables::protonLosses<simprop::losses::PhotoPionContinuousLosses>();
+    // pionLosses->run("gnuprop_proton_losses_photopion.bin");
 
-    // absorption rates
-    auto gammaAbsCmb = GnuPropTables::absorptionCached<cache::GammaAbsorptionCached>(cmb);
-    gammaAbsCmb->run("gnuprop_absorption_gammas_cmb.bin", 1e-3);
-    auto pairAbsCmb = GnuPropTables::absorptionCached<cache::PairAbsorptionCached>(cmb);
-    pairAbsCmb->run("gnuprop_absorption_pairs_cmb.bin", 1e-3);
-    auto gammaAbsEbl = GnuPropTables::absorptionCached<cache::GammaAbsorptionCached>(ebl);
-    gammaAbsEbl->run("gnuprop_absorption_gammas_ebl.bin", 1e-2);
-    auto pairAbsEbl = GnuPropTables::absorptionCached<cache::PairAbsorptionCached>(ebl);
-    pairAbsEbl->run("gnuprop_absorption_pairs_ebl.bin", 1e-2);
+    // // absorption rates
+    // auto gammaAbsCmb = GnuPropTables::absorptionCached<cache::GammaAbsorptionCached>(cmb);
+    // gammaAbsCmb->run("gnuprop_absorption_gammas_cmb.bin", 1e-3);
+    // auto pairAbsCmb = GnuPropTables::absorptionCached<cache::PairAbsorptionCached>(cmb);
+    // pairAbsCmb->run("gnuprop_absorption_pairs_cmb.bin", 1e-3);
+    // auto gammaAbsEbl = GnuPropTables::absorptionCached<cache::GammaAbsorptionCached>(ebl);
+    // gammaAbsEbl->run("gnuprop_absorption_gammas_ebl.bin", 1e-2);
+    // auto pairAbsEbl = GnuPropTables::absorptionCached<cache::PairAbsorptionCached>(ebl);
+    // pairAbsEbl->run("gnuprop_absorption_pairs_ebl.bin", 1e-2);
 
     // photo-pion rates
     auto ppNuCmb = GnuPropTables::photoPionCached<interactions::PhotoPionNeutrinos>(cmb);
     ppNuCmb->run("gnuprop_photopion_neutrinos_cmb.bin", 1e-3);
-    auto ppPairCmb = GnuPropTables::photoPionCached<interactions::PhotoPionPairs>(cmb);
-    ppPairCmb->run("gnuprop_photopion_pairs_cmb.bin", 1e-3);
-    auto ppGammaCmb = GnuPropTables::photoPionCached<interactions::PhotoPionGammas>(cmb);
-    ppGammaCmb->run("gnuprop_photopion_gammas_cmb.bin", 1e-3);
     auto ppNuEbl = GnuPropTables::photoPionCached<interactions::PhotoPionNeutrinos>(ebl);
     ppNuEbl->run("gnuprop_photopion_neutrinos_ebl.bin", 1e-2);
-    auto ppGammaEbl = GnuPropTables::photoPionCached<interactions::PhotoPionGammas>(ebl);
-    ppGammaEbl->run("gnuprop_photopion_gammas_ebl.bin", 1e-2);
+    auto ppPairCmb = GnuPropTables::photoPionCached<interactions::PhotoPionPairs>(cmb);
+    ppPairCmb->run("gnuprop_photopion_pairs_cmb.bin", 1e-3);
     auto ppPairEbl = GnuPropTables::photoPionCached<interactions::PhotoPionPairs>(ebl);
     ppPairEbl->run("gnuprop_photopion_pairs_ebl.bin", 1e-2);
+    auto ppGammaCmb = GnuPropTables::photoPionCached<interactions::PhotoPionGammas>(cmb);
+    ppGammaCmb->run("gnuprop_photopion_gammas_cmb.bin", 1e-3);
+    auto ppGammaEbl = GnuPropTables::photoPionCached<interactions::PhotoPionGammas>(ebl);
+    ppGammaEbl->run("gnuprop_photopion_gammas_ebl.bin", 1e-2);
 
     // photo-pair rates
-    auto ppCmb = GnuPropTables::photoPairCached(cmb);
-    ppCmb->run("gnuprop_photopair_pairs_cmb.bin", 1e-3);
-    auto ppEbl = GnuPropTables::photoPairCached(ebl);
-    ppEbl->run("gnuprop_photopair_pairs_ebl.bin", 1e-2);
+    // auto ppCmb = GnuPropTables::photoPairCached(cmb);
+    // ppCmb->run("gnuprop_photopair_pairs_cmb.bin", 1e-3);
+    // auto ppEbl = GnuPropTables::photoPairCached(ebl);
+    // ppEbl->run("gnuprop_photopair_pairs_ebl.bin", 1e-2);
 
-    // IC rates
-    auto icCmb = GnuPropTables::inverseComptonCached(cmb);
-    icCmb->run("gnuprop_inversecompton_gammas_cmb.bin", 1e-3);
-    auto icEbl = GnuPropTables::inverseComptonCached(ebl);
-    icEbl->run("gnuprop_inversecompton_gammas_ebl.bin", 1e-2);
-    auto icPairCmb = GnuPropTables::inverseComptonCached(cmb, false);
-    icPairCmb->run("gnuprop_inversecompton_pairs_cmb.bin", 1e-3);
-    auto icPairEbl = GnuPropTables::inverseComptonCached(ebl, false);
-    icPairEbl->run("gnuprop_inversecompton_pairs_ebl.bin", 1e-2);
+    // // IC rates
+    // auto icCmb = GnuPropTables::inverseComptonCached(cmb);
+    // icCmb->run("gnuprop_inversecompton_gammas_cmb.bin", 1e-3);
+    // auto icEbl = GnuPropTables::inverseComptonCached(ebl);
+    // icEbl->run("gnuprop_inversecompton_gammas_ebl.bin", 1e-2);
+    // auto icPairCmb = GnuPropTables::inverseComptonCached(cmb, false);
+    // icPairCmb->run("gnuprop_inversecompton_pairs_cmb.bin", 1e-3);
+    // auto icPairEbl = GnuPropTables::inverseComptonCached(ebl, false);
+    // icPairEbl->run("gnuprop_inversecompton_pairs_ebl.bin", 1e-2);
   } catch (const std::exception& ex) {
     std::cerr << "Error: " << ex.what() << "\n";
   }

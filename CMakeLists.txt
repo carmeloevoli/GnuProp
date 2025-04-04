@@ -13,7 +13,7 @@ cmake_policy(SET CMP0048 NEW)
 
 set(CMAKE_VERBOSE_MAKEFILE OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_CXX_FLAGS "-std=c++14 -Wall -pedantic -ftree-vectorize -O3")
+set(CMAKE_CXX_FLAGS "-std=c++14 -Wall -pedantic -ftree-vectorize -O3 -fopenmp -fPIC")
 set(GNUPROP_INCLUDES)
 set(GNUPROP_LIBRARIES)
 
