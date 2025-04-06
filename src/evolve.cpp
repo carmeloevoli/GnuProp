@@ -4,6 +4,15 @@
 
 namespace gnuprop {
 
+double compute_integral(const std::vector<double>& n, const std::vector<double>& E) {
+  const auto units = SI::eV / SI::m3;
+  double value = 0.;
+  for (size_t i = 0; i < n.size(); ++i) {
+    value += pow2(E[i]) * n[i];
+  }
+  return 4. * M_PI / SI::cLight * value / units;
+}
+
 void GnuProp::evolve(double zObs) {
   assert(zObs < m_zMax);
   auto zAxis = simprop::utils::LinAxis(zObs, m_zMax, m_zSize);
@@ -13,18 +22,24 @@ void GnuProp::evolve(double zObs) {
   for (auto it = zAxis.rbegin(); it != zAxis.rend(); ++it) {
     auto z = *it;
     LOGD << std::setprecision(5) << z;
-    LOGD << "p : " << std::accumulate(m_n_proton.begin(), m_n_proton.end(), 0.0);
-    LOGD << "n : " << std::accumulate(m_n_nu.begin(), m_n_nu.end(), 0.0);
-    LOGD << "g : " << std::accumulate(m_n_gamma.begin(), m_n_gamma.end(), 0.0);
-    LOGD << "e : " << std::accumulate(m_n_electron.begin(), m_n_electron.end(), 0.0);
+    LOGD << "p : " << compute_integral(m_n_proton, m_eAxis);
+    LOGD << "n : " << compute_integral(m_n_nu, m_eAxis);
+    LOGD << "g : " << compute_integral(m_n_gamma, m_eAxis);
+    LOGD << "e : " << compute_integral(m_n_electron, m_eAxis);
 
     const auto dtdz = std::abs(m_cosmology->dtdz(z));
     const auto H = std::abs(m_cosmology->hubbleRate(z));
 
+    evolveProtonEmissivity(z);
+    evolveProtonLosses(z);
+    evolveNuEmissivity(z);
+    evolveElectronEmissivity(z);
+    evolveElectronAbsorption(z);
+    evolveGammaEmissivity(z);
+    evolveGammaAbsorption(z);
+
     // evolve protons
     {
-      evolveProtonEmissivity(z);
-      evolveProtonLosses(z);
       std::vector<double> n_proton_up(m_energySize - 1, 0.);
       for (size_t i = 0; i < m_energySize - 1; ++i) {
         const auto E = m_eAxis[i];
@@ -49,7 +64,6 @@ void GnuProp::evolve(double zObs) {
 
     // evolve neutrinos
     {
-      evolveNuEmissivity(z);
       std::vector<double> n_nu_up(m_energySize, 0.);
       for (size_t i = 0; i < m_energySize - 1.; ++i) {
         const auto dlnf = (m_n_nu[i] > 0.) ? (m_n_nu[i + 1] / m_n_nu[i] - 1.) : 0.;
@@ -64,8 +78,6 @@ void GnuProp::evolve(double zObs) {
 
     // evolve electrons
     {
-      evolveElectronEmissivity(z);
-      evolveElectronAbsorption(z);
       std::vector<double> n_electron_up(m_energySize, 0.);
       for (size_t i = 0; i < m_energySize - 1.; ++i) {
         const auto dlnf =
@@ -81,8 +93,6 @@ void GnuProp::evolve(double zObs) {
 
     // evolve photons
     {
-      evolveGammaEmissivity(z);
-      evolveGammaAbsorption(z);
       std::vector<double> n_gamma_up(m_energySize, 0.);
       for (size_t i = 0; i < m_energySize - 1.; ++i) {
         const auto dlnf = (m_n_gamma[i] > 0.) ? (m_n_gamma[i + 1] / m_n_gamma[i] - 1.) : 0.;

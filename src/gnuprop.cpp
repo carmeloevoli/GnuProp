@@ -17,15 +17,6 @@ GnuProp::GnuProp(std::unique_ptr<simprop::cosmo::Cosmology> cosmology)
 }
 
 void GnuProp::build() {
-  m_proton_losses.push_back(
-      std::make_unique<gnuprop::ProtonLossRate>("tables/gnuprop_proton_losses_pair.bin"));
-  m_proton_losses.push_back(
-      std::make_unique<gnuprop::ProtonLossRate>("tables/gnuprop_proton_losses_photopion.bin"));
-  m_gamma_absorption =
-      std::make_unique<gnuprop::AbsorptionRate>("tables/gnuprop_absorption_gammas_cmb.bin");
-  m_electron_absorption =
-      std::make_unique<gnuprop::AbsorptionRate>("tables/gnuprop_absorption_pairs_cmb.bin");
-
   m_eAxis = simprop::utils::LogAxis(m_energyMin, m_energyMax, m_energySize);
 
   m_n_proton.assign(m_energySize, 0.0);
@@ -73,7 +64,7 @@ void GnuProp::evolveProtonLosses(double z) {
   for (size_t i = 0; i < m_energySize; ++i) {
     const auto E = m_eAxis[i];
     auto value = 0.;
-    for (const auto& loss : m_proton_losses) value += loss->beta(E, z);
+    for (const auto& loss : m_losses_proton) value += loss->beta(E, z);
     m_beta_proton[i] = value;
   }
 }
@@ -89,7 +80,7 @@ void GnuProp::evolveNuEmissivity(double z) {
     for (size_t j = i; j < m_energySize; ++j) {
       const auto E_p = m_eAxis[j];
       double R_j = 0.;
-      for (const auto& R_nu : m_nu_photopion) R_j += R_nu->get(E_nu, E_p, z);
+      for (const auto& q : m_sources_nu_photopion) R_j += q->get(E_nu, E_p, z);
       value += m_n_proton[j] * R_j;
     }
     q_nu[i] += ln_eRatio * value;
@@ -108,7 +99,7 @@ void GnuProp::evolveGammaEmissivity(double z) {
     for (size_t j = i; j < m_energySize; ++j) {
       const auto E_p = m_eAxis[j];
       double R_j = 0.;
-      for (const auto& R_gamma : m_gamma_photopion) R_j += R_gamma->get(E_gamma, E_p, z);
+      for (const auto& q : m_sources_gamma_photopion) R_j += q->get(E_gamma, E_p, z);
       value += m_n_proton[j] * R_j;
     }
     q_gamma[i] += ln_eRatio * value;
@@ -121,7 +112,7 @@ void GnuProp::evolveGammaEmissivity(double z) {
     for (size_t j = i; j < m_energySize; ++j) {
       const auto E_electron = m_eAxis[j];
       double R_j = 0.;
-      for (const auto& R_gamma : m_gamma_ic) R_j += R_gamma->get(E_gamma, E_electron, z);
+      for (const auto& q : m_sources_gamma_ic) R_j += q->get(E_gamma, E_electron, z);
       value += m_n_electron[j] * R_j;
     }
     q_gamma[i] += ln_eRatio * value;
@@ -130,11 +121,15 @@ void GnuProp::evolveGammaEmissivity(double z) {
 }
 
 void GnuProp::evolveGammaAbsorption(double z) {
+  std::vector<double> k_gamma(m_energySize, 0.);
 #pragma omp parallel for
   for (size_t i = 0; i < m_energySize; ++i) {
     const auto E_gamma = m_eAxis[i];
-    m_k_gamma[i] = m_gamma_absorption->get(E_gamma, z);
+    for (const auto& absorption : m_absorption_gamma) {
+      k_gamma[i] += absorption->get(E_gamma, z);
+    }
   }
+  m_k_gamma = std::move(k_gamma);
 }
 
 void GnuProp::evolveElectronEmissivity(double z) {
@@ -148,8 +143,7 @@ void GnuProp::evolveElectronEmissivity(double z) {
     for (size_t j = i; j < m_energySize; ++j) {
       const auto E_p = m_eAxis[j];
       double R_j = 0.;
-      for (const auto& R_electron : m_electron_photopion)
-        R_j += R_electron->get(E_electron, E_p, z);
+      for (const auto& q : m_sources_electron_photopion) R_j += q->get(E_electron, E_p, z);
       value += m_n_proton[j] * R_j;
     }
     q_electron[i] += ln_eRatio * value;
@@ -162,11 +156,11 @@ void GnuProp::evolveElectronEmissivity(double z) {
     for (size_t j = i; j < m_energySize; ++j) {
       const auto E_gamma = m_eAxis[j];
       double R_j = 0.;
-      for (const auto& R_electron : m_electron_photopair)
-        R_j += R_electron->get(E_electron, E_gamma, z);
+      for (const auto& q : m_sources_electron_photopair)
+        R_j += 2.0 * q->get(E_electron, E_gamma, z);
       value += m_n_gamma[j] * R_j;
     }
-    q_electron[i] += ln_eRatio * value;
+    q_electron[i] += ln_eRatio * 2.0 * value;
   }
 // Inverse Compton
 #pragma omp parallel for
@@ -176,8 +170,7 @@ void GnuProp::evolveElectronEmissivity(double z) {
     for (size_t j = i; j < m_energySize; ++j) {
       const auto E_electron_prime = m_eAxis[j];
       double R_j = 0.;
-      for (const auto& R_electron : m_electrons_ic)
-        R_j += R_electron->get(E_electron, E_electron_prime, z);
+      for (const auto& q : m_sources_electrons_ic) R_j += q->get(E_electron, E_electron_prime, z);
       value += m_n_electron[j] * R_j;
     }
     q_electron[i] += ln_eRatio * value;
@@ -186,11 +179,15 @@ void GnuProp::evolveElectronEmissivity(double z) {
 }
 
 void GnuProp::evolveElectronAbsorption(double z) {
+  std::vector<double> k_electron(m_energySize, 0.);
 #pragma omp parallel for
   for (size_t i = 0; i < m_energySize; ++i) {
     const auto E_electron = m_eAxis[i];
-    m_k_electron[i] = m_electron_absorption->get(E_electron, z);
+    for (const auto& absorption : m_absorption_electron) {
+      k_electron[i] += absorption->get(E_electron, z);
+    }
   }
+  m_k_electron = std::move(k_electron);
 }
 
 void GnuProp::dump(const std::string& filename) const {
