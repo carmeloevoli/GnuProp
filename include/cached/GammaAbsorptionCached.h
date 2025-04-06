@@ -47,7 +47,7 @@ class GammaAbsorptionCached : public AbstractCached {
 
           return std::max(value / m_units, 0.);
         },
-        m_redshiftAxis, m_energyAxis);
+        m_redshiftAxis, m_primaryAxis);
 
     cache.computeAndSave();
   }

@@ -18,8 +18,8 @@ class PhotoPairCached : public AbstractCached {
   void run(const std::string& filename, double precision = 1e-3) override {
     CachedFunction3D cache(
         filename,
-        [&](double z, double x, double E_gamma) {
-          if (x > 1.) return 0.;
+        [&](double z, double E_electron, double E_gamma) {
+          if (E_electron > E_gamma) return 0.;
 
           const auto me_2 = pow2(SI::electronMassC2);
           const auto epsTh = me_2 / E_gamma;
@@ -31,7 +31,7 @@ class PhotoPairCached : public AbstractCached {
           auto integrand = [&](double lnEpsilon) {
             const auto epsilon = std::exp(lnEpsilon);
             auto value = m_phField->density(epsilon, z) *
-                         m_secondarySpectrum->dsigma_dE(E_gamma, epsilon, x * E_gamma);
+                         m_secondarySpectrum->dsigma_dE(E_gamma, epsilon, E_electron);
             return epsilon * value;
           };
 
@@ -44,7 +44,7 @@ class PhotoPairCached : public AbstractCached {
 
           return std::max(value / m_units, 0.);
         },
-        m_redshiftAxis, m_xAxis, m_energyAxis);
+        m_redshiftAxis, m_secondaryAxis, m_primaryAxis);
 
     cache.computeAndSave();
   }

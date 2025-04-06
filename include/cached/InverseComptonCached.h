@@ -21,8 +21,8 @@ class InverseComptonCached : public AbstractCached {
   void run(const std::string& filename, double precision = 1e-3) override {
     CachedFunction3D cache(
         filename,
-        [&](double z, double x, double E_electron) {
-          if (x > 1.) return 0.;
+        [&](double z, double E_gamma, double E_electron) {
+          if (E_gamma > E_electron) return 0.;
 
           const auto epsTh = 0.;
           const auto epsMin = std::max(epsTh, m_phField->getMinPhotonEnergy());
@@ -32,9 +32,9 @@ class InverseComptonCached : public AbstractCached {
 
           auto integrand = [&](double lnEpsilon) {
             const auto epsilon = std::exp(lnEpsilon);
-            const auto dsigma_dE =
-                (m_doGammas) ? m_ic->dsigma_dE(E_electron, epsilon, x * E_electron)
-                             : m_ic->dsigma_dE(E_electron, epsilon, (1. - x) * E_electron);
+            const auto dsigma_dE = (m_doGammas)
+                                       ? m_ic->dsigma_dE(E_electron, epsilon, E_gamma)
+                                       : m_ic->dsigma_dE(E_electron, epsilon, E_electron - E_gamma);
             auto value = m_phField->density(epsilon, z) * dsigma_dE;
 
             return epsilon * value;
@@ -49,7 +49,7 @@ class InverseComptonCached : public AbstractCached {
 
           return std::max(value / m_units, 0.);
         },
-        m_redshiftAxis, m_xAxis, m_energyAxis);
+        m_redshiftAxis, m_secondaryAxis, m_primaryAxis);
 
     cache.computeAndSave();
   }
