@@ -50,18 +50,17 @@ class ProductionRate {
   double m_zMax = 0;
   size_t m_zSize = 0;
 
-  double m_lgxMin = 0;
-  double m_lgxMax = 0;
-  size_t m_xSize = 0;
+  double m_lgSecEnergyMin = 0;
+  double m_lgSecEnergyMax = 0;
+  size_t m_lgSecEnergySize = 0;
 
-  double m_lgEnergyMin = 0;
-  double m_lgEnergyMax = 0;
-  size_t m_lgEnergySize = 0;
+  double m_lgPriEnergyMin = 0;
+  double m_lgPriEnergyMax = 0;
+  size_t m_lgPriEnergySize = 0;
 
-  std::vector<double> m_z, m_lgx, m_lgE;
+  std::vector<double> m_z, m_lgEsec, m_lgEpri;
   std::vector<std::vector<double>> m_rate;
 };
-;
 
 }  // namespace gnuprop
 
