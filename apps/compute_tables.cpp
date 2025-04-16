@@ -33,8 +33,8 @@ class GnuPropTables {
   static std::unique_ptr<cache::PhotoPionCached<T>> photoPionCached(
       const std::shared_ptr<simprop::photonfields::PhotonField>& photonField) {
     auto photoPion = std::make_unique<cache::PhotoPionCached<T>>();
-    photoPion->buildPrimaryEnergyAxis(1e16 * SI::eV, 1e24 * SI::eV, 8 * 16);
-    photoPion->buildSecondaryEnergyAxis(1e12 * SI::eV, 1e24 * SI::eV, 12 * 16);
+    photoPion->buildPrimaryEnergyAxis(1e15 * SI::eV, 1e24 * SI::eV, 9 * 16);
+    photoPion->buildSecondaryEnergyAxis(1e10 * SI::eV, 1e24 * SI::eV, 14 * 16);
     photoPion->buildRedshiftAxis(0., 5., 101);
     photoPion->buildPhotonField(photonField);
     return photoPion;
