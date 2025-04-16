@@ -1,6 +1,9 @@
+#include "ark45.h"
 #include "gnuprop.h"
 #include "simprop.h"
-#include "tridiag.h"
+
+#define ABSTOL 0
+#define RELTOL 1e-3
 
 namespace gnuprop {
 
@@ -17,99 +20,131 @@ void GnuProp::evolve(double zObs) {
   assert(zObs < m_zMax);
   auto zAxis = simprop::utils::LinAxis(zObs, m_zMax, m_zSize);
   const auto dz = zAxis[1] - zAxis[0];
-  // size_t counter = 0;
 
   for (auto it = zAxis.rbegin(); it != zAxis.rend(); ++it) {
     auto z = *it;
+
     LOGD << std::setprecision(5) << z;
-    LOGD << "p : " << compute_integral(m_n_proton, m_eAxis);
-    LOGD << "n : " << compute_integral(m_n_nu, m_eAxis);
-    LOGD << "g : " << compute_integral(m_n_gamma, m_eAxis);
-    LOGD << "e : " << compute_integral(m_n_electron, m_eAxis);
+    auto IE_p = compute_integral(m_n_proton, m_eAxis);
+    auto IE_nu = compute_integral(m_n_nu, m_eAxis);
+    auto IE_gamma = compute_integral(m_n_gamma, m_eAxis);
+    auto IE_e = compute_integral(m_n_electron, m_eAxis);
+
+    LOGD << "p : " << IE_p;
+    LOGD << "n : " << IE_nu;
+    LOGD << "g : " << IE_gamma;
+    LOGD << "e : " << IE_e;
+    LOGD << "test : " << IE_nu / (IE_gamma + IE_e);
 
     const auto dtdz = std::abs(m_cosmology->dtdz(z));
     const auto H = std::abs(m_cosmology->hubbleRate(z));
 
-    evolveProtonEmissivity(z);
-    evolveProtonLosses(z);
-    evolveNuEmissivity(z);
-    evolveElectronEmissivity(z);
-    evolveElectronAbsorption(z);
-    evolveGammaEmissivity(z);
-    evolveGammaAbsorption(z);
-
     // evolve protons
     {
-      std::vector<double> n_proton_up(m_energySize - 1, 0.);
-      for (size_t i = 0; i < m_energySize - 1; ++i) {
-        const auto E = m_eAxis[i];
-        const auto Eup = m_eAxis[i + 1];
-        const auto dE = Eup - E;
-        const auto Q = dtdz * std::pow(1. + z, 3.0) * m_q_proton[i] - 3. / (1. + z) * m_n_proton[i];
-        const auto b = dtdz * E * (m_beta_proton[i] + H);
-        const auto bUp = dtdz * Eup * (m_beta_proton[i + 1] + H);
-        const auto U_i = 0.5 * dz * bUp / dE;
-        const auto C_i = 0.5 * dz * b / dE;
-        diagonal[i] = 1. + C_i;
-        if (i != m_energySize - 2) upperDiagonal[i] = -U_i;
-        knownTerm[i] = U_i * m_n_proton[i + 1] + (1. - C_i) * m_n_proton[i] + dz * Q;
-      }
+      evolveProtonEmissivity(z);
+      evolveProtonLosses(z);
+      const auto ode_2d = [&](double z, const std::vector<double>& state) {
+        std::vector<double> dydt(state.size(), 0.);
+        for (size_t i = 1; i < m_eAxis.size() - 1; ++i) {
+          dydt.at(i) = -dtdz * std::pow(1. + z, 3.0) * m_q_proton[i];
+          dydt.at(i) += 3. / (1. + z) * state[i];
 
-      gsl_linalg_solve_tridiag(diagonal, upperDiagonal, lowerDiagonal, knownTerm, n_proton_up);
+          const auto E = m_eAxis[i];
+          const auto Eup = m_eAxis[i + 1];
+          const auto dE = Eup - E;
+          const auto b = dtdz * E * (m_beta_proton[i] + H);
+          const auto bUp = dtdz * Eup * (m_beta_proton[i + 1] + H);
 
-      for (size_t i = 0; i < m_energySize - 1; ++i) {
-        m_n_proton[i] = std::max(n_proton_up[i], 0.);
-      }
+          dydt.at(i) -= (bUp * state[i + 1] - b * state[i]) / dE;
+        }
+        return dydt;
+      };
+      AdaptiveRK45<std::vector<double>> solver_2d(ode_2d, ABSTOL, RELTOL, 1e-12, 0.1);
+
+      std::vector<double> y0_2d = m_n_proton;
+      auto result = solver_2d.solve(z, y0_2d, z - dz);
+      m_n_proton = std::move(result);
     }
 
     // evolve neutrinos
     {
-      std::vector<double> n_nu_up(m_energySize, 0.);
-      for (size_t i = 0; i < m_energySize - 1.; ++i) {
-        const auto dlnf = (m_n_nu[i] > 0.) ? (m_n_nu[i + 1] / m_n_nu[i] - 1.) : 0.;
-        const auto dlnE = (m_eAxis[i + 1] / m_eAxis[i] - 1.);
-        const auto dlnfdlnE = dlnf / dlnE;
-        const auto C = 1. / (1. + z) * (2. - dlnfdlnE);
-        n_nu_up[i] =
-            (dz * dtdz * m_q_nu[i] + (1. - 0.5 * C * dz) * m_n_nu[i]) / (1. + 0.5 * C * dz);
-      }
-      m_n_nu = std::move(n_nu_up);
+      evolveNuEmissivity(z);
+      const auto ode_2d = [&](double z, const std::vector<double>& state) {
+        std::vector<double> dydt(state.size(), 0.);
+        for (size_t i = 1; i < m_eAxis.size() - 1; ++i) {
+          dydt.at(i) = -dtdz * m_q_nu[i];
+          dydt.at(i) += 3. / (1. + z) * state[i];
+
+          const auto E = m_eAxis[i];
+          const auto Eup = m_eAxis[i + 1];
+          const auto dE = Eup - E;
+          const auto b = dtdz * E * H;
+          const auto bUp = dtdz * Eup * H;
+
+          dydt.at(i) -= (bUp * state[i + 1] - b * state[i]) / dE;
+        }
+        return dydt;
+      };
+      AdaptiveRK45<std::vector<double>> solver_2d(ode_2d, ABSTOL, RELTOL, 1e-12, 0.1);
+
+      std::vector<double> y0_2d = m_n_nu;
+      auto result = solver_2d.solve(z, y0_2d, z - dz);
+      m_n_nu = std::move(result);
     }
 
     // evolve electrons
     {
-      std::vector<double> n_electron_up(m_energySize, 0.);
-      for (size_t i = 0; i < m_energySize - 1.; ++i) {
-        const auto dlnf =
-            (m_n_electron[i] > 0.) ? (m_n_electron[i + 1] / m_n_electron[i] - 1.) : 0.;
-        const auto dlnE = (m_eAxis[i + 1] / m_eAxis[i] - 1.);
-        const auto dlnfdlnE = dlnf / dlnE;
-        const auto C = 1. / (1. + z) * (2. + m_k_electron[i] / H - dlnfdlnE);
-        n_electron_up[i] = (dz * dtdz * m_q_electron[i] + (1. - 0.5 * C * dz) * m_n_electron[i]) /
-                           (1. + 0.5 * C * dz);
-      }
-      m_n_electron = std::move(n_electron_up);
+      evolveElectronEmissivity(z);
+      evolveElectronAbsorption(z);
+      const auto ode_2d = [&](double z, const std::vector<double>& state) {
+        std::vector<double> dydt(state.size(), 0.);
+        for (size_t i = 1; i < m_eAxis.size() - 1; ++i) {
+          dydt.at(i) = -dtdz * (m_q_electron[i] - m_k_electron[i] * state[i]);
+          dydt.at(i) += 3. / (1. + z) * state[i];
+
+          const auto E = m_eAxis[i];
+          const auto Eup = m_eAxis[i + 1];
+          const auto dE = Eup - E;
+          const auto b = dtdz * E * H;
+          const auto bUp = dtdz * Eup * H;
+
+          dydt.at(i) -= (bUp * state[i + 1] - b * state[i]) / dE;
+        }
+        return dydt;
+      };
+      AdaptiveRK45<std::vector<double>> solver_2d(ode_2d, ABSTOL, RELTOL, 1e-12, 0.1);
+
+      std::vector<double> y0_2d = m_n_electron;
+      auto result = solver_2d.solve(z, y0_2d, z - dz);
+      m_n_electron = std::move(result);
     }
 
     // evolve photons
     {
-      std::vector<double> n_gamma_up(m_energySize, 0.);
-      for (size_t i = 0; i < m_energySize - 1.; ++i) {
-        const auto dlnf = (m_n_gamma[i] > 0.) ? (m_n_gamma[i + 1] / m_n_gamma[i] - 1.) : 0.;
-        const auto dlnE = (m_eAxis[i + 1] / m_eAxis[i] - 1.);
-        const auto dlnfdlnE = dlnf / dlnE;
-        const auto C = 1. / (1. + z) * (2. + m_k_gamma[i] / H - dlnfdlnE);
-        n_gamma_up[i] =
-            (dz * dtdz * m_q_gamma[i] + (1. - 0.5 * C * dz) * m_n_gamma[i]) / (1. + 0.5 * C * dz);
-      }
-      m_n_gamma = std::move(n_gamma_up);
-    }
+      evolveGammaEmissivity(z);
+      evolveGammaAbsorption(z);
+      const auto ode_2d = [&](double z, const std::vector<double>& state) {
+        std::vector<double> dydt(state.size(), 0.);
+        for (size_t i = 1; i < m_eAxis.size() - 1; ++i) {
+          dydt.at(i) = -dtdz * (m_q_gamma[i] - m_k_gamma[i] * state[i]);
+          dydt.at(i) += 3. / (1. + z) * state[i];
 
-    // if (counter % 100 == 0) {
-    //   std::string filename = "gnuprop_spectrum_" + std::to_string(counter) + ".txt";
-    //   dump(filename);
-    // }
-    // counter++;
+          const auto E = m_eAxis[i];
+          const auto Eup = m_eAxis[i + 1];
+          const auto dE = Eup - E;
+          const auto b = dtdz * E * H;
+          const auto bUp = dtdz * Eup * H;
+
+          dydt.at(i) -= (bUp * state[i + 1] - b * state[i]) / dE;
+        }
+        return dydt;
+      };
+      AdaptiveRK45<std::vector<double>> solver_2d(ode_2d, ABSTOL, RELTOL, 1e-12, 0.1);
+
+      std::vector<double> y0_2d = m_n_gamma;
+      auto result = solver_2d.solve(z, y0_2d, z - dz);
+      m_n_gamma = std::move(result);
+    }
   }
 }
 
