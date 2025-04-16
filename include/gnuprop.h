@@ -26,12 +26,10 @@ class GnuProp {
   void addProtonLossRate(std::unique_ptr<gnuprop::ProtonLossRate> beta) {
     m_losses_proton.push_back(std::move(beta));
   }
-
   // neutrino production rates
   void addPhotoPionNeutrinoSource(std::unique_ptr<gnuprop::ProductionRate> q_nu) {
     m_sources_nu_photopion.push_back(std::move(q_nu));
   }
-
   // gamma production rates
   void addPhotoPionGammaSource(std::unique_ptr<gnuprop::ProductionRate> q_gamma) {
     m_sources_gamma_photopion.push_back(std::move(q_gamma));
@@ -74,7 +72,7 @@ class GnuProp {
   const double m_energyMin{1e10 * SI::eV};
   const double m_energyMax{1e23 * SI::eV};
   size_t m_energySize{13 * 32};
-  size_t m_zSize{100000};
+  size_t m_zSize{10000};
 
  protected:
   // cosmology
