@@ -168,7 +168,7 @@ void GnuProp::evolveElectronEmissivity(double z) {
         R_j += 2.0 * q->get(E_electron, E_gamma, z);
       value += m_n_gamma[j] * R_j;
     }
-    q_electron[i] += ln_eRatio * 2.0 * value;
+    q_electron[i] += ln_eRatio * value;
   }
 // Inverse Compton
 #pragma omp parallel for
