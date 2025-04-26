@@ -33,24 +33,49 @@ double PhotoPair::sigma_lab(double eGamma, double eBkg, double mu) const {
 
 // eGamma + eBkg -> eLepton + ...
 
+// double PhotoPair::dsigma_dE(double eGamma, double eBkg, double eLepton) const {
+//   const auto _eGamma = eGamma / SI::electronMassC2;
+//   const auto _eBkg = eBkg / SI::electronMassC2;
+//   const auto _eLepton = eLepton / SI::electronMassC2;
+
+//   const auto A = _eBkg + _eGamma;
+//   const auto minLeptonEnergy = 0.5 * A * (1. - std::sqrt(1. - 1. / _eBkg / _eGamma));
+//   const auto maxLeptonEnergy = 0.5 * A * (1. + std::sqrt(1. - 1. / _eBkg / _eGamma));
+
+//   double value = 0.;
+
+//   if (_eLepton > minLeptonEnergy and _eLepton < maxLeptonEnergy) {
+//     auto c = 3. / 64. * SI::sigmaTh / pow2(_eBkg) / pow3(_eGamma);
+//     auto a1 =
+//         4. * A / ((A - _eLepton) * _eLepton) * std::log(4. * _eBkg * (A - _eLepton) * _eLepton /
+//         A);
+//     auto a2 = -8. * _eBkg * A;
+//     auto a3 = 2. * (2. * _eBkg * A - 1.) * pow2(A) / (A - _eLepton) / _eLepton;
+//     auto a4 = -(1. - 1. / _eBkg / A) * pow4(A) / pow2(A - _eLepton) / pow2(_eLepton);
+//     value = c * (a1 + a2 + a3 + a4);
+//   }
+
+//   return std::max(value, 0.) / SI::electronMassC2;
+// }
+
 double PhotoPair::dsigma_dE(double eGamma, double eBkg, double eLepton) const {
   const auto _eGamma = eGamma / SI::electronMassC2;
   const auto _eBkg = eBkg / SI::electronMassC2;
   const auto _eLepton = eLepton / SI::electronMassC2;
 
-  const auto A = _eBkg + _eGamma;
-  const auto minLeptonEnergy = 0.5 * A * (1. - std::sqrt(1. - 1. / _eBkg / _eGamma));
-  const auto maxLeptonEnergy = 0.5 * A * (1. + std::sqrt(1. - 1. / _eBkg / _eGamma));
+  const auto minLeptonEnergy = 0.5 * _eGamma * (1. - std::sqrt(1. - 1. / _eBkg / _eGamma));
+  const auto maxLeptonEnergy = 0.5 * _eGamma * (1. + std::sqrt(1. - 1. / _eBkg / _eGamma));
 
   double value = 0.;
 
   if (_eLepton > minLeptonEnergy and _eLepton < maxLeptonEnergy) {
-    auto c = 3. / 64. * SI::sigmaTh / pow2(_eBkg) / pow3(_eGamma);
-    auto a1 =
-        4. * A / ((A - _eLepton) * _eLepton) * std::log(4. * _eBkg * (A - _eLepton) * _eLepton / A);
-    auto a2 = -8. * _eBkg * A;
-    auto a3 = 2. * (2. * _eBkg * A - 1.) * pow2(A) / (A - _eLepton) / _eLepton;
-    auto a4 = -(1. - 1. / _eBkg / A) * pow4(A) / pow2(A - _eLepton) / pow2(_eLepton);
+    auto c = 3. / 32. * SI::sigmaTh / pow2(_eBkg) / pow3(_eGamma);
+    auto a1 = 4. * pow2(_eGamma) / (_eGamma - _eLepton) / _eLepton *
+              std::log(4. * _eBkg * _eLepton * (_eGamma - _eLepton) / _eGamma);
+    auto a2 = -8. * _eBkg * _eGamma;
+    auto a3 = 2. * pow2(_eGamma) * (2. * _eBkg * _eGamma - 1.) / (_eGamma - _eLepton) / _eLepton;
+    auto a4 =
+        -(1. - 1. / _eBkg / _eGamma) * pow4(_eGamma) / pow2(_eGamma - _eLepton) / pow2(_eLepton);
     value = c * (a1 + a2 + a3 + a4);
   }
 
