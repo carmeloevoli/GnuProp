@@ -8,12 +8,12 @@ set(GNUPROP_EXTRA_SOURCES)
 set(GNUPROP_EXTRA_INCLUDES)
 set(GNUPROP_EXTRA_LIBRARIES)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 cmake_policy(SET CMP0048 NEW)
 
 set(CMAKE_VERBOSE_MAKEFILE OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_CXX_FLAGS "-std=c++14 -Wall -pedantic -ftree-vectorize -O3 -fopenmp -fPIC")
+set(CMAKE_CXX_FLAGS "-std=c++17 -Wall -pedantic -ftree-vectorize -O3 -fopenmp -fPIC")
 set(GNUPROP_INCLUDES)
 set(GNUPROP_LIBRARIES)
 
@@ -120,6 +120,15 @@ target_link_libraries (run gammaprop ${GNUPROP_EXTRA_LIBRARIES})
 
 add_executable(testparams apps/test_params.cpp)
 target_link_libraries (testparams gammaprop ${GNUPROP_EXTRA_LIBRARIES})
+
+add_executable(testppair apps/test_photopair.cpp)
+target_link_libraries (testppair gammaprop ${GNUPROP_EXTRA_LIBRARIES})
+
+add_executable(testic apps/test_ic.cpp)
+target_link_libraries (testic gammaprop ${GNUPROP_EXTRA_LIBRARIES})
+
+add_executable(testppion apps/test_photopion.cpp)
+target_link_libraries (testppion gammaprop ${GNUPROP_EXTRA_LIBRARIES})
 
 # add_executable(generationeenergy apps/generationEnergy.cpp)
 # target_link_libraries (generationeenergy beniamino ${GNUPROP_EXTRA_LIBRARIES})

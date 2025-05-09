@@ -51,10 +51,10 @@ class AdaptiveRK45 {
         continue;
       }
 
-      // If we are  orced below min_dt, break
+      // If we are forced below min_dt, break
       if (std::fabs(h) < min_dt_) {
         std::cerr << "Warning: minimum step size reached.\n";
-        break;
+        continue;
       }
 
       std::cout << std::scientific << std::fabs(h) << " " << min_dt_ << " " << max_dt_ << "\n";

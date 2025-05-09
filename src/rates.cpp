@@ -93,12 +93,12 @@ ProductionRate::ProductionRate(const std::string& filename) {
   setLimits(data);
 
   m_z = simprop::utils::LinAxis<double>(m_zMin, m_zMax, m_zSize);
-  m_lgEsec = simprop::utils::LinAxis<double>(m_lgSecEnergyMin, m_lgSecEnergyMax, m_lgSecEnergySize);
-  m_lgEpri = simprop::utils::LinAxis<double>(m_lgPriEnergyMin, m_lgPriEnergyMax, m_lgPriEnergySize);
+  m_lgX = simprop::utils::LinAxis<double>(m_lgXMin, m_lgXMax, m_lgXSize);
+  m_lgE = simprop::utils::LinAxis<double>(m_lgEnergyMin, m_lgEnergyMax, m_lgEnergySize);
 
   auto it = data.begin() + 9;
 
-  size_t sliceSize = m_lgSecEnergySize * m_lgPriEnergySize;
+  size_t sliceSize = m_lgXSize * m_lgEnergySize;
   assert(sliceSize * m_zSize == data.size() - 9);
   m_rate.reserve(m_zSize);
   for (size_t i = 0; i < m_zSize; i++) {
@@ -107,7 +107,7 @@ ProductionRate::ProductionRate(const std::string& filename) {
 
 #ifdef DEBUG
   assert(m_rate.size() == m_zSize);
-  assert(m_rate[0].size() == m_lgSecEnergySize * m_lgPriEnergySize);
+  assert(m_rate[0].size() == m_lgXSize * m_lgEnergySize);
 #endif
 }
 
@@ -115,38 +115,37 @@ void ProductionRate::setLimits(std::vector<double>& data) {
   m_zMin = data[0];
   m_zMax = data[1];
   m_zSize = static_cast<size_t>(data[2]);
-  m_lgSecEnergyMin = std::log10(data[3] / SI::eV);
-  m_lgSecEnergyMax = std::log10(data[4] / SI::eV);
-  m_lgSecEnergySize = static_cast<size_t>(data[5]);
-  m_lgPriEnergyMin = std::log10(data[6] / SI::eV);
-  m_lgPriEnergyMax = std::log10(data[7] / SI::eV);
-  m_lgPriEnergySize = static_cast<size_t>(data[8]);
+  m_lgXMin = std::log10(data[3]);
+  m_lgXMax = (std::fabs(data[4] - 1.) > 1e-9) ? std::log10(data[4]) : 0.;
+  m_lgXSize = static_cast<size_t>(data[5]);
+  m_lgEnergyMin = std::log10(data[6] / SI::eV);
+  m_lgEnergyMax = std::log10(data[7] / SI::eV);
+  m_lgEnergySize = static_cast<size_t>(data[8]);
+
 #ifdef DEBUG
-  assert(m_lgSecEnergyMin < m_lgSecEnergyMax);
-  assert(m_lgPriEnergyMin < m_lgPriEnergyMax);
+  assert(m_lgXMin < m_lgXMax);
+  assert(m_lgEnergyMin < m_lgEnergyMax);
   LOGD << "z: " << m_zMin << " - " << m_zMax << " - " << m_zSize;
-  LOGD << "lgx: " << m_lgSecEnergyMin << " - " << m_lgSecEnergyMax << " - " << m_lgSecEnergySize;
-  LOGD << "lgE: " << m_lgPriEnergyMin << " - " << m_lgPriEnergyMax << " - " << m_lgPriEnergySize;
+  LOGD << "lgx: " << m_lgXMin << " - " << m_lgXMax << " - " << m_lgXSize;
+  LOGD << "lgE: " << m_lgEnergyMin << " - " << m_lgEnergyMax << " - " << m_lgEnergySize;
 #endif
 }
 
-double ProductionRate::get(double E_secondary, double E_primary, double z) const {
+double ProductionRate::get(double x, double E_primary, double z) const {
   if (z < m_zMin || z > m_zMax) {
     // throw std::invalid_argument("z outside the valid range");
     return 0.;
   }
 
   size_t i = utils::getIndex(z, m_zMin, m_zMax, m_zSize);
-  double lgEpri = std::log10(E_primary / SI::eV);
-  double lgEsec = std::log10(E_secondary / SI::eV);
+  double lgX = std::log10(x);
+  double lgE = std::log10(E_primary / SI::eV);
   const std::vector<double>& array = m_rate[i];
 
   auto value = 0.;
-  if ((lgEpri >= m_lgPriEnergyMin && lgEpri <= m_lgPriEnergyMax) &&
-      (lgEsec >= m_lgSecEnergyMin && lgEsec <= m_lgSecEnergyMax)) {
-    value =
-        utils::interpolate2D(lgEsec, lgEpri, m_lgSecEnergyMin, m_lgSecEnergyMax, m_lgSecEnergySize,
-                             m_lgPriEnergyMin, m_lgPriEnergyMax, m_lgPriEnergySize, array);
+  if ((lgX >= m_lgXMin && lgX <= m_lgXMax) && (lgE >= m_lgEnergyMin && lgE <= m_lgEnergyMax)) {
+    value = utils::interpolate2D(lgX, lgE, m_lgXMin, m_lgXMax, m_lgXSize, m_lgEnergyMin,
+                                 m_lgEnergyMax, m_lgEnergySize, array);
     value *= std::pow(1. + z, 3.);
   }
 

@@ -51,7 +51,7 @@ class PairAbsorptionCached : public AbstractCached {
 
           return std::max(value / m_units, 0.);
         },
-        m_redshiftAxis, m_primaryAxis);
+        m_redshiftAxis, m_eAxis);
 
     cache.computeAndSave();
   }

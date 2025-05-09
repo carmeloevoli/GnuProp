@@ -18,8 +18,8 @@ class PhotoPionCached : public AbstractCached {
   void run(const std::string& filename, double precision = 1e-3) override {
     CachedFunction3D cache(
         filename,
-        [&](double z, double E_s, double E_p) {
-          if (E_s > E_p) return 0.;
+        [&](double z, double x, double E_p) {
+          if (x > 1.) return 0.;
 
           const auto m_pi = SI::pionMassC2;
           const auto m_p = SI::protonMassC2;
@@ -32,7 +32,7 @@ class PhotoPionCached : public AbstractCached {
           auto integrand = [&](double lnEpsilon) {
             const auto epsilon = std::exp(lnEpsilon);
             const auto eta = 4. * epsilon * E_p / pow2(SI::protonMassC2);
-            auto value = m_phField->density(epsilon, z) * m_secondarySpectrum->Phi(eta, E_s / E_p);
+            auto value = m_phField->density(epsilon, z) * m_secondarySpectrum->Phi(eta, x);
             return epsilon * value;
           };
 
@@ -44,7 +44,7 @@ class PhotoPionCached : public AbstractCached {
 
           return std::max(value / m_units, 0.);
         },
-        m_redshiftAxis, m_secondaryAxis, m_primaryAxis);
+        m_redshiftAxis, m_xAxis, m_eAxis);
 
     cache.computeAndSave();
   }
