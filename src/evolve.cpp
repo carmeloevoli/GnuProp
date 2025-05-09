@@ -145,6 +145,8 @@ void GnuProp::evolve(double zObs) {
   const double epsabs = 1e-30;
   const double epsrel = 1e-3;
 
+  std::vector<std::vector<double>> log;
+
   for (auto it = zAxis.rbegin(); it != zAxis.rend(); ++it) {
     auto z = *it;
 
@@ -153,45 +155,48 @@ void GnuProp::evolve(double zObs) {
     const auto dtdz = std::abs(m_cosmology->dtdz(z));
     const auto H = std::abs(m_cosmology->hubbleRate(z));
 
-    LOGD << "dtdz : " << dtdz / SI::Gyr << " H^-1 : " << (1. / H) / SI::Gyr;
+    // LOGD << "dtdz : " << dtdz / SI::Gyr << " H^-1 : " << (1. / H) / SI::Gyr;
 
-    LOGD << "f_p : " << compute_energy_integral<double>(m_eAxis, m_f_proton) / f_units;
-    LOGD << "f_n : " << compute_energy_integral<double>(m_eAxis, m_f_nu) / f_units;
-    LOGD << "f_g : " << compute_energy_integral<double>(m_eAxis, m_f_gamma) / f_units;
-    LOGD << "f_e : " << compute_energy_integral<double>(m_eAxis, m_f_electron) / f_units;
+    std::vector<double> log_z;
+    log_z.push_back(z);
+    log_z.push_back(H);
+    log_z.push_back(compute_energy_integral<double>(m_eAxis, m_f_proton));
+    log_z.push_back(compute_energy_integral<double>(m_eAxis, m_f_nu));
+    log_z.push_back(compute_energy_integral<double>(m_eAxis, m_f_gamma));
+    log_z.push_back(compute_energy_integral<double>(m_eAxis, m_f_electron));
 
     computeProtonEmissivity(z);
-    LOGD << "Q_p : " << compute_energy_integral<double>(m_eAxis, m_q_proton) / q_units;
+    log_z.push_back(compute_energy_integral<double>(m_eAxis, m_q_proton));
 
     computeProtonLosses(z);
     std::vector<double> beta_f(m_energySize, 0.);
     for (std::size_t i = 0; i < m_energySize; ++i) {
       beta_f[i] = m_beta_proton[i] * m_f_proton[i];
     }
-    LOGD << "b_p : " << compute_energy_integral<double>(m_eAxis, beta_f) / q_units;
+    log_z.push_back(compute_energy_integral<double>(m_eAxis, beta_f));
 
     computeNuEmissivity(z);
-    LOGD << "Q_n : " << compute_energy_integral<double>(m_eAxis, m_q_nu) / q_units;
+    log_z.push_back(compute_energy_integral<double>(m_eAxis, m_q_nu));
 
     computeGammaEmissivity(z);
-    LOGD << "Q_g : " << compute_energy_integral<double>(m_eAxis, m_q_gamma) / q_units;
+    log_z.push_back(compute_energy_integral<double>(m_eAxis, m_q_gamma));
 
     computeElectronEmissivity(z);
-    LOGD << "Q_e : " << compute_energy_integral<double>(m_eAxis, m_q_electron) / q_units;
+    log_z.push_back(compute_energy_integral<double>(m_eAxis, m_q_electron));
 
     computeGammaAbsorption(z);
     std::vector<double> k_g(m_energySize, 0.);
     for (std::size_t i = 0; i < m_energySize; ++i) {
       k_g[i] = m_k_gamma[i] * m_f_gamma[i];
     }
-    LOGD << "k_g : " << compute_energy_integral<double>(m_eAxis, k_g) / q_units;
+    log_z.push_back(compute_energy_integral<double>(m_eAxis, k_g));
 
     computeElectronAbsorption(z);
     std::vector<double> k_e(m_energySize, 0.);
     for (std::size_t i = 0; i < m_energySize; ++i) {
       k_e[i] = m_k_electron[i] * m_f_electron[i];
     }
-    LOGD << "k_e : " << compute_energy_integral<double>(m_eAxis, k_e) / q_units;
+    log_z.push_back(compute_energy_integral<double>(m_eAxis, k_e));
 
     // evolve protons
     {
