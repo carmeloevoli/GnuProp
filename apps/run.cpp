@@ -5,8 +5,8 @@ class RunModels {
  public:
   struct ModelParameters {
     double evolutionIndex = 0.;
-    double zMax = 5.;
-    double redshiftSize = 10000000;  // 100000
+    double zMax = 1.;
+    double redshiftSize = 1000000;  // 100000
     double injectionSlope = 2.5;
     double cutoffEnergy = 0.;
     bool doCmbNeutrinos = false;
@@ -36,16 +36,18 @@ class RunModels {
           std::make_unique<gnuprop::ProductionRate>("tables/gnuprop_photopion_neutrinos_cmb.bin"));
       g->addPhotoPionGammaSource(
           std::make_unique<gnuprop::ProductionRate>("tables/gnuprop_photopion_gammas_cmb.bin"));
-      g->addPhotoPionElectronSource(
-          std::make_unique<gnuprop::ProductionRate>("tables/gnuprop_photopion_pairs_cmb.bin"));
+      // g->addPhotoPionElectronSource(
+      //    std::make_unique<gnuprop::ProductionRate>("tables/gnuprop_photopion_pairs_cmb.bin"));
 
-      // g->addGammaAbsorption(
-      //     std::make_unique<gnuprop::AbsorptionRate>("tables/gnuprop_absorption_gammas_cmb.bin"));
-      // g->addPhotoPairElectronSource(
-      //     std::make_unique<gnuprop::ProductionRate>("tables/gnuprop_photopair_pairs_cmb.bin"));
+      g->addGammaAbsorption(
+          std::make_unique<gnuprop::AbsorptionRate>("tables/gnuprop_absorption_gammas_cmb.bin"));
+
+      g->addPhotoPairElectronSource(
+          std::make_unique<gnuprop::ProductionRate>("tables/gnuprop_photopair_pairs_cmb.bin"));
 
       // g->addElectronAbsorption(
-      //     std::make_unique<gnuprop::AbsorptionRate>("tables/gnuprop_absorption_pairs_cmb.bin"));
+      //    std::make_unique<gnuprop::AbsorptionRate>("tables/gnuprop_absorption_pairs_cmb.bin"));
+
       // g->addInverseComptonGammaSource(std::make_unique<gnuprop::ProductionRate>(
       //     "tables/gnuprop_inversecompton_gammas_cmb.bin"));
       // g->addInverseComptonElectronSource(
@@ -86,6 +88,7 @@ int main() {
       RunModels::ModelParameters params;
       params.evolutionIndex = 3.;
       params.injectionSlope = 2.5;
+      params.zMax = 5.;
       params.cutoffEnergy = 1e23 * SI::eV;
       params.doCmbNeutrinos = true;
       params.doEblNeutrinos = false;
